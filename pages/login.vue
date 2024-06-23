@@ -1,0 +1,53 @@
+<template>
+    <NuxtLayout name="tbsign">
+        <frame-work>
+            <div class="rounded-2xl p-5 flex flex-col gap-2">
+                <label for="email">帐号</label>
+                <input class="dark:bg-black rounded-xl" id="email" type="email" name="email" placeholder="邮箱/用户名" v-model="account" />
+                <label for="password">密码</label>
+                <input class="dark:bg-black rounded-xl" id="password" type="password" name="password" placeholder="密码" v-model="password" />
+                <div class="text-end text-white rounded-xl mt-3">
+                    <button class="rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600" @click="sendLogin">登录</button>
+                </div>
+            </div>
+        </frame-work>
+    </NuxtLayout>
+</template>
+<script setup lang="ts">
+import FrameWork from '~/components/FrameWork.vue'
+
+const store = useMainStore()
+const account = ref<string>('')
+const password = ref<string>('')
+
+const router = useRouter()
+
+const sendLogin = () => {
+    if (!(account.value && password.value)) {
+        return
+    }
+    fetch(store.basePath + '/passport/login', {
+        method: 'POST',
+        body: new URLSearchParams({
+            account: account.value,
+            password: password.value
+        })
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            if (res.code !== 200) {
+                return
+            }
+            if (res.data.token) {
+                store.updateValue('_authorization', res.data.token)
+                router.push('/')
+            }
+
+            console.log(res)
+        })
+}
+
+definePageMeta({
+    middleware: ['auth']
+})
+</script>
