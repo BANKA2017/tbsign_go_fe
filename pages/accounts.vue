@@ -178,11 +178,11 @@ definePageMeta({
 <template>
     <NuxtLayout name="tbsign">
         <frame-work>
-            <div class="my-1 flex gap-2">
-                <NuxtLink :to="`https://bduss.nest.moe/#/` + str_to_base64url(callbackLink)" class="rounded-2xl border-2 px-4 py-1" title="扫码登录并进行绑定或更新">绑定新账号</NuxtLink>
-                <button @click="refreshTiebaList" class="rounded-2xl border-2 px-4 py-1" title="刷新贴吧列表">刷新贴吧列表</button>
-                <button @click="cleanTiebaList" class="rounded-2xl border-2 px-4 py-1" title="清空贴吧列表">清空贴吧列表</button>
-                <button @click="checkAccountStatus" class="rounded-2xl border-2 px-4 py-1" title="检查帐号状态">检查帐号状态</button>
+            <div class="my-5 flex gap-2">
+                <NuxtLink :to="`https://bduss.nest.moe/#/` + str_to_base64url(callbackLink)" class="rounded-2xl border-2 px-4 py-1" title="扫码登录并进行绑定或更新">绑定账号</NuxtLink>
+                <button @click="refreshTiebaList" class="rounded-2xl border-2 px-4 py-1" title="刷新贴吧列表">刷新列表</button>
+                <button @click="cleanTiebaList" class="rounded-2xl border-2 px-4 py-1" title="清空贴吧列表">清空列表</button>
+                <button @click="checkAccountStatus" class="rounded-2xl border-2 px-4 py-1" title="检查帐号状态">检查状态</button>
             </div>
 
             <div class="grid grid-cols-12 gap-2 my-2">

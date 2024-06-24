@@ -92,7 +92,21 @@ definePageMeta({
                     <span class="text-lg">服务器状态</span>
                 </div>
                 <div class="p-3">
-                    <pre class="font-mono text-pink-500">{{ JSON.stringify(serverStatus, null, 4) }}</pre>
+                    <li class="marker:text-sky-500">
+                        <span class="font-bold">Goroutines : </span><span class="font-mono">{{ serverStatus.goroutine }}</span>
+                    </li>
+                    <li class="marker:text-sky-500">
+                        <span class="font-bold">Go 版本 : </span><span class="font-mono">{{ serverStatus.goversion }}</span>
+                    </li>
+                    <li class="marker:text-sky-500">
+                        <span class="font-bold">Hostname : </span><span class="font-mono">{{ serverStatus.hostname }}</span>
+                    </li>
+                    <li class="marker:text-sky-500">
+                        <span class="font-bold">数据库模式 : </span><span class="font-mono">{{ serverStatus.variables?.dbmode }}</span>
+                    </li>
+                    <li class="marker:text-sky-500">
+                        <span class="font-bold">测试模式 : </span><span class="font-mono">{{ serverStatus.variables?.testmode }}</span>
+                    </li>
                 </div>
             </div>
             <div class="my-2 rounded-2xl" v-if="isAdmin">

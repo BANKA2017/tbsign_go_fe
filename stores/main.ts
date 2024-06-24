@@ -28,6 +28,9 @@ export const useMainStore = defineStore('main', {
         },
         basePath(): string {
             return this._basePath
+        },
+        pidNameKV(): { [p in string]: string } {
+            return Object.fromEntries((this._cache.accounts || []).map((account) => [account.id, account.name]))
         }
     },
     actions: {
