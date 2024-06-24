@@ -3,20 +3,17 @@ const getPubDate = (date: Date | string = new Date()): string => {
         date = new Date(date.replaceAll('-', '/'))
     }
     return (
-        dayToShortString[date.getUTCDay()] +
-        ', ' +
-        date.getUTCDate().toString().padStart(2, '0') +
+        date.getFullYear() +
+        '/' +
+        (date.getMonth() + 1).toString().padStart(2, '0') +
+        '/' +
+        date.getDate().toString().padStart(2, '0') +
         ' ' +
-        monthToShortString[date.getUTCMonth()] +
-        ' ' +
-        date.getUTCFullYear() +
-        ' ' +
-        date.getUTCHours().toString().padStart(2, '0') +
+        date.getHours().toString().padStart(2, '0') +
         ':' +
-        date.getUTCMinutes().toString().padStart(2, '0') +
+        date.getMinutes().toString().padStart(2, '0') +
         ':' +
-        date.getUTCSeconds().toString().padStart(2, '0') +
-        ' GMT'
+        date.getSeconds().toString().padStart(2, '0')
     )
 }
 

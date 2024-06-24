@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
+import { getPubDate } from '~/share/Time'
 
 const store = useMainStore()
 const accounts = computed(() => store._cache?.accounts || [])
@@ -126,14 +127,14 @@ definePageMeta({
                 <h4 class="text-lg mb-4">设置</h4>
 
                 <div class="my-5">
-                    <p class="my-2">只做签到任务，关闭后将会尝试完成所有日常任务，默认开启</p>
+                    <p class="my-2">默认只做签到任务，选择全部任务将会尝试完成所有日常任务</p>
                     <select v-model="settings.sign_only" class="dark:bg-black dark:text-white form-select">
                         <option value="0">仅签到</option>
                         <option value="1">全部任务</option>
                     </select>
                 </div>
 
-                <button class="bg-sky-500 rounded-lg px-3 py-1" @click="saveSettings">保存</button>
+                <button class="bg-sky-500 rounded-lg px-3 py-1 text-white" @click="saveSettings">保存</button>
             </div>
 
             <div class="px-3 py-2">
@@ -156,7 +157,7 @@ definePageMeta({
                         <span class="font-bold">贴吧账号 : </span><span class="font-mono">{{ pidNameKV[task.pid] }}</span>
                     </li>
                     <li class="marker:text-sky-500">
-                        <span class="font-bold">上次执行 : </span><span class="font-mono">{{ new Date(task.date * 1000) }}</span>
+                        <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
                     </li>
                     <li class="marker:text-sky-500">
                         <span class="font-bold">状态 : </span>
@@ -168,12 +169,12 @@ definePageMeta({
 
                         <span v-else class="font-mono">{{ task.status }}</span>
                     </li>
-                    <details class="marker:text-sky-500 cursor-pointer">
-                        <summary><span class="font-bold ml-1">日志</span></summary>
+                    <details class="marker:text-sky-500">
+                        <summary class="cursor-pointer"><span class="font-bold ml-1">日志</span></summary>
                         <li class="marker:text-sky-500 ml-3 break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
                     </details>
                     <hr class="my-3" />
-                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1" @click="deleteTask(task.id)">删除</button>
+                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-white" @click="deleteTask(task.id)">删除</button>
                 </div>
             </div>
         </frame-work>

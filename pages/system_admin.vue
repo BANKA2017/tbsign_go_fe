@@ -111,13 +111,14 @@ definePageMeta({
             </div>
             <div class="my-2 rounded-2xl" v-if="isAdmin">
                 <div class="px-3 py-2">
-                    <span class="text-lg">服务器设置</span>
+                    <h2 class="text-xl font-bold">服务器设置</h2>
+                    <p class="my-2">如果不知道要填什么，请保持原样</p>
                 </div>
                 <div class="p-3" v-for="_set in settingsGroup" :key="_set.name">
                     <hr class="mb-3" />
-                    <h2 class="text-xl mb-3">{{ _set.name }}</h2>
+                    <h3 class="text-lg mb-3">{{ _set.name }}</h3>
                     <label class="block my-2" v-for="(name, key) in _set.data" :key="key">
-                        <span class="block text-sm font-medium text-pink-500 mb-1">{{ name }}</span>
+                        <span class="block text-sm font-medium mb-1">{{ name }}</span>
                         <textarea
                             v-if="/log|tpl|description|content/.test(key)"
                             class="border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white"

@@ -14,10 +14,11 @@ const state = reactive<{
         { name: '首页', to: '/', routerName: 'index', active: true },
         { name: '个人设置', to: '/settings', routerName: 'settings', active: false },
         { name: '百度账号管理', to: '/accounts', routerName: 'accounts', active: false },
-        { name: '循环封禁', to: '/loop_ban', routerName: 'loop_ban', active: false },
-        { name: '名人堂', to: '/forum_support', routerName: 'forum_support', active: false },
-        { name: '成长任务', to: '/user_growth_tasks', routerName: 'user_growth_tasks', active: false },
-        { name: '系统管理', to: '/admin', routerName: 'admin', active: false },
+        { name: '循环封禁', to: '/plugin_loop_ban', routerName: 'plugin_loop_ban', active: false },
+        { name: '名人堂', to: '/plugin_forum_support', routerName: 'plugin_forum_support', active: false },
+        { name: '成长任务', to: '/plugin_user_growth_tasks', routerName: 'plugin_user_growth_tasks', active: false },
+        { name: '用户管理', to: '/user_admin', routerName: 'user_admin', active: false },
+        { name: '系统管理', to: '/system_admin', routerName: 'system_admin', active: false },
         { name: '更多工具', to: '/tools', routerName: 'tools', active: false },
         { name: '登录', to: '/login', routerName: 'login', active: false },
         { name: '注册', to: '/signup', routerName: 'signup', active: false },
@@ -33,7 +34,8 @@ const updateNavStatus = () => {
             case 'reset':
                 state.navs[i].active = authorization.value === ''
                 break
-            case 'admin':
+            case 'user_admin':
+            case 'system_admin':
                 state.navs[i].active = authorization.value !== '' && isAdmin.value
                 break
             default:
@@ -51,16 +53,15 @@ updateNavStatus()
 
 <template>
     <div id="side-list" class="select-none">
-        <template v-for="nav in state.navs.filter((x) => x.active)" :key="nav.name">
+        <div class="inline-block md:block" v-for="nav in state.navs.filter((x) => x.active)" :key="nav.name">
             <NuxtLink
                 :class="{
                     'inline-block': true,
-                    'md:block': true,
                     'my-1': true,
-                    'px-3': true,
+                    'px-5': true,
                     'mx-1': true,
+                    'md:-mx-5': true,
                     'rounded-full': true,
-                    'text-center': true,
                     'transition-colors': true,
                     'hover:bg-sky-500': true,
                     'bg-sky-500': $route.name === nav.routerName,
@@ -74,9 +75,9 @@ updateNavStatus()
             >
                 {{ nav.name }}
             </NuxtLink>
-        </template>
+        </div>
 
-        <div class="text-sm text-gray-500 text-center my-5 hidden md:block">NeXT TbSign</div>
+        <div class="text-sm text-gray-500 my-5 hidden md:block">NeXT TbSign</div>
     </div>
 </template>
 
