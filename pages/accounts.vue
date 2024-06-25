@@ -171,7 +171,7 @@ onMounted(() => {
 })
 
 definePageMeta({
-    middleware: ['auth', 'get-accounts']
+    middleware: ['auth', 'init-cache']
 })
 </script>
 

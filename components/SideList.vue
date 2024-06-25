@@ -19,7 +19,7 @@ const state = reactive<{
         { name: '成长任务', to: '/plugin_user_growth_tasks', routerName: 'plugin_user_growth_tasks', active: false },
         { name: '用户管理', to: '/user_admin', routerName: 'user_admin', active: false },
         { name: '系统管理', to: '/system_admin', routerName: 'system_admin', active: false },
-        { name: '更多工具', to: '/tools', routerName: 'tools', active: false },
+        //{ name: '更多工具', to: '/tools', routerName: 'tools', active: false },
         { name: '登录', to: '/login', routerName: 'login', active: false },
         { name: '注册', to: '/signup', routerName: 'signup', active: false },
         { name: '重设密码', to: '/reset', routerName: 'reset', active: false }

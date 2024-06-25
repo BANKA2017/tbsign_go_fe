@@ -7,6 +7,15 @@ const accounts = computed(() => store._cache?.accounts || [])
 const pidNameKV = computed(() => store.pidNameKV)
 
 const settings = ref<{ reason: string }>({ reason: '' })
+const isVisualEditor = ref<boolean>(true)
+const visualEditorSearchForm = ref<string>('')
+const visualEditorSearchResponse = ref<
+    {
+        name: string
+        name_show: string
+        portrait: string
+    }[]
+>([])
 
 const limit = ref<number>(0)
 
@@ -91,6 +100,60 @@ const saveSettings = () => {
             }
             console.log(res)
         })
+}
+
+const searchAccount = () => {
+    visualEditorSearchResponse.value = []
+    // 贴吧号#\d+#
+    let testPortrait = /贴吧号#(\d+)#/g.exec(visualEditorSearchForm.value) // portrait
+    if (testPortrait !== null) {
+        visualEditorSearchForm.value = testPortrait[1]
+    }
+
+    if (visualEditorSearchForm.value.length === 0) {
+        return
+    }
+
+    const isNumberFormValue = /^\d+$/g.test(visualEditorSearchForm.value)
+
+    if (isNumberFormValue) {
+        fetch(store.basePath + '/tools/userinfo/tieba_uid/' + visualEditorSearchForm.value, {
+            headers: {
+                Authorization: store.authorization
+            }
+        })
+            .then((res) => res.json())
+            .then((res) => {
+                if (res.code !== 200) {
+                    return
+                }
+                visualEditorSearchResponse.value.push({
+                    name: res.data.user.name,
+                    name_show: res.data.user.name_show,
+                    portrait: res.data.user.portrait.replace(/\?t=\d+$/, '')
+                })
+                console.log(res)
+            })
+    }
+    fetch(store.basePath + '/tools/userinfo/panel/username/' + visualEditorSearchForm.value, {
+        headers: {
+            Authorization: store.authorization
+        }
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            if (res.code !== 200) {
+                return
+            }
+            visualEditorSearchResponse.value.push({
+                name: res.data.data.name,
+                name_show: res.data.data.name_show,
+                portrait: res.data.data.portrait.replace(/\?t=\d+$/, '')
+            })
+            console.log(res)
+        })
+
+    //visualEditorSearchResponse
 }
 
 const deleteTask = (id = 0) => {
@@ -211,7 +274,7 @@ onMounted(() => {
 const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一行一个，Portrait 仅支持新版 portrait 的格式，即 tb.1.xxx.xxxxx，粘贴个人页链接会自动处理，用户名 和 贴吧 uid 请使用可视化编辑器添加'
 
 definePageMeta({
-    middleware: ['auth', 'get-accounts']
+    middleware: ['auth', 'init-cache']
 })
 </script>
 
@@ -247,13 +310,13 @@ definePageMeta({
                     </div>
 
                     <div class="my-2">
-                        <label for="start-date">开始日期</label>
-                        <input class="form-input dark:bg-black w-full" type="date" v-model="taskToAdd.start" placeholder="日期格式：yyyy-mm-dd,留空默认立即开始" />
+                        <label for="start-date">开始日期 (留空默认立即开始)</label>
+                        <input class="form-input dark:bg-black dark:[color-scheme:dark] w-full" :max="taskToAdd.end" type="date" v-model="taskToAdd.start" placeholder="日期格式：yyyy-mm-dd,留空默认立即开始" />
                     </div>
 
                     <div class="my-2">
                         <label for="end-date">结束日期</label>
-                        <input class="form-input dark:bg-black w-full" type="date" v-model="taskToAdd.end" placeholder="日期格式：yyyy-mm-dd" />
+                        <input class="form-input dark:bg-black dark:[color-scheme:dark] w-full" :min="taskToAdd.start" type="date" v-model="taskToAdd.end" placeholder="日期格式：yyyy-mm-dd" />
                     </div>
 
                     <div class="my-2">
@@ -262,11 +325,34 @@ definePageMeta({
                     </div>
 
                     <div class="my-2">
-                        <label for="froum-name">封禁列表</label>
+                        <label for="froum-name">封禁列表({{ taskToAdd.ban_list.split('\n').filter((x) => x).length }} / {{ limit - tasksList.length }})</label>
                         <!--TODO limit issue ...-->
-                        <textarea id="banUserList" v-model="taskToAdd.ban_list" class="form-input dark:bg-black w-full" rows="10" :placeholder="banPortraitListPlaceholder"></textarea>
+                        <div v-if="isVisualEditor">
+                            <div class="flex w-full">
+                                <input type="text" class="form-input dark:bg-black grow" v-model="visualEditorSearchForm" placeholder="用户名、贴吧UID" />
+                                <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-white px-3 py-1" @click="searchAccount">搜索</button>
+                            </div>
+                            <div class="border border-sky-500 flex" v-for="user in visualEditorSearchResponse" :key="user.portrait">
+                                <img :alt="`baidu-avatar-` + user.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${user.portrait}`" class="w-16 h-16" />
+                                <div class="my-2 mx-5 grow">
+                                    <span class="block">{{ user.name }} [ {{ user.name_show }} ]</span>
+                                    <span class="block">{{ user.portrait }}</span>
+                                </div>
+                                <button v-if="tasksList.find((x) => x.portrait === user.portrait)" class="bg-gray-500 hover:bg-gray-600 dark:hover:bg-gray-400 text-white px-3 py-1" disabled>重复</button>
+                                <button
+                                    v-else-if="taskToAdd.ban_list.includes(user.portrait)"
+                                    class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 text-white px-3 py-1"
+                                    @click="taskToAdd.ban_list = taskToAdd.ban_list.replace(user.portrait, '')"
+                                >
+                                    移除
+                                </button>
+                                <button v-else class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-white px-3 py-1" @click="taskToAdd.ban_list += '\n' + user.portrait">添加</button>
+                            </div>
+                        </div>
+                        <textarea v-else id="banUserList" v-model="taskToAdd.ban_list" class="form-input dark:bg-black w-full" rows="10" :placeholder="banPortraitListPlaceholder"></textarea>
                     </div>
 
+                    <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 text-white mr-2" @click="isVisualEditor = !isVisualEditor">切换编辑器</button>
                     <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 text-white" @click="addTask">保存</button>
                 </details>
 
@@ -280,7 +366,7 @@ definePageMeta({
                         <span class="font-bold">封禁贴吧 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + task.fname" target="blank">{{ task.fname }}</NuxtLink>
                     </li>
                     <li class="marker:text-sky-500">
-                        <span class="font-bold">执行时间 : </span><span>{{ getPubDate(new Date(task.start * 1000)) }} ~ {{ getPubDate(new Date(task.end * 1000)) }}</span>
+                        <span class="font-bold">执行时间 : </span><span class="font-mono">{{ getPubDate(new Date(task.start * 1000)) }} ~ {{ getPubDate(new Date(task.end * 1000)) }}</span>
                     </li>
                     <hr class="my-3" />
                     <li class="marker:text-sky-500">

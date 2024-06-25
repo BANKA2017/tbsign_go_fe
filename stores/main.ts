@@ -13,7 +13,7 @@ export const useMainStore = defineStore('main', {
         dark: false,
         _basePath: 'http://192.168.123.41:1323',
         _authorization: '',
-        admin: true,
+        admin: false,
         _cache: {}
     }),
     getters: {
@@ -48,6 +48,11 @@ export const useMainStore = defineStore('main', {
         },
         updateAdminStatus() {
             this.admin = this._cache.accountInfo?.role === 'admin'
+        },
+        logout() {
+            this._authorization = ''
+            this.admin = false
+            this._cache = {}
         }
     }
 })

@@ -1,14 +1,15 @@
 export default defineNuxtRouteMiddleware((to, from) => {
-    if (['login', 'signup', 'reset'].includes(to.name as string)) {
-        return
-    }
-
     // check status
     const store = useMainStore()
     const authorization = store.authorization
 
     if (!authorization.startsWith('Basic ') || authorization === 'Basic ') {
+        if (['login', 'signup', 'reset'].includes(to.name as string)) {
+            return
+        }
         return navigateTo('login')
+    } else if (['login', 'signup', 'reset'].includes(to.name as string)) {
+        return navigateTo('/')
     }
 
     console.log(to, from)

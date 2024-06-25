@@ -28,6 +28,9 @@
                     <img :src="gravatarImg" alt="gravatar-avatar" class="w-20 h-20 rounded-2xl my-1" />
                 </div>
                 <hr class="px-3" />
+                <div class="inline-block md:block">
+                    <NuxtLink class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-pink-600 dark:hover:bg-pink-400 bg-pink-500 text-white py-2" to="/login" @click="logout"> 登出 </NuxtLink>
+                </div>
                 <!--<div class="px-3 py-2">
                                 <span class="text-lg">签到状态</span>
                             </div>
@@ -61,23 +64,9 @@ watch(
     { deep: true }
 )
 
-onMounted(() => {
+onMounted(async () => {
     // get account info
     if (store.rawAuthorization !== '') {
-        fetch(store.basePath + '/passport', {
-            headers: {
-                Authorization: store.authorization
-            }
-        })
-            .then((res) => res.json())
-            .then((res) => {
-                if (res.code !== 200) {
-                    return
-                }
-                store.updateCache('accountInfo', res.data)
-                store.updateAdminStatus()
-                console.log(res)
-            })
         fetch(store.basePath + '/notifications', {
             headers: {
                 Authorization: store.authorization
@@ -92,9 +81,16 @@ onMounted(() => {
                 console.log(res)
             })
     }
+    if (accountInfo.value.email) {
+        gravatarImg.value = `https://www.gravatar.com/avatar/${await sha256sum(accountInfo.value.email)}`
+    }
 })
 
+const logout = () => {
+    store.logout()
+}
+
 definePageMeta({
-    middleware: ['auth', 'get-accounts']
+    middleware: ['auth', 'init-cache']
 })
 </script>

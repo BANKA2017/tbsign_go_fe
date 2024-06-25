@@ -1,12 +1,12 @@
 <template>
     <NuxtLayout name="tbsign">
         <frame-work>
-            <div class="rounded-2xl p-5 flex flex-col gap-2">
+            <div class="rounded-2xl p-5 flex flex-col gap-2 max-w-[32em]">
                 <label for="email">帐号</label>
                 <input class="dark:bg-black rounded-xl" id="email" type="email" name="email" placeholder="邮箱/用户名" v-model="account" />
                 <label for="password">密码</label>
                 <input class="dark:bg-black rounded-xl" id="password" type="password" name="password" placeholder="密码" v-model="password" />
-                <div class="text-end text-white rounded-xl mt-3">
+                <div class="text-white rounded-xl mt-3">
                     <button class="rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600" @click="sendLogin">登录</button>
                 </div>
             </div>

@@ -3,7 +3,7 @@ import FrameWork from '~/components/FrameWork.vue'
 import { getPubDate } from '~/share/Time'
 
 definePageMeta({
-    middleware: ['auth', 'get-accounts']
+    middleware: ['auth', 'init-cache']
 })
 
 const store = useMainStore()
@@ -166,7 +166,7 @@ onMounted(() => {
                     </button>
                     <div class="grid grid-cols-6" v-if="activePID">
                         <div class="col-span-6 sm:col-span-3 md:col-span-6 lg:col-span-2 my-1" v-for="character in list" :key="character.nid">
-                            <input type="checkbox" class="form-checkbox dark:bg-black" v-model="fourmSupportSettingsKV[activePID][character.nid]" :id="'forum_support:character:' + character.nid" /><label
+                            <input type="checkbox" class="form-checkbox dark:bg-black dark:checked:bg-blue-500" v-model="fourmSupportSettingsKV[activePID][character.nid]" :id="'forum_support:character:' + character.nid" /><label
                                 class="ml-2"
                                 :for="'forum_support:character:' + character.nid"
                                 >{{ character.name }} (<NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + character.tieba" target="blank">{{ character.tieba }}吧</NuxtLink>)</label

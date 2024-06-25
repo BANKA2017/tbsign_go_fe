@@ -1,7 +1,7 @@
 <template>
     <NuxtLayout name="tbsign">
         <frame-work>
-            <div class="rounded-2xl p-5 flex flex-col gap-2">
+            <div class="rounded-2xl p-5 flex flex-col gap-2 max-w-[32em]">
                 <label for="email">用户名</label>
                 <input class="dark:bg-black rounded-xl" id="name" type="text" placeholder="用户名" v-model="name" />
                 <label for="email">邮箱</label>
@@ -12,7 +12,7 @@
                 <input :class="`dark:bg-black rounded-xl ` + (isPassword2Valid ? '' : 'border-red-500')" id="password2" type="password" placeholder="重复密码" v-model="password2" />
                 <label for="invite_code">邀请码（如果有）</label>
                 <input class="dark:bg-black rounded-xl" id="invite_code" type="text" placeholder="邀请码" v-model="inviteCode" />
-                <div class="text-end text-white rounded-xl mt-3">
+                <div class="text-white rounded-xl mt-3">
                     <button class="rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600" @click="signup">注册</button>
                 </div>
             </div>

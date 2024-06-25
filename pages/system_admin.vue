@@ -80,7 +80,7 @@ onMounted(() => {
 })
 
 definePageMeta({
-    middleware: ['auth', 'get-accounts']
+    middleware: ['auth', 'init-cache']
 })
 </script>
 
@@ -112,7 +112,7 @@ definePageMeta({
             <div class="my-2 rounded-2xl" v-if="isAdmin">
                 <div class="px-3 py-2">
                     <h2 class="text-xl font-bold">服务器设置</h2>
-                    <p class="my-2">如果不知道要填什么，请保持原样</p>
+                    <p class="my-2">如果不知道要填什么，请保持原样。请注意，这部分页面短期内都不会有太大的更改</p>
                 </div>
                 <div class="p-3" v-for="_set in settingsGroup" :key="_set.name">
                     <hr class="mb-3" />
