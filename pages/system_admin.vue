@@ -107,6 +107,9 @@ definePageMeta({
                     <li class="marker:text-sky-500">
                         <span class="font-bold">测试模式 : </span><span class="font-mono">{{ serverStatus.variables?.testmode }}</span>
                     </li>
+                    <li class="marker:text-sky-500">
+                        <span class="font-bold">兼容模式 : </span><span class="font-mono">{{ serverStatus.variables?.compat }}</span>
+                    </li>
                 </div>
             </div>
             <div class="my-2 rounded-2xl" v-if="isAdmin">
