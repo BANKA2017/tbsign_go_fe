@@ -49,7 +49,6 @@
 
 <script setup>
 import MainTitle from './MainTitle'
-import LinkLists from './Nav'
 import Footer from './Footer'
 import Loading from '~/components/Loading'
 import ScrollTo from '~/share/ScrollTo'
