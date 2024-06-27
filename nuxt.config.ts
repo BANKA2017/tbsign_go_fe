@@ -29,6 +29,7 @@ export default defineNuxtConfig({
         dirs: ['./stores']
     },
     experimental: {
+        appManifest: false,
         payloadExtraction: false
     },
     tailwindcss: {

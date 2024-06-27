@@ -1,20 +1,18 @@
 <template>
     <NuxtLayout name="tbsign">
         <frame-work>
-            <div class="rounded-2xl p-5 flex flex-col gap-2 max-w-[32em]">
-                <label for="email">用户名</label>
-                <input class="dark:bg-black rounded-xl" id="name" type="text" placeholder="用户名" v-model="name" />
-                <label for="email">邮箱</label>
-                <input class="dark:bg-black rounded-xl" id="email" type="email" placeholder="邮箱" v-model="email" />
-                <label for="password">密码</label>
-                <input class="dark:bg-black rounded-xl" id="password" type="password" placeholder="密码" v-model="password" />
-                <label for="password">重复密码</label>
-                <input :class="`dark:bg-black rounded-xl ` + (isPassword2Valid ? '' : 'border-red-500')" id="password2" type="password" placeholder="重复密码" v-model="password2" />
-                <label for="invite_code">邀请码（如果有）</label>
-                <input class="dark:bg-black rounded-xl" id="invite_code" type="text" placeholder="邀请码" v-model="inviteCode" />
-                <div class="text-white rounded-xl mt-3">
-                    <button class="rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600" @click="signup">注册</button>
-                </div>
+            <div class="flex justify-center">
+                <form class="rounded-2xl p-5 flex grow flex-col gap-2 max-w-[32em]">
+                    <label for="name">用户名</label>
+                    <input class="dark:bg-black rounded-xl" id="name" type="text" placeholder="用户名" v-model="name" />
+                    <label for="email">邮箱</label>
+                    <input class="dark:bg-black rounded-xl" id="email" type="email" placeholder="邮箱" v-model="email" />
+                    <label for="password">密码</label>
+                    <input class="dark:bg-black rounded-xl" autocomplete="new-password" id="password" type="password" placeholder="密码" v-model="password" />
+                    <label v-show="pageLoginConfig?.enabled_invite_code" for="invite-code">邀请码</label>
+                    <input v-show="pageLoginConfig?.enabled_invite_code" class="dark:bg-black rounded-xl" id="invite-code" type="text" placeholder="邀请码" v-model="inviteCode" />
+                    <input type="submit" class="text-white rounded-xl mt-3 px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600" @click="signup" value="注册" />
+                </form>
             </div>
         </frame-work>
     </NuxtLayout>
@@ -23,37 +21,34 @@
 import FrameWork from '~/components/FrameWork.vue'
 
 const store = useMainStore()
+const pageLoginConfig = computed(() => store._cache?.config_page_login)
 
 const name = ref<string>('')
 const email = ref<string>('')
 const password = ref<string>('')
-const password2 = ref<string>('')
 const inviteCode = ref<string>('')
 
 const router = useRouter()
 
-const isPassword2Valid = computed(() => {
-    if (password2.value.length === 0) {
-        return true
+const signup = (e: Event) => {
+    e.preventDefault()
+    if (!(name.value && email.value && password.value.length > 0)) {
+        return
     }
-    return password.value === password2.value
-})
 
-const signup = () => {
-    if (!(name.value && email.value && password.value && password2.value)) {
-        return
+    let tmpBody: { [p in string]: any } = {
+        name: name.value,
+        email: email.value,
+        password: password.value
     }
-    if (password.value !== password2.value) {
-        return
+
+    if (pageLoginConfig.value?.enabled_invite_code) {
+        tmpBody['invite_code'] = inviteCode.value
     }
+
     fetch(store.basePath + '/passport/signup', {
         method: 'POST',
-        body: new URLSearchParams({
-            name: name.value,
-            email: email.value,
-            password: password.value,
-            invite_code: inviteCode.value
-        })
+        body: new URLSearchParams(tmpBody)
     })
         .then((res) => res.json())
         .then((res) => {
@@ -65,8 +60,4 @@ const signup = () => {
             router.push('/')
         })
 }
-
-definePageMeta({
-    middleware: ['auth']
-})
 </script>

@@ -7,12 +7,12 @@
                         <main-title />
                         <div id="main" class="my-5">
                             <div class="grid grid-cols-4 gap-5 dark:text-white">
-                                <div class="col-span-4 md:col-span-1">
+                                <nav class="col-span-4 md:col-span-1">
                                     <side-list />
-                                </div>
-                                <div class="col-span-4 md:col-span-3">
+                                </nav>
+                                <main class="col-span-4 md:col-span-3">
                                     <slot />
-                                </div>
+                                </main>
                             </div>
                         </div>
                         <Footer class="block md:hidden" />
@@ -27,13 +27,13 @@
                     'px-3': true,
                     'py-2': true,
                     'cursor-pointer': true,
-                    'border-2': true,
                     'transition-colors': true,
                     'duration-150': true,
                     'select-none': true,
                     'text-white': true,
-                    'border-sky-500': true,
                     'bg-sky-500': true,
+                    'hover:bg-sky-600': true,
+                    'dark:hover:bg-sky-400': true,
                     'rounded-md': true
                 }"
                 style="z-index: 9999"

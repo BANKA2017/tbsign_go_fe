@@ -25,7 +25,7 @@
                         </span>
                         <span class="text-sm">{{ accountInfo.email }}</span>
                     </div>
-                    <img :src="gravatarImg" alt="gravatar-avatar" class="w-20 h-20 rounded-2xl my-1" />
+                    <img v-show="gravatarImg" :src="gravatarImg" alt="gravatar-avatar" class="w-20 h-20 rounded-2xl my-1" />
                 </div>
                 <hr class="px-3" />
                 <div class="inline-block md:block">
@@ -52,14 +52,16 @@ import FrameWork from '../components/FrameWork.vue'
 const store = useMainStore()
 
 const accountInfo = computed(() => store._cache?.accountInfo)
-const gravatarImg = ref('')
+const gravatarImg = ref<string>('')
 const notifications = ref<string>('')
 
-const sha256sum = async (text) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)))].map((x) => x.toString(16).padStart(2, '0')).join('')
+const sha256sum = async (text: string) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)))].map((x) => x.toString(16).padStart(2, '0')).join('')
 watch(
     accountInfo,
     async () => {
-        gravatarImg.value = `https://www.gravatar.com/avatar/${await sha256sum(accountInfo.value.email)}`
+        if (accountInfo.value?.email && crypto.subtle) {
+            gravatarImg.value = `https://www.gravatar.com/avatar/${await sha256sum(accountInfo.value.email)}`
+        }
     },
     { deep: true }
 )
@@ -80,17 +82,13 @@ onMounted(async () => {
                 notifications.value = res.data || '没有公告'
                 console.log(res)
             })
-    }
-    if (accountInfo.value.email) {
-        gravatarImg.value = `https://www.gravatar.com/avatar/${await sha256sum(accountInfo.value.email)}`
+        if (accountInfo.value?.email && crypto.subtle) {
+            gravatarImg.value = `https://www.gravatar.com/avatar/${await sha256sum(accountInfo.value.email)}`
+        }
     }
 })
 
 const logout = () => {
     store.logout()
 }
-
-definePageMeta({
-    middleware: ['auth', 'init-cache']
-})
 </script>

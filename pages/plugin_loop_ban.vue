@@ -179,7 +179,7 @@ const deleteTask = (id = 0) => {
 }
 
 const addTask = () => {
-    if (taskToAdd.value.pid <= 0) {
+    if (!Object.keys(pidNameKV.value).includes(taskToAdd.value.pid.toString())) {
         return
     }
     fetch(store.basePath + '/plugins/loop_ban/list', {
@@ -205,6 +205,47 @@ const addTask = () => {
             console.log(res)
         })
 }
+
+const taskToAddPID = computed(() => taskToAdd.value.pid)
+const taskToAddFname = computed(() => taskToAdd.value.fname)
+
+let taskToAddFnameTimeoutHandle = setTimeout(() => {}, 0)
+const isManagerMessage = ref<string>('')
+
+const preCheckManager = () => {
+    if (!Object.keys(pidNameKV.value).includes(taskToAdd.value.pid.toString())) {
+        isManagerMessage.value = ''
+        return
+    }
+    if (taskToAdd.value.fname.length === 0) {
+        isManagerMessage.value = ''
+        return
+    }
+    isManagerMessage.value = '检查权限中'
+    fetch(store.basePath + '/plugins/loop_ban/check/' + taskToAdd.value.pid + '/is_manager/' + taskToAdd.value.fname, {
+        headers: {
+            Authorization: store.authorization
+        }
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            if (res.code !== 200) {
+                return
+            }
+            if (res.data?.is_manager) {
+                isManagerMessage.value = '此帐号在 ' + taskToAdd.value.fname + ' 吧为 ' + (res.data?.role || '未知管理员角色')
+            } else {
+                isManagerMessage.value = '此帐号在 ' + taskToAdd.value.fname + ' 吧没有封禁权限'
+            }
+
+            console.log(res)
+        })
+}
+
+watch([taskToAddPID, taskToAddFname], () => {
+    clearTimeout(taskToAddFnameTimeoutHandle)
+    taskToAddFnameTimeoutHandle = setTimeout(preCheckManager, 500)
+})
 
 const tasksSwitch = ref<boolean>(false)
 
@@ -272,10 +313,6 @@ onMounted(() => {
 })
 
 const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一行一个，Portrait 仅支持新版 portrait 的格式，即 tb.1.xxx.xxxxx，粘贴个人页链接会自动处理，用户名 和 贴吧 uid 请使用可视化编辑器添加'
-
-definePageMeta({
-    middleware: ['auth', 'init-cache']
-})
 </script>
 
 <template>
@@ -284,7 +321,9 @@ definePageMeta({
             <div class="px-3 py-2">
                 <h4 class="text-lg mb-4">设置</h4>
 
-                <button :class="{ 'bg-sky-500': !tasksSwitch, 'bg-pink-500': tasksSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-white': true }" @click="updateTasksSwitch">{{ tasksSwitch ? '停止循环封禁' : '开启循环封禁' }}</button>
+                <button :class="{ 'bg-sky-500': !tasksSwitch, 'bg-pink-500': tasksSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-white': true }" @click="updateTasksSwitch">
+                    {{ tasksSwitch ? '已开启循环封禁' : '已停止循环封禁' }}
+                </button>
 
                 <div class="my-5">
                     <p class="my-2">封禁提示内容，用户被封禁后消息中心显示的提示内容</p>
@@ -311,21 +350,22 @@ definePageMeta({
 
                     <div class="my-2">
                         <label for="start-date">开始日期 (留空默认立即开始)</label>
-                        <input class="form-input dark:bg-black dark:[color-scheme:dark] w-full" :max="taskToAdd.end" type="date" v-model="taskToAdd.start" placeholder="日期格式：yyyy-mm-dd,留空默认立即开始" />
+                        <input id="start-date" class="form-input dark:bg-black dark:[color-scheme:dark] w-full" :max="taskToAdd.end" type="date" v-model="taskToAdd.start" placeholder="日期格式：yyyy-mm-dd,留空默认立即开始" />
                     </div>
 
                     <div class="my-2">
                         <label for="end-date">结束日期</label>
-                        <input class="form-input dark:bg-black dark:[color-scheme:dark] w-full" :min="taskToAdd.start" type="date" v-model="taskToAdd.end" placeholder="日期格式：yyyy-mm-dd" />
+                        <input id="end-date" class="form-input dark:bg-black dark:[color-scheme:dark] w-full" :min="taskToAdd.start" type="date" v-model="taskToAdd.end" placeholder="日期格式：yyyy-mm-dd" />
                     </div>
 
                     <div class="my-2">
                         <label for="froum-name">贴吧名称</label>
-                        <input class="form-input dark:bg-black w-full" type="text" v-model="taskToAdd.fname" placeholder="输入贴吧名（不带末尾吧字）" />
+                        <input id="froum-name" class="form-input dark:bg-black w-full" type="text" v-model="taskToAdd.fname" placeholder="输入贴吧名（不带末尾吧字）" />
+                        <span class="text-sm my-1">{{ isManagerMessage }}</span>
                     </div>
 
                     <div class="my-2">
-                        <label for="froum-name">封禁列表({{ taskToAdd.ban_list.split('\n').filter((x) => x).length }} / {{ limit - tasksList.length }})</label>
+                        <label for="ban-user-list">封禁列表({{ taskToAdd.ban_list.split('\n').filter((x) => x).length }} / {{ limit - tasksList.length }})</label>
                         <!--TODO limit issue ...-->
                         <div v-if="isVisualEditor">
                             <div class="flex w-full">
@@ -349,7 +389,7 @@ definePageMeta({
                                 <button v-else class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-white px-3 py-1" @click="taskToAdd.ban_list += '\n' + user.portrait">添加</button>
                             </div>
                         </div>
-                        <textarea v-else id="banUserList" v-model="taskToAdd.ban_list" class="form-input dark:bg-black w-full" rows="10" :placeholder="banPortraitListPlaceholder"></textarea>
+                        <textarea v-else id="ban-user-list" v-model="taskToAdd.ban_list" class="form-textarea dark:bg-black w-full" rows="10" :placeholder="banPortraitListPlaceholder"></textarea>
                     </div>
 
                     <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 text-white mr-2" @click="isVisualEditor = !isVisualEditor">切换编辑器</button>

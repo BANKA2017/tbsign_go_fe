@@ -114,10 +114,6 @@ onMounted(() => {
             console.log(res)
         })
 })
-
-definePageMeta({
-    middleware: ['auth', 'init-cache']
-})
 </script>
 
 <template>

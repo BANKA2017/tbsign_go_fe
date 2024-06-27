@@ -2,10 +2,6 @@
 import FrameWork from '~/components/FrameWork.vue'
 import { getPubDate } from '~/share/Time'
 
-definePageMeta({
-    middleware: ['auth', 'init-cache']
-})
-
 const store = useMainStore()
 const accounts = computed(() => store._cache?.accounts)
 
@@ -147,7 +143,7 @@ onMounted(() => {
         <frame-work>
             <div class="px-3 py-2">
                 <h4 class="text-lg mb-4">设置</h4>
-                <button :class="{ 'bg-sky-500': !tasksSwitch, 'bg-pink-500': tasksSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-white': true }" @click="updateTasksSwitch">{{ tasksSwitch ? '停止助攻' : '开启助攻' }}</button>
+                <button :class="{ 'bg-sky-500': !tasksSwitch, 'bg-pink-500': tasksSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-white': true }" @click="updateTasksSwitch">{{ tasksSwitch ? '已开启助攻' : '已停止助攻' }}</button>
             </div>
 
             <div class="px-3 py-2">

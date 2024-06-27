@@ -73,7 +73,7 @@ const cleanTiebaList = async () => {
             if (res.code !== 200) {
                 return
             }
-            store.updateCache("list", [])
+            store.updateCache('list', [])
             console.log(res)
         })
 }
@@ -120,7 +120,7 @@ const refreshTiebaList = async () => {
             if (res.code !== 200) {
                 return
             }
-            store.updateCache("list", res.data)
+            store.updateCache('list', res.data)
             console.log(res)
         })
 }
@@ -168,10 +168,6 @@ onMounted(() => {
             store.updateCache('list', res.data)
             console.log(res)
         })
-})
-
-definePageMeta({
-    middleware: ['auth', 'init-cache']
 })
 </script>
 

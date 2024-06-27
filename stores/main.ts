@@ -4,7 +4,7 @@ interface MainStoreState {
     _basePath: string
     _authorization: string
     admin: boolean
-    _cache: { [p in string]: any }
+    _cache: { [p in string]: any } & {}
 }
 
 export const useMainStore = defineStore('main', {
@@ -30,7 +30,7 @@ export const useMainStore = defineStore('main', {
             return this._basePath
         },
         pidNameKV(): { [p in string]: string } {
-            return Object.fromEntries((this._cache.accounts || []).map((account) => [account.id, account.name]))
+            return Object.fromEntries((this._cache.accounts || []).map((account: { id: string; name: string }) => [account.id, account.name]))
         }
     },
     actions: {
