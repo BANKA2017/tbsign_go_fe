@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
+import { Notice } from '~/share/Tools'
 
 const store = useMainStore()
+const loading = computed(() => store.loading)
 
 const route = useRoute()
 const router = useRouter()
@@ -9,12 +11,14 @@ const router = useRouter()
 const list = computed(() => store._cache?.list)
 const accounts = computed(() => store._cache?.accounts)
 
-const callbackLink = computed(() => {
+const newTiebaAccount = () => {
     if (typeof window === 'undefined') {
         return ''
     }
-    return window.location.origin + route.fullPath + '?stoken_type=tb'
-})
+    const csrfToken = crypto.randomUUID()
+    localStorage.setItem('tc_csrf_token', csrfToken)
+    window.open(`https://bduss.nest.moe/#/` + str_to_base64url(window.location.origin + route.fullPath + '#/stoken_type=tb&csrf=' + csrfToken), '_self')
+}
 
 const checkAccountStatus = async () => {
     if (!accounts.value) {
@@ -28,11 +32,17 @@ const checkAccountStatus = async () => {
         })
             .then((res) => res.json())
             .then((res) => {
+                if (res.code === 401) {
+                    Notice(res.message, 'error')
+                    store.logout()
+                    navigateTo('login')
+                    return
+                }
                 if (res.code !== 200) {
                     return
                 }
                 accounts.value[accountIndex].status = res.data
-                console.log(res)
+                //console.log(res)
             })
     }
 }
@@ -46,6 +56,13 @@ const deleteAccount = async (id: string) => {
     })
         .then((res) => res.json())
         .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
+            Notice(res.code === 200 ? '已删除 pid:' + id : res.message, res.code === 200 ? 'success' : 'error')
             if (res.code !== 200) {
                 return
             }
@@ -53,7 +70,7 @@ const deleteAccount = async (id: string) => {
                 'accounts',
                 accounts.value.filter((item) => item.id !== res.data.pid)
             )
-            console.log(res)
+            //console.log(res)
         })
 }
 
@@ -70,11 +87,18 @@ const cleanTiebaList = async () => {
     })
         .then((res) => res.json())
         .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
+            Notice(res.code === 200 ? '已清空帐号' : res.message, res.code === 200 ? 'success' : 'error')
             if (res.code !== 200) {
                 return
             }
             store.updateCache('list', [])
-            console.log(res)
+            //console.log(res)
         })
 }
 
@@ -96,9 +120,8 @@ const tblistFilter = computed(() => {
     if (Object.keys(tbList.value).length === 0) {
         return {}
     }
-    let _list: { [p in number]: any } = {}
+    let _list: { [p in string]: any } = {}
     for (const pid in tbList.value) {
-        console.log(pid)
         _list[pid] = {
             success: tbList.value[pid].filter((item) => item.status === 0 && new Date().getDate() === item.latest).length,
             failed: tbList.value[pid].filter((item) => item.status !== 0 && new Date().getDate() === item.latest).length,
@@ -108,7 +131,23 @@ const tblistFilter = computed(() => {
     return _list
 })
 
-const refreshTiebaList = async () => {
+const tbStatus = computed(() => {
+    const tmpData = Object.values(tblistFilter.value)
+    const successCount = tmpData.reduce((p, c) => p + c.success, 0)
+    const failedCount = tmpData.reduce((p, c) => p + c.failed, 0)
+    const pendingCount = tmpData.reduce((p, c) => p + c.pending, 0)
+
+    return {
+        accountCount: tmpData.length,
+        success: successCount,
+        failed: failedCount,
+        pending: pendingCount,
+        forumCount: list.value?.length || 0
+    }
+})
+
+const syncTiebaList = async () => {
+    store.updateValue('loading', true)
     fetch(store.basePath + '/list/refresh', {
         headers: {
             Authorization: store.authorization
@@ -117,44 +156,29 @@ const refreshTiebaList = async () => {
     })
         .then((res) => res.json())
         .then((res) => {
+            store.updateValue('loading', false)
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
+            Notice(res.code === 200 ? '列表已同步' : res.message, res.code === 200 ? 'success' : 'error')
             if (res.code !== 200) {
                 return
             }
             store.updateCache('list', res.data)
-            console.log(res)
+            //console.log(res)
+        })
+        .catch((e) => {
+            console.error(e)
+            Notice(e.toString(), 'error')
+            store.updateValue('loading', false)
         })
 }
 
-onMounted(() => {
-    if (route.query.bduss && route.query.stoken && store.authorization) {
-        fetch(store.basePath + '/account', {
-            headers: {
-                Authorization: store.authorization
-            },
-            method: 'PATCH',
-            body: new URLSearchParams({
-                bduss: route.query.bduss.toString(),
-                stoken: route.query.stoken.toString()
-            })
-        })
-            .then((res) => res.json())
-            .then((res) => {
-                console.log(res)
-                router.replace({ query: {} })
-                if (res.code === 201) {
-                    accounts.value.push(res.data)
-                    return
-                } else if (res.code === 200) {
-                    for (const accountIndex in accounts.value) {
-                        if (accounts.value[accountIndex].portrait === res.data.portrait) {
-                            accounts.value[accountIndex] = res.data
-                            console.log('find', accountIndex)
-                            return
-                        }
-                    }
-                }
-            })
-    }
+const getForumList = () => {
+    store.updateValue('loading', true)
     fetch(store.basePath + '/list', {
         headers: {
             Authorization: store.authorization
@@ -162,23 +186,99 @@ onMounted(() => {
     })
         .then((res) => res.json())
         .then((res) => {
+            store.updateValue('loading', false)
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
             if (res.code !== 200) {
                 return
             }
             store.updateCache('list', res.data)
-            console.log(res)
+            //console.log(res)
         })
+        .catch((e) => {
+            console.error(e)
+            Notice(e.toString(), 'error')
+            store.updateValue('loading', false)
+        })
+}
+
+onMounted(() => {
+    if (route.hash.length > 2) {
+        try {
+            const hashParams = Object.fromEntries(new URLSearchParams((route.hash || '').slice(2)).entries())
+            const csrfToken = localStorage.getItem('tc_csrf_token') || ''
+            if (hashParams.bduss && hashParams.stoken) {
+                if (csrfToken === hashParams.csrf) {
+                    if (store.authorization) {
+                        fetch(store.basePath + '/account', {
+                            headers: {
+                                Authorization: store.authorization
+                            },
+                            method: 'PATCH',
+                            body: new URLSearchParams({
+                                bduss: hashParams.bduss,
+                                stoken: hashParams.stoken
+                            })
+                        })
+                            .then((res) => res.json())
+                            .then((res) => {
+                                if (res.code === 401) {
+                                    Notice(res.message, 'error')
+                                    store.logout()
+                                    navigateTo('login')
+                                    return
+                                }
+                                //console.log(res)
+                                router.replace({ query: {} })
+                                if (res.code === 201) {
+                                    Notice(res.code === 200 ? '已添加 @' + res.data?.name || res.data?.portrait : res.message, res.code === 200 ? 'success' : 'error')
+                                    accounts.value.push(res.data)
+                                    return
+                                } else if (res.code === 200) {
+                                    for (const accountIndex in accounts.value) {
+                                        if (accounts.value[accountIndex].portrait === res.data.portrait) {
+                                            Notice(res.code === 200 ? '更新 BDUSS 信息成功 @' + res.data.name || res.data.portrait : res.message, res.code === 200 ? 'success' : 'error')
+                                            accounts.value[accountIndex] = res.data
+                                            //console.log('find', accountIndex)
+                                            return
+                                        }
+                                    }
+                                }
+                            })
+                    } else {
+                        Notice('未登录', 'error')
+                    }
+                } else {
+                    Notice('csrf 检查失败', 'error')
+                }
+                window.location.hash = ''
+            }
+            localStorage.removeItem('tc_csrf_token')
+        } catch (e) {
+            console.error(e)
+            // Notice(e.toString(), 'error')
+        }
+    }
+    getForumList()
 })
 </script>
 
 <template>
     <NuxtLayout name="tbsign">
         <frame-work>
-            <div class="my-5 flex gap-2">
-                <NuxtLink :to="`https://bduss.nest.moe/#/` + str_to_base64url(callbackLink)" class="rounded-2xl border-2 px-4 py-1" title="扫码登录并进行绑定或更新">绑定账号</NuxtLink>
-                <button @click="refreshTiebaList" class="rounded-2xl border-2 px-4 py-1" title="刷新贴吧列表">刷新列表</button>
-                <button @click="cleanTiebaList" class="rounded-2xl border-2 px-4 py-1" title="清空贴吧列表">清空列表</button>
-                <button @click="checkAccountStatus" class="rounded-2xl border-2 px-4 py-1" title="检查帐号状态">检查状态</button>
+            <div class="rounded-2xl bg-gray-100 dark:bg-gray-900 p-5 mb-5">
+                共绑定 {{ tbStatus.accountCount }} 个帐号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，还有
+                <span class="text-orange-500">{{ tbStatus.pending }}</span> 个贴吧等待签到
+            </div>
+            <div class="my-5 grid grid-cols-4 gap-2 max-w-[32em]">
+                <button @click="newTiebaAccount" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 hover:bg-[#e5e7eb] hover:text-black transition-colors" title="扫码登录并进行绑定或更新">绑定账号</button>
+                <button @click="syncTiebaList" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 hover:bg-[#e5e7eb] hover:text-black transition-colors" title="从贴吧拉取列表，更新数据库">同步列表</button>
+                <button @click="cleanTiebaList" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 hover:bg-[#e5e7eb] hover:text-black transition-colors" title="清空贴吧列表">清空列表</button>
+                <button @click="checkAccountStatus" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 hover:bg-[#e5e7eb] hover:text-black transition-colors" title="检查帐号状态">检查状态</button>
             </div>
 
             <div class="grid grid-cols-12 gap-2 my-2">
@@ -214,7 +314,7 @@ onMounted(() => {
                                 }
                             "
                         >
-                            <button @click="deleteAccount(account.id)" class="rounded-full w-10 h-10 bg-transparent hover:bg-pink-500 text-gray-100 dark:text-gray-900 transition-colors p-2 my-1">
+                            <button @click="deleteAccount(account.id)" class="rounded-full w-10 h-10 bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 text-gray-100 dark:text-gray-900 transition-colors p-2 my-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em]" viewBox="0 0 16 16">
                                     <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"></path>
                                 </svg>
@@ -269,6 +369,33 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div
+                :class="{
+                    fixed: true,
+                    'right-5': true,
+                    'bottom-32': true,
+                    'px-3': true,
+                    'py-2': true,
+                    'cursor-pointer': true,
+                    'transition-colors': true,
+                    'duration-150': true,
+                    'select-none': true,
+                    'text-white': true,
+                    'bg-sky-500': true,
+                    'hover:bg-sky-600': true,
+                    'dark:hover:bg-sky-400': true,
+                    'rounded-md': true
+                }"
+                style="z-index: 9999"
+                @click="getForumList"
+            >
+                <svg :class="{ 'animate-spin': loading }" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
+                    <g fill="currentColor">
+                        <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
+                        <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182a.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
+                    </g>
+                </svg>
             </div>
         </frame-work>
     </NuxtLayout>

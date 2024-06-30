@@ -3,6 +3,7 @@
         <frame-work>
             <div class="flex justify-center">
                 <form class="rounded-2xl p-5 flex grow flex-col gap-2 max-w-[32em]">
+                    <span class="rounded-2xl bg-gray-300 dark:bg-gray-900 p-5 mb-10">正在注册 {{ basePath }}</span>
                     <label for="name">用户名</label>
                     <input class="dark:bg-black rounded-xl" id="name" type="text" placeholder="用户名" v-model="name" />
                     <label for="email">邮箱</label>
@@ -11,7 +12,7 @@
                     <input class="dark:bg-black rounded-xl" autocomplete="new-password" id="password" type="password" placeholder="密码" v-model="password" />
                     <label v-show="pageLoginConfig?.enabled_invite_code" for="invite-code">邀请码</label>
                     <input v-show="pageLoginConfig?.enabled_invite_code" class="dark:bg-black rounded-xl" id="invite-code" type="text" placeholder="邀请码" v-model="inviteCode" />
-                    <input type="submit" class="text-white rounded-xl mt-3 px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600" @click="signup" value="注册" />
+                    <input type="submit" role="button" class="text-white rounded-xl mt-3 px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 transition-colors" @click="signup" value="注册" />
                 </form>
             </div>
         </frame-work>
@@ -19,20 +20,27 @@
 </template>
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
+import { Notice } from '~/share/Tools'
 
 const store = useMainStore()
+const basePath = computed(() => store._basePath)
 const pageLoginConfig = computed(() => store._cache?.config_page_login)
+watch(pageLoginConfig, () => {
+    if (!pageLoginConfig.value?.enabled_signup) {
+        navigateTo('login')
+    }
+})
 
 const name = ref<string>('')
 const email = ref<string>('')
 const password = ref<string>('')
 const inviteCode = ref<string>('')
 
-const router = useRouter()
-
 const signup = (e: Event) => {
     e.preventDefault()
+    store.updateValue('loading', true)
     if (!(name.value && email.value && password.value.length > 0)) {
+        store.updateValue('loading', false)
         return
     }
 
@@ -52,12 +60,19 @@ const signup = (e: Event) => {
     })
         .then((res) => res.json())
         .then((res) => {
+            store.updateValue('loading', false)
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
             // success
-            console.log(res.data.msg)
-            router.push('/')
+            Notice(res.data.msg, 'success')
+            //console.log(res.data.msg)
+            navigateTo('login')
+        })
+        .catch((e) => {
+            store.updateValue('loading', false)
+            console.error(e)
         })
 }
 </script>

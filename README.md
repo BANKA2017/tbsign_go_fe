@@ -1,75 +1,55 @@
-# Nuxt 3 Minimal Starter
+# TbSign➡️ Frontend (Dev)
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+---
 
-## Setup
+[TbSign➡️](https://github.com/BANKA2017/tbsign_go) 的前端部分，已支援大部分接口
 
-Make sure to install the dependencies:
+## ⚠ 警告
 
-```bash
-# npm
-npm install
+- 开发者不提供任何公开的**后端**实例，也不会以任何名目收费，一旦涉及金钱，那你一定被骗了 ~~（说付费的，你敢付，我还不敢收）~~
+- 不接受任何路线图以外的 PR，路线图内的 PR 不一定会接受
+- 初期产品可能会有奇奇怪怪的 BUG，理应不影响使用，但有影响的请通过 issue 回报
+- 使用非官方产品导致帐号封禁是很正常的，如果不能接受风险，请一开始就不要使用 （这里指的不是 TbSign➡️ 帐号）
 
-# pnpm
-pnpm install
+## 部署
 
-# yarn
-yarn install
+开箱即用，`npx nuxt generate` 后静态部署 `.output/public` 目录内的产物即可
 
-# bun
-bun install
-```
+### 后端
 
-## Development Server
+\* 这里所有的 `http` 都可以根据实际情况换成 `https`；使用默认端口(如 `80`, `443`) 时 `:port` 可省略，下同
 
-Start the development server on `http://localhost:3000`:
+首次访问时会跳转到 `/add_base_path` 添加首个 API basePath：
 
-```bash
-# npm
-npm run dev
+> 后端部署完成后即可知道 `http://ip:port`，如果绑定了自己的域名那就是 `http://domain:port`
 
-# pnpm
-pnpm run dev
+添加完成后即可前往登录，也可以直接组装链接 `http://frontend:port/?endpoint=http://backend:port` 直接通过链接导入，注意最后面不需要斜杠
 
-# yarn
-yarn dev
+### 限制
 
-# bun
-bun run dev
-```
+部分功能需要后端支持才会启用
 
-## Production
+- 注册页 `/signup` 需要站点开启注册才会在侧边栏显示，站点开启邀请码注册时才会有邀请码输入框
+- 重设密码 `/reset_password` 要求后端能够通过电子邮件的设置检测，但页面开启不等于重置邮件可以正常发出或者能被收到
+- 各个插件的设置页 (以 `/plugin_` 开头的页面) 需要站点开放了对应插件才会启用
+- 由于几乎没有做任何防呆保护，所以刻意隐藏了一些危险的 API，比如删除账号或者导出帐号信息等
+- 后端会刻意在数据发出前删除掉所有的 `BDUSS` 和 `Stoken` 信息，前端的所有页面都不需要用到这些信息
+- 被封禁的帐号暂时无法查看或导出账号数据
 
-Build the application for production:
+### 第三方服务
 
-```bash
-# npm
-npm run build
+由于没必要重复造轮子，我们直接使用一些由第三方提供的服务
 
-# pnpm
-pnpm run build
+- 扫码登录获取 BDUSS <https://bduss.nest.moe>，那项服务的源码也在 GitHub 公开，不想使用的可以自行参考修改
 
-# yarn
-yarn build
+## TODO
 
-# bun
-bun run build
-```
+可能会做，也可能永远是 TODO
 
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- [x] 能用
+- [ ] 完善权限控制，完善界面，统一风格，避免堆砌大块元素
+- [ ] 完整的后端 API 支持
+- [ ] 避免 AnyScript，完善类型
+- [ ] 校验后端状态才允许调用，在明显位置展示后端地址，后端必须设置系统地址 (`system_url`) 才能使用面板
+- [ ] 双 Token (RefreshToken, AccessToken)
+- [ ] 工具箱，端点都准备好了，就差前端没写

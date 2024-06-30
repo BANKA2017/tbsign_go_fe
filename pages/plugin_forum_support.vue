@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
 import { getPubDate } from '~/share/Time'
+import { Notice } from '~/share/Tools'
 
 const store = useMainStore()
 const accounts = computed(() => store._cache?.accounts)
@@ -58,11 +59,18 @@ const updateTasksSwitch = () => {
     })
         .then((res) => res.json())
         .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
             tasksSwitch.value = res.data
-            console.log(res)
+            //console.log(res)
         })
 }
 
@@ -82,15 +90,23 @@ const saveSettings = () => {
     })
         .then((res) => res.json())
         .then((res) => {
-            if (res.code !== 200) {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
                 return
             }
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            Notice('设置已保存', 'success')
             const addList = Array.isArray(res.data.add) ? res.data.add : []
             const delList = Array.isArray(res.data.del) ? res.data.del.map((x) => x.id).filter((x) => x) : []
 
             tasksList.value = tasksList.value.filter((x) => !delList.includes(x.id))
             tasksList.value.push(...addList)
-            console.log(res)
+            //console.log(res)
         })
 }
 
@@ -102,11 +118,18 @@ onMounted(() => {
     })
         .then((res) => res.json())
         .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
             tasksList.value = res.data
-            console.log(res)
+            //console.log(res)
         })
     fetch(store.basePath + '/plugins/forum_support/switch', {
         headers: {
@@ -115,11 +138,18 @@ onMounted(() => {
     })
         .then((res) => res.json())
         .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
             tasksSwitch.value = res.data
-            console.log(res)
+            //console.log(res)
         })
 
     fetch(store.basePath + '/plugins/forum_support/list', {
@@ -129,11 +159,18 @@ onMounted(() => {
     })
         .then((res) => res.json())
         .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
             list.value = res.data
-            console.log(res)
+            //console.log(res)
         })
 })
 </script>
@@ -143,7 +180,9 @@ onMounted(() => {
         <frame-work>
             <div class="px-3 py-2">
                 <h4 class="text-lg mb-4">设置</h4>
-                <button :class="{ 'bg-sky-500': !tasksSwitch, 'bg-pink-500': tasksSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-white': true }" @click="updateTasksSwitch">{{ tasksSwitch ? '已开启助攻' : '已停止助攻' }}</button>
+                <button :class="{ 'bg-sky-500': !tasksSwitch, 'bg-pink-500': tasksSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-white': true, 'transition-colors': true }" @click="updateTasksSwitch">
+                    {{ tasksSwitch ? '已开启助攻' : '已停止助攻' }}
+                </button>
             </div>
 
             <div class="px-3 py-2">
@@ -153,7 +192,7 @@ onMounted(() => {
                     <summary class="cursor-pointer">编辑</summary>
 
                     <button
-                        :class="{ 'px-3': true, 'py-1': true, 'rounded-lg': true, 'mr-2': true, 'my-2': true, 'bg-sky-500': activePID === account.id, 'text-white': activePID === account.id }"
+                        :class="{ 'px-3': true, 'py-1': true, 'rounded-lg': true, 'mr-2': true, 'my-2': true, 'bg-sky-500': activePID === account.id, 'hover:bg-sky-500': true, 'text-white': activePID === account.id, 'transition-colors': true }"
                         v-for="account in accounts"
                         :key="account.id"
                         @click="activePID = account.id"
@@ -170,7 +209,7 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 text-white" @click="saveSettings">保存</button>
+                    <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-white transition-colors" @click="saveSettings">保存</button>
                 </details>
 
                 <div class="border border-sky-500 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.id">

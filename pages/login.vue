@@ -2,12 +2,17 @@
     <NuxtLayout name="tbsign">
         <frame-work>
             <div class="flex justify-center">
-                <form class="rounded-2xl p-5 flex grow flex-col gap-2 max-w-[32em]">
+                <form class="rounded-2xl p-2 grow flex flex-col gap-2 max-w-[32em]">
+                    <label for="endpoint">API 端点</label>
+                    <select id="endpoint" class="dark:bg-black rounded-xl" v-model="basePath">
+                        <option v-for="endpoint in endpointList" :key="endpoint" :value="endpoint">{{ endpoint }}</option>
+                    </select>
+                    <NuxtLink to="add_base_path" class="text-sm underline underline-offset-2">添加端点</NuxtLink>
                     <label for="email">帐号</label>
                     <input class="dark:bg-black rounded-xl" id="email" type="text" name="email" placeholder="邮箱/用户名" v-model="account" />
                     <label for="password">密码</label>
                     <input class="dark:bg-black rounded-xl" autocomplete="current-password" id="password" type="password" name="password" placeholder="密码" v-model="password" />
-                    <input type="submit" class="text-white mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl" @click="sendLogin" value="登录" />
+                    <input type="submit" role="button" class="text-white mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl transition-colors" @click="sendLogin" value="登录" />
                 </form>
             </div>
         </frame-work>
@@ -15,16 +20,29 @@
 </template>
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
+import { Notice } from '~/share/Tools'
 
 const store = useMainStore()
+const endpointList = computed(() => Object.keys(store.config))
+
 const account = ref<string>('')
 const password = ref<string>('')
 
-const router = useRouter()
+const basePath = computed({
+    get() {
+        return store._basePath
+    },
+    set(value: string) {
+        localStorage.setItem('tc_base_path', value)
+        store.updateValue('_basePath', value)
+    }
+})
 
 const sendLogin = (e: Event) => {
     e.preventDefault()
+    store.updateValue('loading', true)
     if (!(account.value && password.value)) {
+        store.updateValue('loading', false)
         return
     }
     fetch(store.basePath + '/passport/login', {
@@ -36,15 +54,20 @@ const sendLogin = (e: Event) => {
     })
         .then((res) => res.json())
         .then((res) => {
+            store.updateValue('loading', false)
+            Notice(res.code === 200 ? '登录成功' : res.message, res.code === 200 ? 'success' : 'error')
             if (res.code !== 200) {
                 return
             }
             if (res.data.token) {
-                store.updateValue('_authorization', res.data.token)
-                router.push('/')
+                store.updateAuthorization(res.data.token)
+                navigateTo('/')
             }
-
-            console.log(res)
+        })
+        .catch((e) => {
+            store.updateValue('loading', false)
+            Notice(e.toString(), 'error')
+            console.error(e)
         })
 }
 </script>

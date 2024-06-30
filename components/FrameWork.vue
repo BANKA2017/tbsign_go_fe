@@ -5,20 +5,21 @@
                 <div class="col-start-1 col-span-12 md:col-start-2 md:col-span-10">
                     <div class="mx-4 md:mx-1">
                         <main-title />
-                        <div id="main" class="my-5">
+                        <main id="main" class="my-5">
                             <div class="grid grid-cols-4 gap-5 dark:text-white">
                                 <nav class="col-span-4 md:col-span-1">
                                     <side-list />
                                 </nav>
-                                <main class="col-span-4 md:col-span-3">
+                                <div class="col-span-4 md:col-span-3">
                                     <slot />
-                                </main>
+                                </div>
                             </div>
-                        </div>
-                        <Footer class="block md:hidden" />
+                        </main>
+                        <Footer class="block" />
                     </div>
                 </div>
             </div>
+            <Loading />
             <div
                 :class="{
                     fixed: true,
@@ -53,3 +54,8 @@ import Footer from './Footer'
 import Loading from '~/components/Loading'
 import ScrollTo from '~/share/ScrollTo'
 </script>
+
+<style>
+@import url('noty/lib/noty.css');
+@import url('noty/lib/themes/nest.css');
+</style>

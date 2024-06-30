@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
+import { Notice } from '~/share/Tools'
 
 const store = useMainStore()
 
@@ -29,16 +30,23 @@ const saveSettings = (e: Event) => {
         })
             .then((res) => res.json())
             .then((res) => {
+                if (res.code === 401) {
+                    Notice(res.message, 'error')
+                    store.logout()
+                    navigateTo('login')
+                    return
+                }
+                Notice(res.code === 200 ? '邮箱修改成功' : res.message, res.code === 200 ? 'success' : 'error')
                 if (res.code !== 200) {
                     return
                 }
                 const newAccountInfo = JSON.parse(JSON.stringify(accountInfo.value))
                 newAccountInfo.email = res.data.email
                 store.updateCache('accountInfo', newAccountInfo)
-                console.log(res)
+                //console.log(res)
             })
     }
-    if (settingsValue.value.password.length > 0 && settingsValue.value.password !== settingsValue.value.new_password) {
+    if (settingsValue.value.password.length > 0 && settingsValue.value.new_password.length > 0 && settingsValue.value.password !== settingsValue.value.new_password) {
         // change pwd
         fetch(store.basePath + '/passport/update_pwd', {
             headers: {
@@ -50,11 +58,18 @@ const saveSettings = (e: Event) => {
         })
             .then((res) => res.json())
             .then((res) => {
+                if (res.code === 401) {
+                    Notice(res.message, 'error')
+                    store.logout()
+                    navigateTo('login')
+                    return
+                }
+                Notice(res.code === 200 ? '密码修改成功' : res.message, res.code === 200 ? 'success' : 'error')
                 if (res.code !== 200) {
                     return
                 }
-                store.updateValue('_authorization', res.data.token)
-                console.log(res)
+                store.updateAuthorization(res.data.token)
+                //console.log(res)
             })
     } else if (settingsValue.value.password === settingsValue.value.new_password) {
         console.log('same password!')
@@ -91,7 +106,7 @@ onMounted(() => {
                     class="border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white"
                     v-model="settingsValue.new_password"
                 />
-                <input type="submit" class="text-white mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl" @click="saveSettings" value="保存" />
+                <input type="submit" role="button" class="text-white mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl transition-colors" @click="saveSettings" value="保存" />
             </form>
         </frame-work>
     </NuxtLayout>

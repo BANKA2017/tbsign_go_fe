@@ -1,9 +1,18 @@
 export default defineNuxtRouteMiddleware((to, from) => {
+    if (to.name === 'add_base_path') {
+        return
+    }
+
+    if (import.meta.server) return
+
     const store = useMainStore()
 
     const authorization = store.authorization
+    if (!store.basePath) {
+        return navigateTo('add_base_path')
+    }
 
-    if (!authorization.startsWith('Basic ') || authorization === 'Basic ') {
+    if (!authorization.startsWith('Bearer ') || authorization === 'Bearer ') {
         if (!store._cache?.config_page_login) {
             fetch(store.basePath + '/config/page/login')
                 .then((res) => res.json())
@@ -12,7 +21,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
                         return
                     }
                     store.updateCache('config_page_login', res.data)
-                    console.log(res)
+                    //console.log(res)
                 })
         }
     } else {
@@ -24,18 +33,17 @@ export default defineNuxtRouteMiddleware((to, from) => {
             })
                 .then((res) => res.json())
                 .then((res) => {
-                    if (res.code !== 200) {
+                    if (res.code === 401) {
                         store.logout()
-
-                        if (['login', 'signup', 'reset'].includes(to.name as string)) {
-                            return navigateTo(to.name || 'login')
+                        if (['login', 'signup', 'reset_password', 'add_base_path'].includes(to.name as string)) {
+                            return navigateTo(to.name as string)
                         } else {
                             return navigateTo('login')
                         }
                     }
                     store.updateCache('accountInfo', res.data)
                     store.updateAdminStatus()
-                    console.log(res)
+                    //console.log(res)
 
                     if (!store._cache?.accounts) {
                         fetch(store.basePath + '/account', {
@@ -45,11 +53,19 @@ export default defineNuxtRouteMiddleware((to, from) => {
                         })
                             .then((res) => res.json())
                             .then((res) => {
+                                if (res.code === 401) {
+                                    store.logout()
+                                    if (['login', 'signup', 'reset_password', 'add_base_path'].includes(to.name as string)) {
+                                        return navigateTo(to.name as string)
+                                    } else {
+                                        return navigateTo('login')
+                                    }
+                                }
                                 if (res.code !== 200) {
                                     return
                                 }
                                 store.updateCache('accounts', res.data)
-                                console.log(res)
+                                //console.log(res)
                             })
                     }
                     if (!store._cache?.plugin_list) {
@@ -60,11 +76,19 @@ export default defineNuxtRouteMiddleware((to, from) => {
                         })
                             .then((res) => res.json())
                             .then((res) => {
+                                if (res.code === 401) {
+                                    store.logout()
+                                    if (['login', 'signup', 'reset_password', 'add_base_path'].includes(to.name as string)) {
+                                        return navigateTo(to.name as string)
+                                    } else {
+                                        return navigateTo('login')
+                                    }
+                                }
                                 if (res.code !== 200) {
                                     return
                                 }
                                 store.updateCache('plugin_list', res.data)
-                                console.log(res)
+                                //console.log(res)
                             })
                     }
                 })

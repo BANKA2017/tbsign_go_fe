@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
+import { Notice } from '~/share/Tools'
 
 const store = useMainStore()
 const isAdmin = computed(() => store.admin)
@@ -44,7 +45,7 @@ const settingsGroup = {
     },
     account: {
         name: '帐号',
-        data: { enable_reg: '开启注册', yr_reg: '邀请码 (留空代表无需邀请码)' }
+        data: { enable_reg: '开启注册', yr_reg: '邀请码 (留空代表无需邀请码)', cktime: 'JWT 有效期 (设置后签发的 Token 才生效)' }
     },
     sign: {
         name: '签到',
@@ -72,11 +73,19 @@ const SaveSettings = (e: Event) => {
     })
         .then((res) => res.json())
         .then((res) => {
-            if (res.code !== 200) {
-                console.log(res)
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
                 return
             }
-            console.log(res)
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                //console.log(res)
+                return
+            }
+            Notice('设置已保存', 'success')
+            //console.log(res)
         })
 }
 
@@ -85,7 +94,7 @@ const pluginSwitch = (pluginName = '') => {
     if (!pluginNameList.includes(pluginName)) {
         return
     }
-    fetch(store.basePath + '/admin/plugins/' + pluginName + '/switch', {
+    fetch(store.basePath + '/admin/plugin/' + pluginName + '/switch', {
         headers: {
             Authorization: store.authorization
         },
@@ -93,19 +102,27 @@ const pluginSwitch = (pluginName = '') => {
     })
         .then((res) => res.json())
         .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
             if (res.data?.exists) {
                 pluginList.value[pluginName].status = res.data?.status || false
                 store.updateCache('plugin_list', pluginList.value)
             }
-            console.log(res)
+            //console.log(res)
         })
 }
 
 const sendTestMail = (e: Event) => {
     e.preventDefault()
+    store.updateValue('loading', true)
     fetch(store.basePath + '/admin/service/push/mail/test', {
         headers: {
             Authorization: store.authorization
@@ -114,10 +131,24 @@ const sendTestMail = (e: Event) => {
     })
         .then((res) => res.json())
         .then((res) => {
-            if (res.code !== 200) {
+            store.updateValue('loading', false)
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
                 return
             }
-            console.log(res)
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            Notice('测试邮件已发送', 'success')
+            //console.log(res)
+        })
+        .catch((e) => {
+            store.updateValue('loading', false)
+            Notice(e.toString(), 'error')
+            console.error(e)
         })
 }
 
@@ -129,11 +160,18 @@ onMounted(() => {
     })
         .then((res) => res.json())
         .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
             serverStatus.value = res.data
-            console.log(res)
+            //console.log(res)
         })
     fetch(store.basePath + '/plugins', {
         headers: {
@@ -142,12 +180,19 @@ onMounted(() => {
     })
         .then((res) => res.json())
         .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
             pluginList.value = res.data
             store.updateCache('plugin_list', res.data)
-            console.log(res)
+            //console.log(res)
         })
     fetch(store.basePath + '/admin/settings', {
         headers: {
@@ -156,11 +201,18 @@ onMounted(() => {
     })
         .then((res) => res.json())
         .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
             serverSettings.value = res.data
-            console.log(res)
+            //console.log(res)
         })
 })
 </script>
@@ -173,28 +225,44 @@ onMounted(() => {
                     <div class="px-3 py-2">
                         <span class="text-lg">服务器状态</span>
                     </div>
-                    <div class="p-3">
-                        <li class="marker:text-sky-500">
-                            <span class="font-bold">Goroutines : </span><span class="font-mono">{{ serverStatus.goroutine }}</span>
-                        </li>
-                        <li class="marker:text-sky-500">
-                            <span class="font-bold">Go 版本 : </span><span class="font-mono">{{ serverStatus.goversion }}</span>
-                        </li>
-                        <li class="marker:text-sky-500">
-                            <span class="font-bold">Hostname : </span><span class="font-mono">{{ serverStatus.hostname }}</span>
-                        </li>
-                        <li class="marker:text-sky-500">
-                            <span class="font-bold">数据库模式 : </span><span class="font-mono">{{ serverStatus.variables?.dbmode }}</span>
-                        </li>
-                        <li class="marker:text-sky-500">
-                            <span class="font-bold">测试模式 : </span><span class="font-mono">{{ serverStatus.variables?.testmode }}</span>
-                        </li>
-                        <li class="marker:text-sky-500">
-                            <span class="font-bold">兼容版本 : </span><span class="font-mono">{{ serverStatus.variables?.compat }}</span>
-                        </li>
-                        <li class="marker:text-sky-500">
-                            <span class="font-bold">重签情况 : </span><span class="font-mono">{{ resignStatus }}</span>
-                        </li>
+                    <div class="p-3 grid grid-cols-2 gap-2">
+                        <div class="col-span-2 md:col-span-1">
+                            <li class="marker:text-sky-500">
+                                <span class="font-bold">Goroutines : </span><span class="font-mono">{{ serverStatus.goroutine }}</span>
+                            </li>
+                            <li class="marker:text-sky-500">
+                                <span class="font-bold">Go 版本 : </span><span class="font-mono">{{ serverStatus.goversion }}</span>
+                            </li>
+                            <li class="marker:text-sky-500">
+                                <span class="font-bold">Hostname : </span><span class="font-mono">{{ serverStatus.hostname }}</span>
+                            </li>
+                            <li class="marker:text-sky-500">
+                                <span class="font-bold">数据库模式 : </span><span class="font-mono">{{ serverStatus.variables?.dbmode }}</span>
+                            </li>
+                            <li class="marker:text-sky-500">
+                                <span class="font-bold">测试模式 : </span><span class="font-mono">{{ serverStatus.variables?.testmode }}</span>
+                            </li>
+                            <li class="marker:text-sky-500">
+                                <span class="font-bold">兼容版本 : </span><span class="font-mono">{{ serverStatus.compat }}</span>
+                            </li>
+                            <li class="marker:text-sky-500">
+                                <span class="font-bold">运行模式 : </span><span class="font-mono">{{ serverStatus.pure_go ? 'pure' : 'compat' }}</span>
+                            </li>
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <li class="marker:text-teal-500">
+                                <span class="font-bold">帐号总数 : </span><span class="font-mono">{{ serverStatus.uid_count }}</span>
+                            </li>
+                            <li class="marker:text-teal-500">
+                                <span class="font-bold">绑定总数 : </span><span class="font-mono">{{ serverStatus.pid_count }}</span>
+                            </li>
+                            <li class="marker:text-teal-500">
+                                <span class="font-bold">贴吧总数 : </span><span class="font-mono">{{ serverStatus.forum_count }}</span>
+                            </li>
+                            <li class="marker:text-teal-500">
+                                <span class="font-bold">重签情况 : </span><span class="font-mono">{{ resignStatus }}</span>
+                            </li>
+                        </div>
                     </div>
                 </div>
                 <div class="my-2 rounded-2xl">
@@ -204,7 +272,9 @@ onMounted(() => {
                     <div class="p-3">
                         <div class="flex justify-between my-1" v-for="(value, pluginName) in pluginList" :key="pluginName">
                             <span class="font-bold">{{ pluginGroup[pluginName] }}</span>
-                            <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-white': true }" @click="pluginSwitch(pluginName)">{{ value.status ? '已开启' : '已关闭' }}</button>
+                            <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-white': true, 'transition-colors': true }" @click="pluginSwitch(pluginName)">
+                                {{ value.status ? '已开启' : '已关闭' }}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -285,6 +355,15 @@ onMounted(() => {
                                 />
                                 <input
                                     :id="'input-' + key"
+                                    v-else-if="key === 'cktime'"
+                                    type="number"
+                                    min="30"
+                                    :max="10 * 24 * 60 * 60"
+                                    class="form-input border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white dark:[color-scheme:dark]"
+                                    v-model="serverSettings[key]"
+                                />
+                                <input
+                                    :id="'input-' + key"
                                     v-else-if="key === 'mail_smtppw'"
                                     type="password"
                                     class="form-input border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white dark:[color-scheme:dark]"
@@ -298,9 +377,9 @@ onMounted(() => {
                                     v-model="serverSettings[key]"
                                 />
                             </template>
-                            <button type="button" v-if="_set.name === '邮件'" class="px-3 py-1 mt-3 rounded-lg border border-2 hover:bg-[#e5e7eb] hover:text-black" @click="sendTestMail">发送测试邮件</button>
+                            <button type="button" v-if="_set.name === '邮件'" class="px-3 py-1 mt-3 rounded-lg border-2 hover:bg-[#e5e7eb] hover:text-black transition-colors" @click="sendTestMail">发送测试邮件</button>
                         </div>
-                        <input type="submit" class="text-white text-lg bg-sky-500 rounded ml-3 px-5 py-1" @click="SaveSettings" value="保存" />
+                        <input type="submit" role="button" class="text-white text-lg bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded ml-3 px-5 py-1 transition-colors" @click="SaveSettings" value="保存" />
                     </form>
                 </div>
             </div>

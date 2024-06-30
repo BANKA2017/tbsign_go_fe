@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
 import { getPubDate } from '~/share/Time'
+import { Notice } from '~/share/Tools'
 
 const store = useMainStore()
 const accounts = computed(() => store._cache?.accounts || [])
@@ -33,10 +34,18 @@ const saveSettings = () => {
     })
         .then((res) => res.json())
         .then((res) => {
-            if (res.code !== 200) {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
                 return
             }
-            console.log(res)
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            Notice('设置已保存', 'success')
+            //console.log(res)
         })
 }
 
@@ -52,13 +61,23 @@ const deleteTask = (id = 0) => {
     })
         .then((res) => res.json())
         .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
             if (res.data.success) {
+                Notice('已删除任务 ' + id, 'success')
                 tasksList.value = tasksList.value.filter((x) => x.id.toString() !== res.data.id)
+            } else {
+                Notice(res.message, 'error')
             }
-            console.log(res)
+            //console.log(res)
         })
 }
 
@@ -76,12 +95,20 @@ const addTask = () => {
     })
         .then((res) => res.json())
         .then((res) => {
-            if (res.code !== 200) {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
                 return
             }
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            Notice('已添加 uid:' + selectedPID.value, 'success')
             tasksList.value.push(res.data)
             selectedPID.value = 0
-            console.log(res)
+            //console.log(res)
         })
 }
 
@@ -93,11 +120,18 @@ onMounted(() => {
     })
         .then((res) => res.json())
         .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
             settings.value = res.data
-            console.log(res)
+            //console.log(res)
         })
 
     fetch(store.basePath + '/plugins/growth_tasks/list', {
@@ -107,11 +141,18 @@ onMounted(() => {
     })
         .then((res) => res.json())
         .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('login')
+                return
+            }
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
             tasksList.value = res.data
-            console.log(res)
+            //console.log(res)
         })
 })
 </script>
@@ -130,7 +171,7 @@ onMounted(() => {
                     </select>
                 </div>
 
-                <button class="bg-sky-500 rounded-lg px-3 py-1 text-white" @click="saveSettings">保存</button>
+                <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded-lg px-3 py-1 text-white transition-colors" @click="saveSettings">保存</button>
             </div>
 
             <div class="px-3 py-2">
@@ -170,7 +211,7 @@ onMounted(() => {
                         <li class="marker:text-sky-500 ml-3 break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
                     </details>
                     <hr class="my-3" />
-                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-white" @click="deleteTask(task.id)">删除</button>
+                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-white transition-colors" @click="deleteTask(task.id)">删除</button>
                 </div>
             </div>
         </frame-work>

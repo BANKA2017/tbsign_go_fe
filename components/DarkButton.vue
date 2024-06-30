@@ -1,8 +1,5 @@
 <template>
-    <div
-        class="aspect-square rounded-xl tex-3xl transition-colors bg-light-surface hover:bg-light-surfaceDim text-light-onSurface dark:bg-dark-surface dark:hover:bg-dark-surfaceBright dark:text-dark-onSurface cursor-pointer"
-        @click="switchDarkModeProxy"
-    >
+    <button class="aspect-square rounded-xl tex-3xl transition-colors bg-gray-100 hover:bg-gray-200 text-gray-900 dark:bg-gray-900 dark:hover:bg-gray-800 dark:text-gray-100" @click="switchDarkModeProxy">
         <!--auto-->
         <svg v-if="darkMode === '0'" xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="p-2" viewBox="0 0 16 16">
             <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
@@ -19,7 +16,7 @@
                 d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"
             />
         </svg>
-    </div>
+    </button>
 </template>
 
 <script setup lang="ts">

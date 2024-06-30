@@ -18,18 +18,19 @@
                 </div>
                 <div class="p-3 flex justify-between gap-2">
                     <div class="flex flex-col">
-                        <span class="text-2xl">
+                        <div class="text-2xl">
                             {{ accountInfo.name }}
                             <span class="text-sm rounded-full text-white bg-green-600 dark:bg-green-800 px-2 mx-1">uid: {{ accountInfo.uid }}</span>
                             <span class="text-sm rounded-full text-white bg-sky-600 dark:bg-sky-800 px-2 mx-1">role: {{ accountInfo.role }}</span>
-                        </span>
+                        </div>
                         <span class="text-sm">{{ accountInfo.email }}</span>
                     </div>
                     <img v-show="gravatarImg" :src="gravatarImg" alt="gravatar-avatar" class="w-20 h-20 rounded-2xl my-1" />
                 </div>
                 <hr class="px-3" />
                 <div class="inline-block md:block">
-                    <NuxtLink class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-pink-600 dark:hover:bg-pink-400 bg-pink-500 text-white py-2" to="/login" @click="logout"> 登出 </NuxtLink>
+                    <NuxtLink role="button" class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-pink-600 dark:hover:bg-pink-400 bg-pink-500 text-white py-2" to="/login" @click="logout"> 登出 </NuxtLink>
+                    <!--<button class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-sky-400 bg-sky-500 text-white py-2" @click="exportAccount"> 导出 </button>-->
                 </div>
                 <!--<div class="px-3 py-2">
                                 <span class="text-lg">签到状态</span>
@@ -76,11 +77,16 @@ onMounted(async () => {
         })
             .then((res) => res.json())
             .then((res) => {
+                if (res.code === 401) {
+                    store.logout()
+                    navigateTo('login')
+                    return
+                }
                 if (res.code !== 200) {
                     return
                 }
                 notifications.value = res.data || '没有公告'
-                console.log(res)
+                //console.log(res)
             })
         if (accountInfo.value?.email && crypto.subtle) {
             gravatarImg.value = `https://www.gravatar.com/avatar/${await sha256sum(accountInfo.value.email)}`
@@ -89,6 +95,45 @@ onMounted(async () => {
 })
 
 const logout = () => {
-    store.logout()
+    fetch(store.basePath + '/passport/logout', {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'POST'
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            if (res.code !== 200 && res.code !== 401) {
+                return
+            }
+            store.logout()
+            //console.log(res)
+            navigateTo('login')
+        })
+}
+
+// so, should I add this?
+const exportAccount = (password = '') => {
+    fetch(store.basePath + '/passport/export', {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'POST',
+        body: new URLSearchParams({
+            password
+        })
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            if (res.code === 401) {
+                store.logout()
+                navigateTo('login')
+            }
+            if (res.code !== 200) {
+                return
+            }
+
+            //console.log(res)
+        })
 }
 </script>
