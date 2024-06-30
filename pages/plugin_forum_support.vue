@@ -35,7 +35,7 @@ const list = ref<
 >([])
 
 watch([accounts, tasksList, list], () => {
-    for (const account of accounts.value) {
+    for (const account of accounts.value || []) {
         if (!fourmSupportSettingsKV.value[account.id]) {
             fourmSupportSettingsKV.value[account.id] = {}
         }

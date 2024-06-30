@@ -38,6 +38,25 @@ const basePath = computed({
     }
 })
 
+watch(basePath, () => {
+    store.updateCache('config_page_login', undefined)
+    store.updateValue('loading', true)
+    fetch(store.basePath + '/config/page/login')
+        .then((res) => res.json())
+        .then((res) => {
+            store.updateValue('loading', false)
+            if (res.code !== 200) {
+                return
+            }
+            store.updateCache('config_page_login', res.data)
+            //console.log(res)
+        }).catch(e => {
+            store.updateValue('loading', false)
+            Notice(e.toString(), 'error')
+            console.error(e)
+        })
+})
+
 const sendLogin = (e: Event) => {
     e.preventDefault()
     store.updateValue('loading', true)

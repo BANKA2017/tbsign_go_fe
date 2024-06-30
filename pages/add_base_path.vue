@@ -56,6 +56,7 @@ const saveEndpoint = () => {
     if (basePath.value.endsWith('/')) {
         basePath.value = basePath.value.replace(/\/+$/, '')
     }
+    store.updateCache('config_page_login', undefined)
     if (config.value[basePath.value]) {
         localStorage.setItem('tc_base_path', basePath.value)
         store.updateValue('_basePath', basePath.value)
