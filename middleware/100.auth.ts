@@ -10,7 +10,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
         if (['login', 'signup', 'reset_password', 'add_base_path'].includes(to.name as string)) {
             return
         }
-        return navigateTo('login')
+        return navigateTo('/login')
     } else if (['login', 'signup', 'reset_password'].includes(to.name as string)) {
         return navigateTo('/')
     }

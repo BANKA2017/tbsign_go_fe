@@ -52,6 +52,6 @@ export default defineNuxtRouteMiddleware((to, from) => {
     } catch {}
 
     if ((!store.basePath || !validPath) && !['add_base_path'].includes(to.name as string)) {
-        return navigateTo('add_base_path')
+        return navigateTo('/add_base_path')
     }
 })

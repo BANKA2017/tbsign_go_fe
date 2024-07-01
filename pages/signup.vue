@@ -27,7 +27,7 @@ const basePath = computed(() => store._basePath)
 const pageLoginConfig = computed(() => store._cache?.config_page_login)
 watch(pageLoginConfig, () => {
     if (!pageLoginConfig.value?.enabled_signup) {
-        navigateTo('login')
+        navigateTo('/login')
     }
 })
 
@@ -68,7 +68,7 @@ const signup = (e: Event) => {
             // success
             Notice(res.data.msg, 'success')
             //console.log(res.data.msg)
-            navigateTo('login')
+            navigateTo('/login')
         })
         .catch((e) => {
             store.updateValue('loading', false)

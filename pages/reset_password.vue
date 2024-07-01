@@ -7,7 +7,7 @@ const basePath = computed(() => store._basePath)
 const pageLoginConfig = computed(() => store._cache?.config_page_login)
 watch(pageLoginConfig, () => {
     if (!pageLoginConfig.value?.enabled_reset_password) {
-        navigateTo('login')
+        navigateTo('/login')
     }
 })
 

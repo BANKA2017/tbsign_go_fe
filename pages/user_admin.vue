@@ -47,7 +47,7 @@ const getList = () => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -86,7 +86,7 @@ const saveSettings = (uid = 0) => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
@@ -114,7 +114,7 @@ const kickDown = (uid = 0) => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -142,7 +142,7 @@ const deleteTiebaAccounts = (uid = 0) => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {

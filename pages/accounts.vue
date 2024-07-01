@@ -35,7 +35,7 @@ const checkAccountStatus = async () => {
                 if (res.code === 401) {
                     Notice(res.message, 'error')
                     store.logout()
-                    navigateTo('login')
+                    navigateTo('/login')
                     return
                 }
                 if (res.code !== 200) {
@@ -59,7 +59,7 @@ const deleteAccount = async (id: string) => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -91,7 +91,7 @@ const cleanTiebaList = async () => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -162,7 +162,7 @@ const syncTiebaList = async () => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -193,7 +193,7 @@ const getForumList = () => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -232,7 +232,7 @@ onMounted(() => {
                                 if (res.code === 401) {
                                     Notice(res.message, 'error')
                                     store.logout()
-                                    navigateTo('login')
+                                    navigateTo('/login')
                                     return
                                 }
                                 //console.log(res)

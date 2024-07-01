@@ -62,7 +62,7 @@ const updateTasksSwitch = () => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -93,7 +93,7 @@ const saveSettings = () => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
@@ -121,7 +121,7 @@ onMounted(() => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -141,7 +141,7 @@ onMounted(() => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -162,7 +162,7 @@ onMounted(() => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {

@@ -98,7 +98,7 @@ const saveSettings = () => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
@@ -180,7 +180,7 @@ const deleteTask = (id = 0) => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -220,7 +220,7 @@ const addTask = () => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
@@ -259,7 +259,7 @@ const preCheckManager = () => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -295,7 +295,7 @@ const updateTasksSwitch = () => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -318,7 +318,7 @@ onMounted(() => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -338,7 +338,7 @@ onMounted(() => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -358,7 +358,7 @@ onMounted(() => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {

@@ -79,7 +79,7 @@ onMounted(async () => {
             .then((res) => {
                 if (res.code === 401) {
                     store.logout()
-                    navigateTo('login')
+                    navigateTo('/login')
                     return
                 }
                 if (res.code !== 200) {
@@ -108,7 +108,7 @@ const logout = () => {
             }
             store.logout()
             //console.log(res)
-            navigateTo('login')
+            navigateTo('/login')
         })
 }
 
@@ -127,7 +127,7 @@ const exportAccount = (password = '') => {
         .then((res) => {
             if (res.code === 401) {
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
             }
             if (res.code !== 200) {
                 return

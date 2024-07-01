@@ -76,7 +76,7 @@ const SaveSettings = (e: Event) => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -105,7 +105,7 @@ const pluginSwitch = (pluginName = '') => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -135,7 +135,7 @@ const sendTestMail = (e: Event) => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -163,7 +163,7 @@ onMounted(() => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -183,7 +183,7 @@ onMounted(() => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {
@@ -204,7 +204,7 @@ onMounted(() => {
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                navigateTo('login')
+                navigateTo('/login')
                 return
             }
             if (res.code !== 200) {

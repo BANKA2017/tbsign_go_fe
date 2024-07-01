@@ -9,7 +9,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
     const authorization = store.authorization
     if (!store.basePath) {
-        return navigateTo('add_base_path')
+        return navigateTo('/add_base_path')
     }
 
     if (!authorization.startsWith('Bearer ') || authorization === 'Bearer ') {
@@ -38,7 +38,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
                         if (['login', 'signup', 'reset_password', 'add_base_path'].includes(to.name as string)) {
                             return navigateTo(to.name as string)
                         } else {
-                            return navigateTo('login')
+                            return navigateTo('/login')
                         }
                     }
                     store.updateCache('accountInfo', res.data)
@@ -58,7 +58,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
                                     if (['login', 'signup', 'reset_password', 'add_base_path'].includes(to.name as string)) {
                                         return navigateTo(to.name as string)
                                     } else {
-                                        return navigateTo('login')
+                                        return navigateTo('/login')
                                     }
                                 }
                                 if (res.code !== 200) {
@@ -81,7 +81,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
                                     if (['login', 'signup', 'reset_password', 'add_base_path'].includes(to.name as string)) {
                                         return navigateTo(to.name as string)
                                     } else {
-                                        return navigateTo('login')
+                                        return navigateTo('/login')
                                     }
                                 }
                                 if (res.code !== 200) {
