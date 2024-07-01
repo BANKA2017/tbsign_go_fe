@@ -15,7 +15,7 @@ const pluginGroup: { [p in string]: string } = {
     kd_growth: '用户成长任务',
     ver4_ban: '循环封禁',
     ver4_rank: '贴吧名人堂助攻',
-    ver4_ref: '自动刷新贴吧列表'
+    ver4_ref: '自动同步贴吧列表'
 }
 
 const signMode = computed({

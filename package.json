@@ -12,26 +12,26 @@
         "format": "npx prettier . --write"
     },
     "dependencies": {
-        "@nuxtjs/tailwindcss": "^6.11.4",
+        "@nuxtjs/tailwindcss": "^6.12.0",
         "@pinia/nuxt": "^0.5.1",
-        "@vueuse/core": "^10.9.0",
+        "@vueuse/core": "^10.11.0",
         "@vueuse/head": "^2.0.0",
         "@vueuse/nuxt": "^10.11.0",
         "noty": "^3.2.0-beta-deprecated",
-        "nuxt": "^3.11.1",
+        "nuxt": "^3.12.2",
         "nuxt-lodash": "^2.5.3",
-        "vue": "^3.4.21",
-        "vue-router": "^4.3.0"
+        "vue": "^3.4.31",
+        "vue-router": "^4.4.0"
     },
     "devDependencies": {
-        "@nuxt/types": "^2.18.0",
+        "@nuxt/types": "^2.18.1",
         "@tailwindcss/forms": "^0.5.7",
-        "@types/node": "^20.11.30",
+        "@types/node": "^20.14.9",
         "autoprefixer": "^10.4.19",
         "pinia": "^2.1.7",
-        "postcss": "^8.4.38",
-        "prettier": "3.2.5",
-        "tailwindcss": "^3.4.1"
+        "postcss": "^8.4.39",
+        "prettier": "3.3.2",
+        "tailwindcss": "^3.4.4"
     },
     "packageManager": "yarn@3.6.1+sha512.de524adec81a6c3d7a26d936d439d2832e351cdfc5728f9d91f3fc85dd20b04391c038e9b4ecab11cae2b0dd9f0d55fd355af766bc5c1a7f8d25d96bb2a0b2ca"
 }
