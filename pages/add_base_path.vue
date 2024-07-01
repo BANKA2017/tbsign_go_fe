@@ -7,7 +7,7 @@
                         <h4 class="mb-2">API 端点列表</h4>
                         <div class="flex justify-between" v-for="endpoint in endpointList" :key="endpoint">
                             <span class="py-2">{{ endpoint }}</span>
-                            <button role="button" class="px-3 py-0.5 hover:bg-pink-500 rounded-lg transition-colors" @click="deleteEndpoint(endpoint)">
+                            <button role="button" class="px-3 py-0.5 hover:bg-pink-500 hover:text-gray-100 rounded-lg transition-colors" @click="deleteEndpoint(endpoint)">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
                                     <path
                                         fill="currentColor"
@@ -18,8 +18,8 @@
                         </div>
                     </div>
                     <label for="base-path">API 端点 (不带尾斜杠，示例: http://example.com)</label>
-                    <input class="dark:bg-black rounded-xl" id="base-path" type="text" name="base_path" v-model="basePath" />
-                    <button class="text-white mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl" @click="saveEndpoint">保存</button>
+                    <input class="bg-gray-100 dark:bg-black rounded-xl" id="base-path" type="text" name="base_path" v-model="basePath" />
+                    <button class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl" @click="saveEndpoint">保存</button>
                 </div>
             </div>
         </frame-work>

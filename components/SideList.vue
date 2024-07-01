@@ -98,9 +98,9 @@ updateNavStatus()
                     'hover:bg-sky-500': true,
                     'bg-sky-500': route.name === nav.routeName,
                     'text-black': route.name !== nav.routeName,
-                    'hover:text-white': true,
-                    'dark:text-white': true,
-                    'text-white': route.name === nav.routeName,
+                    'hover:text-gray-100': true,
+                    'dark:text-gray-100': true,
+                    'text-gray-100': route.name === nav.routeName,
                     'py-2': true
                 }"
                 :to="nav.to"

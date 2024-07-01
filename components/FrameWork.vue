@@ -1,12 +1,12 @@
 <template>
     <div id="app">
-        <div class="min-h-screen bg-white dark:bg-black text-black dark:text-white">
+        <div class="min-h-screen bg-gray-100 dark:bg-black text-black dark:text-gray-100">
             <div class="grid grid-cols-12 gap-4">
                 <div class="col-start-1 col-span-12 md:col-start-2 md:col-span-10">
                     <div class="mx-4 md:mx-1">
                         <main-title />
                         <main id="main" class="my-5">
-                            <div class="grid grid-cols-4 gap-5 dark:text-white">
+                            <div class="grid grid-cols-4 gap-5 dark:text-gray-100">
                                 <nav class="col-span-4 md:col-span-1">
                                     <side-list />
                                 </nav>
@@ -31,7 +31,7 @@
                     'transition-colors': true,
                     'duration-150': true,
                     'select-none': true,
-                    'text-white': true,
+                    'text-gray-100': true,
                     'bg-sky-500': true,
                     'hover:bg-sky-600': true,
                     'dark:hover:bg-sky-400': true,

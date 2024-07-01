@@ -272,7 +272,7 @@ onMounted(() => {
                     <div class="p-3">
                         <div class="flex justify-between my-1" v-for="(value, pluginName) in pluginList" :key="pluginName">
                             <span class="font-bold">{{ pluginGroup[pluginName] }}</span>
-                            <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-white': true, 'transition-colors': true }" @click="pluginSwitch(pluginName)">
+                            <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true }" @click="pluginSwitch(pluginName)">
                                 {{ value.status ? '已开启' : '已关闭' }}
                             </button>
                         </div>
@@ -286,14 +286,14 @@ onMounted(() => {
                     </div>
                     <form autocomplete="off">
                         <div class="p-3" v-for="_set in settingsGroup" :key="_set.name">
-                            <hr class="mb-3" />
+                            <hr class="border-gray-400 dark:border-gray-600 mb-3" />
                             <h3 class="text-lg mb-3">{{ _set.name }}</h3>
                             <template v-for="(name, key) in _set.data" :key="key">
                                 <label :for="'input-' + key" class="block text-sm font-medium mb-1 mt-3">{{ name }}</label>
                                 <textarea
                                     :id="'input-' + key"
                                     v-if="key === 'system_description'"
-                                    class="form-textarea border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white"
+                                    class="form-textarea placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100"
                                     rows="8"
                                     v-model="serverSettings[key]"
                                 />
@@ -301,7 +301,7 @@ onMounted(() => {
                                     :id="'input-' + key"
                                     v-else-if="key === 'sign_mode'"
                                     multiple
-                                    class="form-multiselect border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white"
+                                    class="form-multiselect placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100"
                                     v-model="signMode"
                                 >
                                     <option value="1">模拟手机客户端签到</option>
@@ -311,7 +311,7 @@ onMounted(() => {
                                 <select
                                     :id="'input-' + key"
                                     v-else-if="['enable_reg', 'ver4_ban_break_check'].includes(key)"
-                                    class="form-select border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white"
+                                    class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100"
                                     v-model="serverSettings[key]"
                                 >
                                     <option value="0">否</option>
@@ -320,7 +320,7 @@ onMounted(() => {
                                 <select
                                     :id="'input-' + key"
                                     v-else-if="['mail_auth'].includes(key)"
-                                    class="form-select border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white"
+                                    class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100"
                                     v-model="serverSettings[key]"
                                 >
                                     <option value="0">关闭</option>
@@ -329,7 +329,7 @@ onMounted(() => {
                                 <select
                                     :id="'input-' + key"
                                     v-else-if="['mail_secure'].includes(key)"
-                                    class="form-select border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white"
+                                    class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100"
                                     v-model="serverSettings[key]"
                                 >
                                     <!--<option value="none">无</option>-->
@@ -341,7 +341,7 @@ onMounted(() => {
                                     v-else-if="['cron_limit', 'retry_max', 'sign_sleep', 'ver4_ban_limit', 'mail_port'].includes(key)"
                                     type="number"
                                     min="0"
-                                    class="form-input border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white dark:[color-scheme:dark]"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100 dark:[color-scheme:dark]"
                                     v-model="serverSettings[key]"
                                 />
                                 <input
@@ -350,7 +350,7 @@ onMounted(() => {
                                     type="number"
                                     min="-1"
                                     max="23"
-                                    class="form-input border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white dark:[color-scheme:dark]"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100 dark:[color-scheme:dark]"
                                     v-model="serverSettings[key]"
                                 />
                                 <input
@@ -359,27 +359,27 @@ onMounted(() => {
                                     type="number"
                                     min="30"
                                     :max="10 * 24 * 60 * 60"
-                                    class="form-input border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white dark:[color-scheme:dark]"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100 dark:[color-scheme:dark]"
                                     v-model="serverSettings[key]"
                                 />
                                 <input
                                     :id="'input-' + key"
                                     v-else-if="key === 'mail_smtppw'"
                                     type="password"
-                                    class="form-input border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white dark:[color-scheme:dark]"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100 dark:[color-scheme:dark]"
                                     v-model="serverSettings[key]"
                                 />
                                 <input
                                     :id="'input-' + key"
                                     v-else
                                     type="text"
-                                    class="form-input border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100"
                                     v-model="serverSettings[key]"
                                 />
                             </template>
                             <button type="button" v-if="_set.name === '邮件'" class="px-3 py-1 mt-3 rounded-lg border-2 hover:bg-[#e5e7eb] hover:text-black transition-colors" @click="sendTestMail">发送测试邮件</button>
                         </div>
-                        <input type="submit" role="button" class="text-white text-lg bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded ml-3 px-5 py-1 transition-colors" @click="SaveSettings" value="保存" />
+                        <input type="submit" role="button" class="text-gray-100 text-lg bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded ml-3 px-5 py-1 transition-colors" @click="SaveSettings" value="保存" />
                     </form>
                 </div>
             </div>

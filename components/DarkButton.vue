@@ -1,5 +1,5 @@
 <template>
-    <button class="aspect-square rounded-xl tex-3xl transition-colors bg-gray-100 hover:bg-gray-200 text-gray-900 dark:bg-gray-900 dark:hover:bg-gray-800 dark:text-gray-100" @click="switchDarkModeProxy">
+    <button class="aspect-square rounded-xl tex-3xl transition-colors bg-gray-200 hover:bg-gray-300 text-gray-900 dark:bg-gray-900 dark:hover:bg-gray-800 dark:text-gray-100" @click="switchDarkModeProxy">
         <!--auto-->
         <svg v-if="darkMode === '0'" xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="p-2" viewBox="0 0 16 16">
             <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />

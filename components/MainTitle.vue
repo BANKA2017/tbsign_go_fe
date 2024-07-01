@@ -1,7 +1,7 @@
 <template>
     <div class="py-6">
         <div class="flex items-center justify-between">
-            <div class="text-3xl py-1 bg-clip-text flex text-black dark:text-white">
+            <div class="text-3xl py-1 bg-clip-text flex text-black dark:text-gray-100">
                 TbSign<svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 32 32" class="ml-1">
                     <g fill="none">
                         <path fill="#00A6ED" d="M2 6a4 4 0 0 1 4-4h20a4 4 0 0 1 4 4v20a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4z" />

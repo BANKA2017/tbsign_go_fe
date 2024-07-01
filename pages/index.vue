@@ -5,9 +5,9 @@
                 <div class="mx-3 my-2">
                     <div class="border border-sky-500 border-l-8 rounded-xl p-2">
                         <h4 class="text-lg font-bold">公告</h4>
-                        <hr class="my-2" />
+                        <hr class="border-gray-400 dark:border-gray-600 my-2" />
                         <p v-if="notifications">{{ notifications }}</p>
-                        <svg class="animate-spin h-5 w-5 dark:text-white text-sky-500" v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg class="animate-spin h-5 w-5 dark:text-gray-100 text-sky-500" v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -20,17 +20,17 @@
                     <div class="flex flex-col">
                         <div class="text-2xl">
                             {{ accountInfo.name }}
-                            <span class="text-sm rounded-full text-white bg-green-600 dark:bg-green-800 px-2 mx-1">uid: {{ accountInfo.uid }}</span>
-                            <span class="text-sm rounded-full text-white bg-sky-600 dark:bg-sky-800 px-2 mx-1">role: {{ accountInfo.role }}</span>
+                            <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2 mx-1">uid: {{ accountInfo.uid }}</span>
+                            <span class="text-sm rounded-full text-gray-100 bg-sky-600 dark:bg-sky-800 px-2 mx-1">role: {{ accountInfo.role }}</span>
                         </div>
                         <span class="text-sm">{{ accountInfo.email }}</span>
                     </div>
                     <img v-show="gravatarImg" :src="gravatarImg" alt="gravatar-avatar" class="w-20 h-20 rounded-2xl my-1" />
                 </div>
-                <hr class="px-3" />
+                <hr class="border-gray-400 dark:border-gray-600 px-3" />
                 <div class="inline-block md:block">
-                    <NuxtLink role="button" class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-pink-600 dark:hover:bg-pink-400 bg-pink-500 text-white py-2" to="/login" @click="logout"> 登出 </NuxtLink>
-                    <!--<button class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-sky-400 bg-sky-500 text-white py-2" @click="exportAccount"> 导出 </button>-->
+                    <NuxtLink role="button" class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-pink-600 dark:hover:bg-pink-400 bg-pink-500 text-gray-100 py-2" to="/login" @click="logout"> 登出 </NuxtLink>
+                    <!--<button class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-sky-400 bg-sky-500 text-gray-100 py-2" @click="exportAccount"> 导出 </button>-->
                 </div>
                 <!--<div class="px-3 py-2">
                                 <span class="text-lg">签到状态</span>

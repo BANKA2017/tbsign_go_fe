@@ -165,13 +165,13 @@ onMounted(() => {
 
                 <div class="my-5">
                     <p class="my-2">默认只做签到任务，选择全部任务将会尝试完成所有日常任务</p>
-                    <select v-model="settings.sign_only" class="dark:bg-black dark:text-white form-select">
+                    <select v-model="settings.sign_only" class="bg-gray-100 dark:bg-black dark:text-gray-100 form-select">
                         <option value="0">仅签到</option>
                         <option value="1">全部任务</option>
                     </select>
                 </div>
 
-                <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded-lg px-3 py-1 text-white transition-colors" @click="saveSettings">保存</button>
+                <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded-lg px-3 py-1 text-gray-100 transition-colors" @click="saveSettings">保存</button>
             </div>
 
             <div class="px-3 py-2">
@@ -179,7 +179,7 @@ onMounted(() => {
 
                 <div class="marker:text-sky-500 my-5" v-if="Object.keys(canSelectPIDList).length">
                     <label for="pid-to-add">添加</label>
-                    <select id="pid-to-add" v-model="selectedPID" class="dark:bg-black dark:text-white form-select block w-full my-3">
+                    <select id="pid-to-add" v-model="selectedPID" class="bg-gray-100 dark:bg-black dark:text-gray-100 form-select block w-full my-3">
                         <option v-for="(name, pid) in canSelectPIDList" :key="pid" :value="pid">{{ name }}</option>
                     </select>
 
@@ -210,8 +210,8 @@ onMounted(() => {
                         <summary class="cursor-pointer"><span class="font-bold ml-1">日志</span></summary>
                         <li class="marker:text-sky-500 ml-3 break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
                     </details>
-                    <hr class="my-3" />
-                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-white transition-colors" @click="deleteTask(task.id)">删除</button>
+                    <hr class="border-gray-400 dark:border-gray-600 my-3" />
+                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors" @click="deleteTask(task.id)">删除</button>
                 </div>
             </div>
         </frame-work>

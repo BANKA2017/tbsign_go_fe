@@ -164,22 +164,22 @@ onMounted(() => {
 <template>
     <NuxtLayout name="tbsign">
         <frame-work>
-            <div class="rounded-2xl bg-gray-300 dark:bg-gray-900 p-5 mb-10">暂时没有防呆设计，注意别手抖删错号</div>
+            <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-10">暂时没有防呆设计，注意别手抖删错号</div>
             <div class="w-full">
-                <select id="page" v-model="page" class="rounded-xl dark:bg-black dark:text-white form-select block w-full my-2">
+                <select id="page" v-model="page" class="rounded-xl bg-gray-100 dark:bg-black dark:text-gray-100 form-select block w-full my-2">
                     <option v-for="(_, i) in new Array(Math.ceil(total / count))" :key="'page-' + i" :value="i + 1">{{ i + 1 }} 页</option>
                 </select>
                 <div v-for="(listItem, index) in list" :key="listItem.id" class="p-3 rounded-xl mb-5">
-                    <hr v-if="index > 0" class="my-3" />
+                    <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-3" />
                     <div class="text-2xl">
-                        <span class="text-sm rounded-full text-white bg-green-600 dark:bg-green-800 px-2 mr-1">uid: {{ listItem.id }}</span>
+                        <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2 mr-1">uid: {{ listItem.id }}</span>
                     </div>
                     <label :for="'username-' + listItem.id">用户名</label>
                     <input
                         :id="'username-' + listItem.id"
                         autocomplete="username"
                         type="text"
-                        class="my-2 rounded-xl border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white"
+                        class="my-2 rounded-xl placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100"
                         v-model="list[index].name"
                     />
                     <label :for="'user-email-' + listItem.id">邮箱</label>
@@ -187,19 +187,19 @@ onMounted(() => {
                         :id="'user-email-' + listItem.id"
                         autocomplete="email"
                         type="email"
-                        class="my-2 rounded-xl border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full dark:bg-black dark:text-white"
+                        class="my-2 rounded-xl placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100"
                         v-model="list[index].email"
                     />
                     <label :for="'user-group-' + listItem.id">用户组</label>
-                    <select :id="'user-group-' + listItem.id" v-model="list[index].role" class="rounded-xl dark:bg-black dark:text-white form-select block w-full my-2">
+                    <select :id="'user-group-' + listItem.id" v-model="list[index].role" class="rounded-xl bg-gray-100 dark:bg-black dark:text-gray-100 form-select block w-full my-2">
                         <option v-for="name in userGroupList" :key="name" :value="name">{{ name }}</option>
                     </select>
 
                     <div class="flex justify-start gap-2 mt-5">
-                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors" @click="saveSettings(listItem.id)">保存</button>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100" @click="saveSettings(listItem.id)">保存</button>
                         <!--<button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors" @click="deleteAccount(listItem.id)">删除</button>-->
-                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors" @click="kickDown(listItem.id)">下线</button>
-                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors" @click="deleteTiebaAccounts(listItem.id)">清空</button>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100" @click="kickDown(listItem.id)">下线</button>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100" @click="deleteTiebaAccounts(listItem.id)">清空</button>
                     </div>
                 </div>
             </div>

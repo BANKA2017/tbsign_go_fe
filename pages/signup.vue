@@ -3,16 +3,16 @@
         <frame-work>
             <div class="flex justify-center">
                 <form class="rounded-2xl p-5 flex grow flex-col gap-2 max-w-[32em]">
-                    <span class="rounded-2xl bg-gray-300 dark:bg-gray-900 p-5 mb-10">正在注册 {{ basePath }}</span>
+                    <span class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-10">正在注册 {{ basePath }}</span>
                     <label for="name">用户名</label>
-                    <input class="dark:bg-black rounded-xl" id="name" type="text" placeholder="用户名" v-model="name" />
+                    <input class="bg-gray-100 dark:bg-black rounded-xl" id="name" type="text" placeholder="用户名" v-model="name" />
                     <label for="email">邮箱</label>
-                    <input class="dark:bg-black rounded-xl" id="email" type="email" placeholder="邮箱" v-model="email" />
+                    <input class="bg-gray-100 dark:bg-black rounded-xl" id="email" type="email" placeholder="邮箱" v-model="email" />
                     <label for="password">密码</label>
-                    <input class="dark:bg-black rounded-xl" autocomplete="new-password" id="password" type="password" placeholder="密码" v-model="password" />
+                    <input class="bg-gray-100 dark:bg-black rounded-xl" autocomplete="new-password" id="password" type="password" placeholder="密码" v-model="password" />
                     <label v-show="pageLoginConfig?.enabled_invite_code" for="invite-code">邀请码</label>
-                    <input v-show="pageLoginConfig?.enabled_invite_code" class="dark:bg-black rounded-xl" id="invite-code" type="text" placeholder="邀请码" v-model="inviteCode" />
-                    <input type="submit" role="button" class="text-white rounded-xl mt-3 px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 transition-colors" @click="signup" value="注册" />
+                    <input v-show="pageLoginConfig?.enabled_invite_code" class="bg-gray-100 dark:bg-black rounded-xl" id="invite-code" type="text" placeholder="邀请码" v-model="inviteCode" />
+                    <input type="submit" role="button" class="text-gray-100 rounded-xl mt-3 px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 transition-colors" @click="signup" value="注册" />
                 </form>
             </div>
         </frame-work>

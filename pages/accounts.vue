@@ -275,20 +275,20 @@ onMounted(() => {
 <template>
     <NuxtLayout name="tbsign">
         <frame-work>
-            <div class="rounded-2xl bg-gray-100 dark:bg-gray-900 p-5 mb-5">
+            <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5">
                 共绑定 {{ tbStatus.accountCount }} 个帐号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，还有
                 <span class="text-orange-500">{{ tbStatus.pending }}</span> 个贴吧等待签到
             </div>
             <div class="my-5 grid grid-cols-4 gap-2 max-w-[32em]">
-                <button @click="newTiebaAccount" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 hover:bg-[#e5e7eb] hover:text-black transition-colors" title="扫码登录并进行绑定或更新">绑定账号</button>
-                <button @click="syncTiebaList" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 hover:bg-[#e5e7eb] hover:text-black transition-colors" title="从贴吧拉取列表，更新数据库">同步列表</button>
-                <button @click="cleanTiebaList" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 hover:bg-[#e5e7eb] hover:text-black transition-colors" title="清空贴吧列表">清空列表</button>
-                <button @click="checkAccountStatus" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 hover:bg-[#e5e7eb] hover:text-black transition-colors" title="检查帐号状态">检查状态</button>
+                <button @click="newTiebaAccount" class="col-span-2 md:col-span-1 rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="扫码登录并进行绑定或更新">绑定账号</button>
+                <button @click="syncTiebaList" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="从贴吧拉取列表，更新数据库">同步列表</button>
+                <button @click="cleanTiebaList" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="清空贴吧列表">清空列表</button>
+                <button @click="checkAccountStatus" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="检查帐号状态">检查状态</button>
             </div>
 
             <div class="grid grid-cols-12 gap-2 my-2">
-                <div v-for="(account, index) in accounts" :key="account.id" class="bg-gray-100 dark:bg-gray-900 col-span-12 rounded-2xl py-2 px-3">
-                    <div class="flex justify-between cursor-pointer sticky top-0 bg-gray-100 dark:bg-gray-900" @click="accounts[index].more = !accounts[index].more">
+                <div v-for="(account, index) in accounts" :key="account.id" class="bg-gray-200 dark:bg-gray-800 col-span-12 rounded-2xl py-2 px-3">
+                    <div class="flex justify-between cursor-pointer sticky top-0 bg-gray-200 dark:bg-gray-800" @click="accounts[index].more = !accounts[index].more">
                         <div class="flex gap-3">
                             <div class="relative">
                                 <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1" />
@@ -327,9 +327,9 @@ onMounted(() => {
                         </div>
                     </div>
                     <div :class="{ 'my-3': true, hidden: !accounts[index].more }">
-                        <hr class="mb-3" />
+                        <hr class="border-gray-400 dark:border-gray-600 mb-3" />
                         <div v-for="(tiebaItem, i) in tbList[account.id]" :key="tiebaItem.id">
-                            <hr v-if="i > 0" class="my-1" />
+                            <hr v-if="i > 0" class="border-gray-400 dark:border-gray-600 my-1" />
                             <div class="flex justify-between">
                                 <div class="flex flex-col">
                                     <NuxtLink class="block hover:underline underline-offset-2" :to="`https://tieba.baidu.com/f?kw=${tiebaItem.tieba}`" target="blank">{{ tiebaItem.tieba }}</NuxtLink>
@@ -386,7 +386,7 @@ onMounted(() => {
                     'transition-colors': true,
                     'duration-150': true,
                     'select-none': true,
-                    'text-white': true,
+                    'text-gray-100': true,
                     'bg-sky-500': true,
                     'hover:bg-sky-600': true,
                     'dark:hover:bg-sky-400': true,
