@@ -50,7 +50,8 @@ watch(basePath, () => {
             }
             store.updateCache('config_page_login', res.data)
             //console.log(res)
-        }).catch(e => {
+        })
+        .catch((e) => {
             store.updateValue('loading', false)
             Notice(e.toString(), 'error')
             console.error(e)
@@ -74,10 +75,11 @@ const sendLogin = (e: Event) => {
         .then((res) => res.json())
         .then((res) => {
             store.updateValue('loading', false)
-            Notice(res.code === 200 ? '登录成功' : res.message, res.code === 200 ? 'success' : 'error')
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
+            Notice('登录成功', 'success')
             if (res.data.token) {
                 store.updateAuthorization(res.data.token)
                 navigateTo('/')

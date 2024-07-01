@@ -62,10 +62,11 @@ const deleteAccount = async (id: string) => {
                 navigateTo('login')
                 return
             }
-            Notice(res.code === 200 ? '已删除 pid:' + id : res.message, res.code === 200 ? 'success' : 'error')
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
+            Notice('已删除 pid:' + id, 'success')
             store.updateCache(
                 'accounts',
                 accounts.value.filter((item) => item.id !== res.data.pid)
@@ -93,10 +94,11 @@ const cleanTiebaList = async () => {
                 navigateTo('login')
                 return
             }
-            Notice(res.code === 200 ? '已清空帐号' : res.message, res.code === 200 ? 'success' : 'error')
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
+            Notice('已清空帐号', 'success')
             store.updateCache('list', [])
             //console.log(res)
         })
@@ -163,10 +165,11 @@ const syncTiebaList = async () => {
                 navigateTo('login')
                 return
             }
-            Notice(res.code === 200 ? '列表已同步' : res.message, res.code === 200 ? 'success' : 'error')
             if (res.code !== 200) {
+                Notice(res.message, 'error')
                 return
             }
+            Notice('列表已同步', 'success')
             store.updateCache('list', res.data)
             //console.log(res)
         })
@@ -235,18 +238,20 @@ onMounted(() => {
                                 //console.log(res)
                                 router.replace({ query: {} })
                                 if (res.code === 201) {
-                                    Notice(res.code === 200 ? '已添加 @' + res.data?.name || res.data?.portrait : res.message, res.code === 200 ? 'success' : 'error')
+                                    Notice('已添加 @' + res.data?.name || res.data?.portrait, 'success')
                                     accounts.value.push(res.data)
                                     return
                                 } else if (res.code === 200) {
                                     for (const accountIndex in accounts.value) {
                                         if (accounts.value[accountIndex].portrait === res.data.portrait) {
-                                            Notice(res.code === 200 ? '更新 BDUSS 信息成功 @' + res.data.name || res.data.portrait : res.message, res.code === 200 ? 'success' : 'error')
+                                            Notice('更新 BDUSS 信息成功 @' + res.data.name || res.data.portrait, 'success')
                                             accounts.value[accountIndex] = res.data
                                             //console.log('find', accountIndex)
                                             return
                                         }
                                     }
+                                } else {
+                                    Notice(res.message, 'error')
                                 }
                             })
                     } else {

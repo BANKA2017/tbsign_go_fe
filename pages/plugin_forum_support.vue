@@ -96,7 +96,7 @@ const saveSettings = () => {
                 navigateTo('login')
                 return
             }
-            if (res.code !== 200) {
+            if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
                 Notice(res.message, 'error')
                 return
             }

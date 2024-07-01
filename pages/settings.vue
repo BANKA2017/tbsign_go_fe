@@ -36,10 +36,11 @@ const saveSettings = (e: Event) => {
                     navigateTo('login')
                     return
                 }
-                Notice(res.code === 200 ? '邮箱修改成功' : res.message, res.code === 200 ? 'success' : 'error')
-                if (res.code !== 200) {
+                if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
+                    Notice(res.message, 'error')
                     return
                 }
+                Notice('邮箱修改成功', 'success')
                 const newAccountInfo = JSON.parse(JSON.stringify(accountInfo.value))
                 newAccountInfo.email = res.data.email
                 store.updateCache('accountInfo', newAccountInfo)
@@ -64,10 +65,11 @@ const saveSettings = (e: Event) => {
                     navigateTo('login')
                     return
                 }
-                Notice(res.code === 200 ? '密码修改成功' : res.message, res.code === 200 ? 'success' : 'error')
-                if (res.code !== 200) {
+                if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
+                    Notice(res.message, 'error')
                     return
                 }
+                Notice('密码修改成功', 'success')
                 store.updateAuthorization(res.data.token)
                 //console.log(res)
             })
