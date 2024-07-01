@@ -26,7 +26,7 @@ const state = reactive<{
         //{ name: '更多工具', to: '/tools', routeName: 'tools', active: false, show: true },
         { name: '登录', to: '/login', routeName: 'login', active: false, show: true },
         { name: '注册', to: '/signup', routeName: 'signup', active: false, show: true },
-        { name: '重设密码', to: '/reset_password', routeName: 'reset_password', active: false, show: true },
+        { name: '找回密码', to: '/reset_password', routeName: 'reset_password', active: false, show: true },
         { name: '接口控制', to: '/add_base_path', routeName: 'add_base_path', active: false, show: true }
     ]
 })
