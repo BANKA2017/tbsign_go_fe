@@ -35,7 +35,7 @@ const resignStatus = computed(() => {
             .replace(';}', '}')
             .replaceAll(';', ',')
     )
-    return tmpStatus.lastdo + ` [${tmpStatus.num}]`
+    return tmpStatus.lastdo + ` / ${tmpStatus.num}`
 })
 
 const settingsGroup = {
@@ -234,9 +234,6 @@ onMounted(() => {
                                 <span class="font-bold">Go 版本 : </span><span class="font-mono">{{ serverStatus.goversion }}</span>
                             </li>
                             <li class="marker:text-sky-500">
-                                <span class="font-bold">Hostname : </span><span class="font-mono">{{ serverStatus.hostname }}</span>
-                            </li>
-                            <li class="marker:text-sky-500">
                                 <span class="font-bold">数据库模式 : </span><span class="font-mono">{{ serverStatus.variables?.dbmode }}</span>
                             </li>
                             <li class="marker:text-sky-500">
@@ -260,7 +257,7 @@ onMounted(() => {
                                 <span class="font-bold">贴吧总数 : </span><span class="font-mono">{{ serverStatus.forum_count }}</span>
                             </li>
                             <li class="marker:text-teal-500">
-                                <span class="font-bold">重签情况 : </span><span class="font-mono">{{ resignStatus }}</span>
+                                <span class="font-bold">最后签到/重签次数 : </span><span class="font-mono">{{ resignStatus }}</span>
                             </li>
                         </div>
                     </div>
