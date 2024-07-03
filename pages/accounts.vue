@@ -81,7 +81,7 @@ const str_to_base64url = (text: string) => {
 }
 
 const cleanTiebaList = async () => {
-    fetch(store.basePath + '/list/clean', {
+    fetch(store.basePath + '/list', {
         headers: {
             Authorization: store.authorization
         },
