@@ -216,7 +216,7 @@ const updateIgnoreForum = (pid = 0, fid = 0) => {
                 return
             }
             const tmpList = list.value
-            Notice((res.data.no ? '已忽略 ' : '已恢复') + pidNameKV.value[res.data.pid] + '/' + tmpList[forumIndex]?.tieba || 'fid:' + tmpList[forumIndex]?.fid, 'success')
+            Notice((res.data.no ? '已忽略 ' : '已恢复 ') + pidNameKV.value[res.data.pid] + '/' + tmpList[forumIndex]?.tieba || 'fid:' + tmpList[forumIndex]?.fid, 'success')
             tmpList[forumIndex].no = res.data.no
             store.updateCache('list', tmpList)
             //console.log(res)
