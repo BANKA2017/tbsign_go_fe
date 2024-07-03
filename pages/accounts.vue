@@ -85,7 +85,7 @@ const cleanTiebaList = async () => {
         headers: {
             Authorization: store.authorization
         },
-        method: 'POST'
+        method: 'DELETE'
     })
         .then((res) => res.json())
         .then((res) => {
