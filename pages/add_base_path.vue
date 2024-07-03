@@ -3,7 +3,10 @@
         <frame-work>
             <div class="flex justify-center">
                 <div class="rounded-2xl p-5 flex grow flex-col gap-2 max-w-[32em]">
-                    <div>
+                    <div v-if="runtimeConfig.public.NUXT_BASE_PATH">
+                        <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2">不允许修改专有实例的端点</div>
+                    </div>
+                    <div v-else>
                         <h4 class="mb-2">API 端点列表</h4>
                         <div class="flex justify-between" v-for="endpoint in endpointList" :key="endpoint">
                             <span class="py-2">{{ endpoint }}</span>
@@ -29,6 +32,7 @@
 import FrameWork from '~/components/FrameWork.vue'
 
 const store = useMainStore()
+const runtimeConfig = useRuntimeConfig()
 const config = computed({
     get() {
         return Object.fromEntries(Object.entries(store.config).filter((c) => c[0]))

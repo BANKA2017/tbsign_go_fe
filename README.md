@@ -33,6 +33,10 @@
 
 编辑环境变量 `NUXT_BASE_PATH`，填入后端地址，即可成为专有前端
 
+#### 嵌入式前端
+
+请参考 [BANKA2017/tbsign_go#嵌入式前端](https://github.com/BANKA2017/tbsign_go?tab=readme-ov-file#%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%89%8D%E7%AB%AF)
+
 ### 限制
 
 部分功能需要后端支持才会启用

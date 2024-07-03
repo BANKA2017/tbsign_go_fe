@@ -35,7 +35,7 @@ const resignStatus = computed(() => {
             .replace(';}', '}')
             .replaceAll(';', ',')
     )
-    return tmpStatus.lastdo + ` / ${tmpStatus.num}`
+    return tmpStatus.lastdo + `/${tmpStatus.num}`
 })
 
 const settingsGroup = {
