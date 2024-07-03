@@ -126,9 +126,10 @@ const tblistFilter = computed(() => {
     let _list: { [p in string]: any } = {}
     for (const pid in tbList.value) {
         _list[pid] = {
-            success: tbList.value[pid].filter((item) => item.status === 0 && new Date().getDate() === item.latest).length,
-            failed: tbList.value[pid].filter((item) => item.status !== 0 && new Date().getDate() === item.latest).length,
-            pending: tbList.value[pid].filter((item) => new Date().getDate() !== item.latest).length
+            success: tbList.value[pid].filter((item) => !item.no && item.status === 0 && new Date().getDate() === item.latest).length,
+            failed: tbList.value[pid].filter((item) => !item.no && item.status !== 0 && new Date().getDate() === item.latest).length,
+            pending: tbList.value[pid].filter((item) => !item.no && new Date().getDate() !== item.latest).length,
+            ignore: tbList.value[pid].filter((item) => item.no).length
         }
     }
     return _list
@@ -139,12 +140,14 @@ const tbStatus = computed(() => {
     const successCount = tmpData.reduce((p, c) => p + c.success, 0)
     const failedCount = tmpData.reduce((p, c) => p + c.failed, 0)
     const pendingCount = tmpData.reduce((p, c) => p + c.pending, 0)
+    const ignoreCount = tmpData.reduce((p, c) => p + c.ignore, 0)
 
     return {
         accountCount: tmpData.length,
         success: successCount,
         failed: failedCount,
         pending: pendingCount,
+        ignore: ignoreCount,
         forumCount: list.value?.length || 0
     }
 })
@@ -185,12 +188,7 @@ const updateIgnoreForum = (pid = 0, fid = 0) => {
     if (pid <= 0 || fid <= 0) {
         return
     }
-    console.log(
-        (list.value || []).map((forumData) => `${forumData?.pid || -1},${forumData?.fid || -1}`),
-        (list.value || []).map((forumData) => `${forumData?.pid || -1},${forumData?.fid || -1}`).indexOf(`${pid},${fid}`),
-        pid,
-        fid
-    )
+
     let forumIndex = (list.value || []).map((forumData) => `${forumData?.pid || -1},${forumData?.fid || -1}`).indexOf(`${pid},${fid}`)
 
     if (forumIndex === -1) {
@@ -326,8 +324,8 @@ onMounted(() => {
     <NuxtLayout name="tbsign">
         <frame-work>
             <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5">
-                共绑定 {{ tbStatus.accountCount }} 个帐号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，还有
-                <span class="text-orange-500">{{ tbStatus.pending }}</span> 个贴吧等待签到
+                共绑定 {{ tbStatus.accountCount }} 个帐号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，忽略
+                <span class="text-gray-600 dark:text-gray-400">{{ tbStatus.failed }}</span> 个，还有 <span class="text-orange-500">{{ tbStatus.pending }}</span> 个贴吧等待签到
             </div>
             <div class="my-5 grid grid-cols-4 gap-2 max-w-[32em]">
                 <button @click="newTiebaAccount" class="col-span-2 md:col-span-1 rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="扫码登录并进行绑定或更新">绑定账号</button>
@@ -356,8 +354,8 @@ onMounted(() => {
                                 <div class="text-sm">
                                     <span class="text-green-500">{{ tblistFilter[account.id]?.success || 0 }}</span>
                                     /
-                                    <span class="text-orange-500">{{ tblistFilter[account.id]?.pending || 0 }}</span> /
-                                    <span class="text-pink-500">{{ tblistFilter[account.id]?.failed || 0 }}</span>
+                                    <span class="text-orange-500">{{ tblistFilter[account.id]?.pending || 0 }}</span> / <span class="text-pink-500">{{ tblistFilter[account.id]?.failed || 0 }}</span> /
+                                    <span class="text-gray-600 dark:text-gray-400">{{ tblistFilter[account.id]?.ignore || 0 }}</span>
                                 </div>
                             </div>
                         </div>
