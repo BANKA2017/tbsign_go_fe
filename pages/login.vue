@@ -3,11 +3,14 @@
         <frame-work>
             <div class="flex justify-center">
                 <form class="rounded-2xl p-2 grow flex flex-col gap-2 max-w-[32em]">
-                    <label for="endpoint">API 端点</label>
-                    <select id="endpoint" class="bg-gray-100 dark:bg-black rounded-xl" v-model="basePath">
-                        <option v-for="endpoint in endpointList" :key="endpoint" :value="endpoint">{{ endpoint }}</option>
-                    </select>
-                    <NuxtLink to="add_base_path" class="text-sm underline underline-offset-2">添加端点</NuxtLink>
+                    <template v-if="runtimeConfig.public.NUXT_BASE_PATH === ''">
+                        <label for="endpoint">API 端点</label>
+                        <select id="endpoint" class="bg-gray-100 dark:bg-black rounded-xl" v-model="basePath">
+                            <option v-for="endpoint in endpointList" :key="endpoint" :value="endpoint">{{ endpoint }}</option>
+                        </select>
+                        <NuxtLink to="add_base_path" class="text-sm underline underline-offset-2">添加端点</NuxtLink>
+                    </template>
+
                     <label for="email">帐号</label>
                     <input class="bg-gray-100 dark:bg-black rounded-xl" id="email" type="text" name="email" placeholder="邮箱/用户名" v-model="account" />
                     <label for="password">密码</label>
@@ -24,6 +27,7 @@ import { Notice } from '~/share/Tools'
 
 const store = useMainStore()
 const endpointList = computed(() => Object.keys(store.config))
+const runtimeConfig = useRuntimeConfig()
 
 const account = ref<string>('')
 const password = ref<string>('')

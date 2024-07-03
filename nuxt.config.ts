@@ -6,8 +6,7 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
-            NUXT_BASE_PATH: process.env.NUXT_BASE_PATH,
-            NUXT_GA_ID: process.env.NUXT_GA_ID
+            NUXT_BASE_PATH: process.env.NUXT_BASE_PATH
         }
     },
     modules: [

@@ -10,10 +10,11 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
     // check status
     const store = useMainStore()
+    const runtimeConfig = useRuntimeConfig()
 
     if (!store.basePath) {
         try {
-            let tmpBasePath = importEndpoint || localStorage.getItem('tc_base_path') || ''
+            let tmpBasePath = runtimeConfig.public.NUXT_BASE_PATH || importEndpoint || localStorage.getItem('tc_base_path') || ''
             if (tmpBasePath.endsWith('/')) {
                 tmpBasePath = tmpBasePath.replace(/\/+$/, '')
             }

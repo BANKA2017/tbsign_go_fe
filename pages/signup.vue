@@ -3,7 +3,7 @@
         <frame-work>
             <div class="flex justify-center">
                 <form class="rounded-2xl p-5 flex grow flex-col gap-2 max-w-[32em]">
-                    <span class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-10">正在注册 {{ basePath }}</span>
+                    <span v-if="runtimeConfig.public.NUXT_BASE_PATH === ''" class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-10">正在注册 {{ basePath }}</span>
                     <label for="name">用户名</label>
                     <input class="bg-gray-100 dark:bg-black rounded-xl" id="name" type="text" placeholder="用户名" v-model="name" />
                     <label for="email">邮箱</label>
@@ -25,6 +25,7 @@ import { Notice } from '~/share/Tools'
 const store = useMainStore()
 const basePath = computed(() => store._basePath)
 const pageLoginConfig = computed(() => store._cache?.config_page_login)
+const runtimeConfig = useRuntimeConfig()
 watch(pageLoginConfig, () => {
     if (!pageLoginConfig.value?.enabled_signup) {
         navigateTo('/login')

@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 import { useMainStore } from '~/stores/main'
 
 const store = useMainStore()
+const runtimeConfig = useRuntimeConfig()
 
 const isAdmin = computed(() => store.admin)
 const authorization = computed(() => store.rawAuthorization)
@@ -37,8 +38,10 @@ const updateNavStatus = () => {
     for (const i in state.navs) {
         switch (state.navs[i].routeName) {
             case 'login':
-            case 'add_base_path':
                 state.navs[i].active = authorization.value === ''
+                break
+            case 'add_base_path':
+                state.navs[i].active = authorization.value === '' && runtimeConfig.public.NUXT_BASE_PATH === ''
                 break
             case 'signup':
                 state.navs[i].active = (authorization.value === '' && pageLoginConfig.value?.enabled_signup) || false
