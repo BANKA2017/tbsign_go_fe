@@ -5,6 +5,7 @@ import { Notice } from '~/share/Tools'
 
 const store = useMainStore()
 const pidNameKV = computed(() => store.pidNameKV)
+const loading = computed(() => store.loading)
 
 const settings = ref<{ reason: string }>({ reason: '' })
 const isVisualEditor = ref<boolean>(true)
@@ -307,7 +308,42 @@ const updateTasksSwitch = () => {
         })
 }
 
+const getLoopBanList = () => {
+    store.updateValue('loading', true)
+    fetch(store.basePath + '/plugins/loop_ban/list', {
+        headers: {
+            Authorization: store.authorization
+        }
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            store.updateValue('loading', false)
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('/login')
+                return
+            }
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            tasksList.value = res.data?.list || []
+            limit.value = res.data?.limit || 0
+            if (limit.value < 0) {
+                limit.value = 0
+            }
+            //console.log(res)
+        })
+        .catch((e) => {
+            console.error(e)
+            Notice(e.toString(), 'error')
+            store.updateValue('loading', false)
+        })
+}
+
 onMounted(() => {
+    getLoopBanList()
     fetch(store.basePath + '/plugins/loop_ban/reason', {
         headers: {
             Authorization: store.authorization
@@ -346,30 +382,6 @@ onMounted(() => {
                 return
             }
             tasksSwitch.value = res.data
-            //console.log(res)
-        })
-    fetch(store.basePath + '/plugins/loop_ban/list', {
-        headers: {
-            Authorization: store.authorization
-        }
-    })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            tasksList.value = res.data?.list || []
-            limit.value = res.data?.limit || 0
-            if (limit.value < 0) {
-                limit.value = 0
-            }
             //console.log(res)
         })
 })
@@ -488,6 +500,33 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
                     <hr class="border-gray-400 dark:border-gray-600 my-3" />
                     <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors" @click="deleteTask(task.id)">删除</button>
                 </div>
+            </div>
+            <div
+                :class="{
+                    fixed: true,
+                    'right-5': true,
+                    'bottom-32': true,
+                    'px-3': true,
+                    'py-2': true,
+                    'cursor-pointer': true,
+                    'transition-colors': true,
+                    'duration-150': true,
+                    'select-none': true,
+                    'text-gray-100': true,
+                    'bg-sky-500': true,
+                    'hover:bg-sky-600': true,
+                    'dark:hover:bg-sky-400': true,
+                    'rounded-md': true
+                }"
+                style="z-index: 9999"
+                @click="getLoopBanList"
+            >
+                <svg :class="{ 'animate-spin': loading }" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
+                    <g fill="currentColor">
+                        <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
+                        <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182a.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
+                    </g>
+                </svg>
             </div>
         </frame-work>
     </NuxtLayout>
