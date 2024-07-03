@@ -10,6 +10,7 @@ const router = useRouter()
 
 const list = computed(() => store._cache?.list)
 const accounts = computed(() => store._cache?.accounts)
+const pidNameKV = computed(() => store.pidNameKV)
 
 const newTiebaAccount = () => {
     if (typeof window === 'undefined') {
@@ -180,6 +181,55 @@ const syncTiebaList = async () => {
         })
 }
 
+const updateIgnoreForum = (pid = 0, fid = 0) => {
+    if (pid <= 0 || fid <= 0) {
+        return
+    }
+    console.log(
+        (list.value || []).map((forumData) => `${forumData?.pid || -1},${forumData?.fid || -1}`),
+        (list.value || []).map((forumData) => `${forumData?.pid || -1},${forumData?.fid || -1}`).indexOf(`${pid},${fid}`),
+        pid,
+        fid
+    )
+    let forumIndex = (list.value || []).map((forumData) => `${forumData?.pid || -1},${forumData?.fid || -1}`).indexOf(`${pid},${fid}`)
+
+    if (forumIndex === -1) {
+        Notice('pid:' + pid + '/fid:' + fid + ' 不存在')
+        return
+    }
+    const forumInfo = list.value[forumIndex]
+    store.updateValue('loading', true)
+    fetch(store.basePath + '/list/' + forumInfo.pid + '/' + forumInfo.fid + '/ignore', {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: forumInfo?.no ? 'DELETE' : 'PUT'
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            store.updateValue('loading', false)
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('/login')
+                return
+            }
+            if (res.code !== 200) {
+                return
+            }
+            const tmpList = list.value
+            Notice((res.data.no ? '已忽略 ' : '已恢复') + pidNameKV.value[res.data.pid] + '/' + tmpList[forumIndex]?.tieba || 'fid:' + tmpList[forumIndex]?.fid, 'success')
+            tmpList[forumIndex].no = res.data.no
+            store.updateCache('list', tmpList)
+            //console.log(res)
+        })
+        .catch((e) => {
+            console.error(e)
+            Notice(e.toString(), 'error')
+            store.updateValue('loading', false)
+        })
+}
+
 const getForumList = () => {
     store.updateValue('loading', true)
     fetch(store.basePath + '/list', {
@@ -336,7 +386,9 @@ onMounted(() => {
                                     <span class="text-xs text-gray-500 block">
                                         <span v-if="tiebaItem.status === 0 && new Date().getDate() === tiebaItem.latest" class="text-green-500">已签到</span>
                                         <span v-else-if="new Date().getDate() !== tiebaItem.latest" class="text-orange-500">待签到</span>
-                                        <span v-else class="text-pink-500" :title="tiebaItem.status + '#' + tiebaItem.last_error">{{ tiebaItem.status + '#' + tiebaItem.last_error }}</span>
+                                        <span v-else-if="tiebaItem.status !== 0" class="text-pink-500" :title="tiebaItem.status + '#' + tiebaItem.last_error">{{ tiebaItem.status + '#' + tiebaItem.last_error }}</span>
+                                        <span v-else-if="tiebaItem.no" class="text-gray-500">已忽略</span>
+                                        <span v-else class="text-pink-500">未知错误</span>
                                     </span>
                                 </div>
                                 <div class="flex gap-2">
@@ -365,6 +417,16 @@ onMounted(() => {
                                             <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2a1 1 0 0 0 0-2" />
                                         </svg>
                                     </div>
+                                    <button class="transition-colors" @click="updateIgnoreForum(tiebaItem.pid, tiebaItem.fid)">
+                                        <svg v-if="tiebaItem.no" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-gray-500" viewBox="0 0 16 16">
+                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1z" />
+                                        </svg>
+                                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-gray-500" viewBox="0 0 16 16">
+                                            <path
+                                                d="M8 0q-.264 0-.523.017l.064.998a7 7 0 0 1 .918 0l.064-.998A8 8 0 0 0 8 0M6.44.152q-.52.104-1.012.27l.321.948q.43-.147.884-.237L6.44.153zm4.132.271a8 8 0 0 0-1.011-.27l-.194.98q.453.09.884.237zm1.873.925a8 8 0 0 0-.906-.524l-.443.896q.413.205.793.459zM4.46.824q-.471.233-.905.524l.556.83a7 7 0 0 1 .793-.458zM2.725 1.985q-.394.346-.74.74l.752.66q.303-.345.648-.648zm11.29.74a8 8 0 0 0-.74-.74l-.66.752q.346.303.648.648zm1.161 1.735a8 8 0 0 0-.524-.905l-.83.556q.254.38.458.793l.896-.443zM1.348 3.555q-.292.433-.524.906l.896.443q.205-.413.459-.793zM.423 5.428a8 8 0 0 0-.27 1.011l.98.194q.09-.453.237-.884zM15.848 6.44a8 8 0 0 0-.27-1.012l-.948.321q.147.43.237.884zM.017 7.477a8 8 0 0 0 0 1.046l.998-.064a7 7 0 0 1 0-.918zM16 8a8 8 0 0 0-.017-.523l-.998.064a7 7 0 0 1 0 .918l.998.064A8 8 0 0 0 16 8M.152 9.56q.104.52.27 1.012l.948-.321a7 7 0 0 1-.237-.884l-.98.194zm15.425 1.012q.168-.493.27-1.011l-.98-.194q-.09.453-.237.884zM.824 11.54a8 8 0 0 0 .524.905l.83-.556a7 7 0 0 1-.458-.793zm13.828.905q.292-.434.524-.906l-.896-.443q-.205.413-.459.793zm-12.667.83q.346.394.74.74l.66-.752a7 7 0 0 1-.648-.648zm11.29.74q.394-.346.74-.74l-.752-.66q-.302.346-.648.648zm-1.735 1.161q.471-.233.905-.524l-.556-.83a7 7 0 0 1-.793.458zm-7.985-.524q.434.292.906.524l.443-.896a7 7 0 0 1-.793-.459zm1.873.925q.493.168 1.011.27l.194-.98a7 7 0 0 1-.884-.237zm4.132.271a8 8 0 0 0 1.012-.27l-.321-.948a7 7 0 0 1-.884.237l.194.98zm-2.083.135a8 8 0 0 0 1.046 0l-.064-.998a7 7 0 0 1-.918 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1z"
+                                            />
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
 
