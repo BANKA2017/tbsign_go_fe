@@ -12,11 +12,23 @@ const list = computed(() => store._cache?.list)
 const accounts = computed(() => store._cache?.accounts)
 const pidNameKV = computed(() => store.pidNameKV)
 
+const buffer_to_base64 = (buf: ArrayBuffer) => {
+    let binary = ''
+    const bytes = new Uint8Array(buf)
+    for (var i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i])
+    }
+    return globalThis.btoa(binary)
+}
+
 const newTiebaAccount = () => {
     if (typeof window === 'undefined') {
         return ''
     }
-    const csrfToken = crypto.randomUUID()
+    const csrfToken = buffer_to_base64(crypto.getRandomValues(new Uint8Array(16)))
+        .replaceAll('/', '_')
+        .replaceAll('+', '-')
+        .replaceAll('=', '')
     localStorage.setItem('tc_csrf_token', csrfToken)
     window.open(`https://bduss.nest.moe/#/` + str_to_base64url(window.location.origin + route.fullPath + '#/stoken_type=tb&csrf=' + csrfToken), '_self')
 }
