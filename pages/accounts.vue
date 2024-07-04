@@ -12,6 +12,8 @@ const list = computed(() => store._cache?.list)
 const accounts = computed(() => store._cache?.accounts)
 const pidNameKV = computed(() => store.pidNameKV)
 
+const editMode = ref<boolean>(false)
+
 const buffer_to_base64 = (buf: ArrayBuffer) => {
     let binary = ''
     const bytes = new Uint8Array(buf)
@@ -166,7 +168,7 @@ const tbStatus = computed(() => {
 
 const syncTiebaList = async () => {
     store.updateValue('loading', true)
-    fetch(store.basePath + '/list/refresh', {
+    fetch(store.basePath + '/list/sync', {
         headers: {
             Authorization: store.authorization
         },
@@ -213,7 +215,7 @@ const updateIgnoreForum = (pid = 0, fid = 0) => {
         headers: {
             Authorization: store.authorization
         },
-        method: forumInfo?.no ? 'DELETE' : 'PUT'
+        method: forumInfo?.no ? 'DELETE' : 'PATCH'
     })
         .then((res) => res.json())
         .then((res) => {
@@ -260,6 +262,108 @@ const getForumList = () => {
                 return
             }
             store.updateCache('list', res.data)
+            //console.log(res)
+        })
+        .catch((e) => {
+            console.error(e)
+            Notice(e.toString(), 'error')
+            store.updateValue('loading', false)
+        })
+}
+
+const deleteForum = (pid = 0, fid = 0) => {
+    if (pid <= 0 || fid <= 0) {
+        return
+    }
+
+    let forumIndex = (list.value || []).map((forumData) => `${forumData?.pid || -1},${forumData?.fid || -1}`).indexOf(`${pid},${fid}`)
+
+    if (forumIndex === -1) {
+        Notice('pid:' + pid + '/fid:' + fid + ' 不存在')
+        return
+    }
+    const forumInfo = list.value[forumIndex]
+    store.updateValue('loading', true)
+    fetch(store.basePath + '/list/' + forumInfo.pid + '/' + forumInfo.fid, {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'DELETE'
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            store.updateValue('loading', false)
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('/login')
+                return
+            }
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            let tmpList = list.value
+            Notice('已删除 ' + pidNameKV.value[pid] + '/' + tmpList[forumIndex]?.tieba || 'fid:' + tmpList[forumIndex]?.fid, 'success')
+            tmpList = [...tmpList.slice(0, forumIndex), ...tmpList.slice(forumIndex + 1)]
+            store.updateCache('list', tmpList)
+            //console.log(res)
+        })
+        .catch((e) => {
+            console.error(e)
+            Notice(e.toString(), 'error')
+            store.updateValue('loading', false)
+        })
+}
+
+const addForumValue = reactive<{
+    pid: number
+    fname: string
+}>({
+    pid: 0,
+    fname: ''
+})
+
+const addForum = () => {
+    if (addForumValue.pid <= 0 || addForumValue.fname === '') {
+        return
+    }
+
+    let forumIndex = (list.value || []).map((forumData) => `${forumData?.pid || -1},${forumData?.tieba || ''}`).indexOf(`${addForumValue.pid},${addForumValue.fname}`)
+
+    if (forumIndex !== -1) {
+        Notice('pid:' + addForumValue.pid + '/fid:' + addForumValue.fname + ' 已存在')
+        return
+    }
+    store.updateValue('loading', true)
+    fetch(store.basePath + '/list', {
+        headers: {
+            Authorization: store.authorization,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            pid: addForumValue.pid,
+            fname: addForumValue.fname
+        }).toString(),
+        method: 'PATCH'
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            store.updateValue('loading', false)
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('/login')
+                return
+            }
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            const tmpList = list.value
+            Notice('已添加 ' + pidNameKV.value[addForumValue.pid] + '/' + res.data?.tieba || 'fid:' + res.data?.fid, 'success')
+            tmpList.push(res.data)
+            store.updateCache('list', tmpList)
             //console.log(res)
         })
         .catch((e) => {
@@ -339,12 +443,36 @@ onMounted(() => {
                 共绑定 {{ tbStatus.accountCount }} 个帐号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，忽略
                 <span class="text-gray-600 dark:text-gray-400">{{ tbStatus.ignore }}</span> 个，还有 <span class="text-orange-500">{{ tbStatus.pending }}</span> 个贴吧等待签到
             </div>
-            <div class="my-5 grid grid-cols-4 gap-2 max-w-[32em]">
-                <button @click="newTiebaAccount" class="col-span-2 md:col-span-1 rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="扫码登录并进行绑定或更新">绑定账号</button>
-                <button @click="syncTiebaList" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="从贴吧拉取列表，更新数据库">同步列表</button>
-                <button @click="cleanTiebaList" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="清空贴吧列表">清空列表</button>
-                <button @click="checkAccountStatus" class="col-span-2 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="检查帐号状态">检查状态</button>
+            <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
+                <button @click="newTiebaAccount" class="col-span-3 md:col-span-1 rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="扫码登录并进行绑定或更新">绑定账号</button>
+                <button @click="syncTiebaList" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="从贴吧拉取列表，更新数据库">同步列表</button>
+                <button @click="cleanTiebaList" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="清空贴吧列表">清空列表</button>
+                <button @click="checkAccountStatus" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="检查帐号状态">检查状态</button>
+                <button
+                    @click="editMode = !editMode"
+                    :class="'col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors ' + (editMode ? 'bg-gray-300 text-black' : '')"
+                    title="编辑贴吧列表"
+                >
+                    编辑列表
+                </button>
             </div>
+
+            <details role="button">
+                <summary>添加贴吧</summary>
+
+                <div class="my-2">
+                    <label for="pid-to-add">选择帐号</label>
+                    <select id="pid-to-add" v-model="addForumValue.pid" class="bg-gray-100 dark:bg-black dark:text-gray-100 form-select block w-full my-3 rounded-xl">
+                        <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
+                    </select>
+                </div>
+
+                <div class="my-2">
+                    <label for="add-fname">贴吧名称</label>
+                    <input id="add-fname" class="form-input bg-gray-100 dark:bg-black w-full rounded-xl" type="text" v-model="addForumValue.fname" placeholder="贴吧名称" />
+                </div>
+                <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 transition-colors" @click="addForum">保存</button>
+            </details>
 
             <div class="grid grid-cols-12 gap-2 my-2">
                 <div v-for="(account, index) in accounts" :key="account.id" class="bg-gray-200 dark:bg-gray-800 col-span-12 rounded-2xl py-2 px-3">
@@ -392,7 +520,9 @@ onMounted(() => {
                             <hr v-if="i > 0" class="border-gray-400 dark:border-gray-600 my-1" />
                             <div class="flex justify-between">
                                 <div class="flex flex-col">
-                                    <NuxtLink class="block hover:underline underline-offset-2" :to="`https://tieba.baidu.com/f?kw=${tiebaItem.tieba}`" target="blank">{{ tiebaItem.tieba }}</NuxtLink>
+                                    <div>
+                                        <NuxtLink class="hover:underline underline-offset-2" :to="`https://tieba.baidu.com/f?kw=${tiebaItem.tieba}`" target="blank">{{ tiebaItem.tieba }}</NuxtLink>
+                                    </div>
                                     <span class="text-xs text-gray-500 block">
                                         <span v-if="tiebaItem.status === 0 && new Date().getDate() === tiebaItem.latest" class="text-green-500">已签到</span>
                                         <span v-else-if="new Date().getDate() !== tiebaItem.latest" class="text-orange-500">待签到</span>
@@ -402,7 +532,14 @@ onMounted(() => {
                                     </span>
                                 </div>
                                 <div class="flex gap-2">
-                                    <div>
+                                    <button v-show="editMode" class="transition-colors" @click="deleteForum(tiebaItem.pid, tiebaItem.fid)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] rounded-full text-pink-500 transition-colors" viewBox="0 0 16 16">
+                                            <path
+                                                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"
+                                            />
+                                        </svg>
+                                    </button>
+                                    <div v-show="!editMode">
                                         <svg
                                             v-if="tiebaItem.status === 0 && new Date().getDate() === tiebaItem.latest"
                                             xmlns="http://www.w3.org/2000/svg"
@@ -427,7 +564,7 @@ onMounted(() => {
                                             <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2a1 1 0 0 0 0-2" />
                                         </svg>
                                     </div>
-                                    <button class="transition-colors" @click="updateIgnoreForum(tiebaItem.pid, tiebaItem.fid)">
+                                    <button v-show="!editMode" class="transition-colors" @click="updateIgnoreForum(tiebaItem.pid, tiebaItem.fid)">
                                         <svg v-if="tiebaItem.no" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-gray-500" viewBox="0 0 16 16">
                                             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1z" />
                                         </svg>

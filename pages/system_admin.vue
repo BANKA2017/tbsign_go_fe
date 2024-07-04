@@ -49,7 +49,7 @@ const settingsGroup = {
     },
     sign: {
         name: '签到',
-        data: { sign_mode: '签到模式 (TODO)', sign_hour: '下个整点签到', cron_limit: '单次签到贴吧数量', sign_sleep: '签到时间间隔 (ms) (TODO)', retry_max: '最大重签次数' }
+        data: { sign_mode: '签到模式 (TODO)', sign_hour: '下个整点签到', cron_limit: '单次签到贴吧数量', sign_sleep: '签到时间间隔 (ms) (TODO)', retry_max: '最大重签次数', go_forum_sync_policy: '贴吧同步策略' }
     },
     mail: {
         name: '邮件',
@@ -332,6 +332,15 @@ onMounted(() => {
                                     <!--<option value="none">无</option>-->
                                     <!--<option value="ssl">SSL</option>-->
                                     <option value="tls">TLS</option>
+                                </select>
+                                <select
+                                    :id="'input-' + key"
+                                    v-else-if="key === 'go_forum_sync_policy'"
+                                    class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100"
+                                    v-model="serverSettings[key]"
+                                >
+                                    <option value="add_delete">[严格同步] 增加新关注的贴吧，删除不再关注的贴吧</option>
+                                    <option value="add_only">[仅新增] 增加新关注的贴吧</option>
                                 </select>
                                 <input
                                     :id="'input-' + key"

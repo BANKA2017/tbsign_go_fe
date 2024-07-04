@@ -7,8 +7,8 @@
                         <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2">不允许修改专有实例的端点</div>
                     </div>
                     <div v-else>
-                        <h4 class="mb-2">API 端点列表</h4>
-                        <div class="flex justify-between" v-for="endpoint in endpointList" :key="endpoint">
+                        <h4 class="mb-2">站点列表</h4>
+                        <div role="button" @click="saveEndpoint(endpoint)" :class="'flex justify-between rounded-lg hover:bg-sky-500 pl-2 ' + (endpoint === storeBasePath ? 'bg-sky-500' : '')" v-for="endpoint in endpointList" :key="endpoint">
                             <span class="py-2">{{ endpoint }}</span>
                             <button role="button" class="px-3 py-0.5 hover:bg-pink-500 hover:text-gray-100 rounded-lg transition-colors" @click="deleteEndpoint(endpoint)">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
@@ -33,6 +33,7 @@ import FrameWork from '~/components/FrameWork.vue'
 
 const store = useMainStore()
 const runtimeConfig = useRuntimeConfig()
+const storeBasePath = computed(() => store.basePath)
 const config = computed({
     get() {
         return Object.fromEntries(Object.entries(store.config).filter((c) => c[0]))
@@ -56,20 +57,22 @@ const deleteEndpoint = (endpoint = '') => {
     }
 }
 
-const saveEndpoint = () => {
-    if (basePath.value.endsWith('/')) {
-        basePath.value = basePath.value.replace(/\/+$/, '')
+const saveEndpoint = (endpoint = '') => {
+    endpoint = endpoint || basePath.value || ''
+
+    if (endpoint.endsWith('/')) {
+        endpoint = endpoint.replace(/\/+$/, '')
     }
     store.updateCache('config_page_login', undefined)
-    if (config.value[basePath.value]) {
-        localStorage.setItem('tc_base_path', basePath.value)
-        store.updateValue('_basePath', basePath.value)
+    if (config.value[endpoint]) {
+        localStorage.setItem('tc_base_path', endpoint)
+        store.updateValue('_basePath', endpoint)
     } else {
         let _config = config.value
-        _config[basePath.value] = { authorization: '' }
+        _config[endpoint] = { authorization: '' }
         config.value = _config
-        localStorage.setItem('tc_base_path', basePath.value)
-        store.updateValue('_basePath', basePath.value)
+        localStorage.setItem('tc_base_path', endpoint)
+        store.updateValue('_basePath', endpoint)
     }
 }
 

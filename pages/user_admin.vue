@@ -199,7 +199,7 @@ onMounted(() => {
                         <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100" @click="saveSettings(listItem.id)">保存</button>
                         <!--<button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors" @click="deleteAccount(listItem.id)">删除</button>-->
                         <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100" @click="kickDown(listItem.id)">下线</button>
-                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100" @click="deleteTiebaAccounts(listItem.id)">清空</button>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100" @click="deleteTiebaAccounts(listItem.id)">清空帐号绑定</button>
                     </div>
                 </div>
             </div>

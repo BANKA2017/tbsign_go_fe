@@ -32,7 +32,7 @@ const sendRequest = (e: Event) => {
         store.updateValue('loading', false)
         return
     }
-    fetch(store.basePath + '/passport/reset_password', {
+    fetch(store.basePath + '/passport/reset/password', {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
