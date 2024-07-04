@@ -19,10 +19,10 @@
                                 </svg>
                             </button>
                         </div>
+                        <label for="base-path">API 端点 (不带尾斜杠，示例: http://example.com)</label>
+                        <input class="bg-gray-100 dark:bg-black rounded-xl" id="base-path" type="text" name="base_path" v-model="basePath" />
+                        <button class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl" @click="saveEndpoint">保存</button>
                     </div>
-                    <label for="base-path">API 端点 (不带尾斜杠，示例: http://example.com)</label>
-                    <input class="bg-gray-100 dark:bg-black rounded-xl" id="base-path" type="text" name="base_path" v-model="basePath" />
-                    <button class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl" @click="saveEndpoint">保存</button>
                 </div>
             </div>
         </frame-work>
