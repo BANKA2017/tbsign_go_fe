@@ -482,7 +482,7 @@ onMounted(() => {
                                 "
                                 role="button"
                                 type="submit"
-                                class="bg-sky-500 px-2 py-1 rounded-lg mt-3 mb-10"
+                                class="bg-sky-500 px-2 py-1 rounded-lg mt-3 mb-10 text-gray-100"
                                 value="提交"
                             />
                         </form>
