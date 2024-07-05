@@ -2452,13 +2452,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unhead/dom@npm:1.9.14, @unhead/dom@npm:^1.7.0, @unhead/dom@npm:^1.8.10":
+"@unhead/dom@npm:1.9.14, @unhead/dom@npm:^1.7.0":
   version: 1.9.14
   resolution: "@unhead/dom@npm:1.9.14"
   dependencies:
     "@unhead/schema": "npm:1.9.14"
     "@unhead/shared": "npm:1.9.14"
   checksum: 10c0/b928c62901ca2d1ba9140127161f1fb97cf48ddcdf46b1e03e432a52d5728b16b8ccf2f34c5b6c64aef664b4260559bc9a5e8a070479eca659fdee0ecfcea34f
+  languageName: node
+  linkType: hard
+
+"@unhead/dom@npm:1.9.15, @unhead/dom@npm:^1.8.10":
+  version: 1.9.15
+  resolution: "@unhead/dom@npm:1.9.15"
+  dependencies:
+    "@unhead/schema": "npm:1.9.15"
+    "@unhead/shared": "npm:1.9.15"
+  checksum: 10c0/e3a4c6ddcb3d2fe04cb2d723c73e3a3d068e0dc58c9409a2ecfbe921ea31329ad9ae2a28e1d75aef6290766fd8f32bff9282a5b60dbc52ed3a83d5428fa6305c
   languageName: node
   linkType: hard
 
@@ -2472,6 +2482,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@unhead/schema@npm:1.9.15":
+  version: 1.9.15
+  resolution: "@unhead/schema@npm:1.9.15"
+  dependencies:
+    hookable: "npm:^5.5.3"
+    zhead: "npm:^2.2.4"
+  checksum: 10c0/f1418c5549a898b75fd8211adad26d9fa5578582304a65fec98fa4ea5920b779acc9bd96fb7186fb80cde653a57b5d055b845fa31fc41be44ebc802e3bb4754d
+  languageName: node
+  linkType: hard
+
 "@unhead/shared@npm:1.9.14":
   version: 1.9.14
   resolution: "@unhead/shared@npm:1.9.14"
@@ -2481,7 +2501,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unhead/ssr@npm:^1.7.0, @unhead/ssr@npm:^1.8.10":
+"@unhead/shared@npm:1.9.15":
+  version: 1.9.15
+  resolution: "@unhead/shared@npm:1.9.15"
+  dependencies:
+    "@unhead/schema": "npm:1.9.15"
+  checksum: 10c0/289d3252054cea7287672d7fe904b3bdd2a7853b1cdd1355631a51d3230ac8b9ce64d96663ccbe69c5c5235e1e4744c9a13d6ebe9e4beb566a19675ad0efc675
+  languageName: node
+  linkType: hard
+
+"@unhead/ssr@npm:^1.7.0":
   version: 1.9.14
   resolution: "@unhead/ssr@npm:1.9.14"
   dependencies:
@@ -2491,7 +2520,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unhead/vue@npm:^1.7.0, @unhead/vue@npm:^1.8.10":
+"@unhead/ssr@npm:^1.8.10":
+  version: 1.9.15
+  resolution: "@unhead/ssr@npm:1.9.15"
+  dependencies:
+    "@unhead/schema": "npm:1.9.15"
+    "@unhead/shared": "npm:1.9.15"
+  checksum: 10c0/e461ad09682e3b91e4af8cf7c8b3a327992afe80021e31111c804d1c25b23c4c44bdcc54251d6d1229822ce1e49a7a68d2d3803dfc49d938bd8f0ecdb8a05be9
+  languageName: node
+  linkType: hard
+
+"@unhead/vue@npm:^1.7.0":
   version: 1.9.14
   resolution: "@unhead/vue@npm:1.9.14"
   dependencies:
@@ -2502,6 +2541,20 @@ __metadata:
   peerDependencies:
     vue: ">=2.7 || >=3"
   checksum: 10c0/0d95c7a17e348295f93c19eb61286e69efbc297631e699f2be21c02b9b062e9ec91121f4a3d062c36b9c7b186ad145d8f6de0d1fa09b5938108526289042b730
+  languageName: node
+  linkType: hard
+
+"@unhead/vue@npm:^1.8.10":
+  version: 1.9.15
+  resolution: "@unhead/vue@npm:1.9.15"
+  dependencies:
+    "@unhead/schema": "npm:1.9.15"
+    "@unhead/shared": "npm:1.9.15"
+    hookable: "npm:^5.5.3"
+    unhead: "npm:1.9.15"
+  peerDependencies:
+    vue: ">=2.7 || >=3"
+  checksum: 10c0/9f05ab39ef986a16b7cf4f94ae21280054d0ff4ed88fc8c0219d7f134386e12dbc94feecbae2e66441215c0359c1f802c5b7d39b4d6c264ebce23c189c7d3469
   languageName: node
   linkType: hard
 
@@ -3396,7 +3449,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:^3.5.1, chokidar@npm:^3.5.3, chokidar@npm:^3.6.0":
+"chokidar@npm:>=3.0.0 <4.0.0, chokidar@npm:^3.5.1, chokidar@npm:^3.5.3, chokidar@npm:^3.6.0":
   version: 3.6.0
   resolution: "chokidar@npm:3.6.0"
   dependencies:
@@ -5088,6 +5141,13 @@ __metadata:
   version: 0.2.1
   resolution: "image-meta@npm:0.2.1"
   checksum: 10c0/c8a100b666663ad53ffe95c22647e79802d6eac6dfa3e1a00e4cf034129b4a13e7861b5c5a7cee46604a45a9e0c8ed91e73233c7bf9f48fbece5f0300ef6912c
+  languageName: node
+  linkType: hard
+
+"immutable@npm:^4.0.0":
+  version: 4.3.6
+  resolution: "immutable@npm:4.3.6"
+  checksum: 10c0/7d0952a768b4fadcee47230ed86dc9505a4517095eceaf5a47e65288571c42400c6e4a2ae21eca4eda957cb7bc50720213135b62cf6a181639111f8acae128c3
   languageName: node
   linkType: hard
 
@@ -7670,6 +7730,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sass@npm:^1.77.6":
+  version: 1.77.6
+  resolution: "sass@npm:1.77.6"
+  dependencies:
+    chokidar: "npm:>=3.0.0 <4.0.0"
+    immutable: "npm:^4.0.0"
+    source-map-js: "npm:>=0.6.2 <2.0.0"
+  bin:
+    sass: sass.js
+  checksum: 10c0/fe5a393c0aa29eda9f83c06be9b94788b61fe8bad0616ee6e3a25d21ab504f430d40c0064fdca89b02b8e426411ae6dcd906c91f2e48c263575c3d392b6daeb1
+  languageName: node
+  linkType: hard
+
 "scule@npm:^1.0.0, scule@npm:^1.2.0, scule@npm:^1.3.0":
   version: 1.3.0
   resolution: "scule@npm:1.3.0"
@@ -7889,7 +7962,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map-js@npm:^1.0.1, source-map-js@npm:^1.2.0":
+"source-map-js@npm:>=0.6.2 <2.0.0, source-map-js@npm:^1.0.1, source-map-js@npm:^1.2.0":
   version: 1.2.0
   resolution: "source-map-js@npm:1.2.0"
   checksum: 10c0/7e5f896ac10a3a50fe2898e5009c58ff0dc102dcb056ed27a354623a0ece8954d4b2649e1a1b2b52ef2e161d26f8859c7710350930751640e71e374fe2d321a4
@@ -8267,6 +8340,7 @@ __metadata:
     pinia: "npm:^2.1.7"
     postcss: "npm:^8.4.39"
     prettier: "npm:3.3.2"
+    sass: "npm:^1.77.6"
     tailwindcss: "npm:^3.4.4"
     vue: "npm:^3.4.31"
     vue-router: "npm:^4.4.0"
@@ -8480,6 +8554,18 @@ __metadata:
     "@unhead/shared": "npm:1.9.14"
     hookable: "npm:^5.5.3"
   checksum: 10c0/5ac6fb5f4a768189849bbbfbbe19a1b11503207450582a7d67d7ec7d433d234bbe22c015ec089640ee9b104c6acfe7c4bdf9ca9ef9fa6cae94e5214ac61475af
+  languageName: node
+  linkType: hard
+
+"unhead@npm:1.9.15":
+  version: 1.9.15
+  resolution: "unhead@npm:1.9.15"
+  dependencies:
+    "@unhead/dom": "npm:1.9.15"
+    "@unhead/schema": "npm:1.9.15"
+    "@unhead/shared": "npm:1.9.15"
+    hookable: "npm:^5.5.3"
+  checksum: 10c0/acac316c82b081f66da2d119846b929ae2b58a15ddeb0bb87cb56cddb5d39b969dda9ec55165c8680303696b56c2184dcacfbc56a76e1b5c226443cbf1f67c42
   languageName: node
   linkType: hard
 

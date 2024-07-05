@@ -401,7 +401,7 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
 
                 <div class="my-5">
                     <p class="my-2">封禁提示内容，用户被封禁后消息中心显示的提示内容</p>
-                    <input type="text" v-model="settings.reason" class="bg-gray-100 dark:bg-black dark:text-gray-100 form-input w-full" />
+                    <input type="text" v-model="settings.reason" class="bg-gray-100 dark:bg-black dark:text-gray-100 form-input w-full rounded-xl" />
                 </div>
 
                 <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 transition-colors rounded-lg px-3 py-1 text-gray-100" @click="saveSettings">保存</button>
@@ -417,24 +417,24 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
 
                     <div class="my-2">
                         <label for="pid-to-froum-manager">吧务帐号</label>
-                        <select id="pid-to-froum-manager" v-model="taskToAdd.pid" class="bg-gray-100 dark:bg-black dark:text-gray-100 form-select block w-full my-3">
+                        <select id="pid-to-froum-manager" v-model="taskToAdd.pid" class="bg-gray-100 dark:bg-black dark:text-gray-100 form-select block w-full my-3 rounded-xl">
                             <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
                         </select>
                     </div>
 
                     <div class="my-2">
                         <label for="start-date">开始日期 (留空默认立即开始)</label>
-                        <input id="start-date" class="form-input bg-gray-100 dark:bg-black dark:[color-scheme:dark] w-full" :max="taskToAdd.end" type="date" v-model="taskToAdd.start" placeholder="日期格式：yyyy-mm-dd,留空默认立即开始" />
+                        <input id="start-date" class="form-input bg-gray-100 dark:bg-black dark:[color-scheme:dark] w-full rounded-xl" :max="taskToAdd.end" type="date" v-model="taskToAdd.start" placeholder="日期格式：yyyy-mm-dd,留空默认立即开始" />
                     </div>
 
                     <div class="my-2">
                         <label for="end-date">结束日期</label>
-                        <input id="end-date" class="form-input bg-gray-100 dark:bg-black dark:[color-scheme:dark] w-full" :min="taskToAdd.start" type="date" v-model="taskToAdd.end" placeholder="日期格式：yyyy-mm-dd" />
+                        <input id="end-date" class="form-input bg-gray-100 dark:bg-black dark:[color-scheme:dark] w-full rounded-xl" :min="taskToAdd.start" type="date" v-model="taskToAdd.end" placeholder="日期格式：yyyy-mm-dd" />
                     </div>
 
                     <div class="my-2">
                         <label for="froum-name">贴吧名称</label>
-                        <input id="froum-name" class="form-input bg-gray-100 dark:bg-black w-full" type="text" v-model="taskToAdd.fname" placeholder="输入贴吧名（不带末尾吧字）" />
+                        <input id="froum-name" class="form-input bg-gray-100 dark:bg-black w-full rounded-xl" type="text" v-model="taskToAdd.fname" placeholder="输入贴吧名（不带末尾吧字）" />
                         <span class="text-sm my-1">{{ isManagerMessage }}</span>
                     </div>
 
@@ -442,28 +442,28 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
                         <label for="ban-user-list">封禁列表({{ taskToAdd.ban_list.split('\n').filter((x) => x).length }} / {{ limit - tasksList.length }})</label>
                         <!--TODO limit issue ...-->
                         <div v-if="isVisualEditor">
-                            <div class="flex w-full">
-                                <input type="text" class="form-input bg-gray-100 dark:bg-black grow" v-model="visualEditorSearchForm" placeholder="用户名、贴吧UID" />
-                                <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 px-3 py-1 transition-colors" @click="searchAccount">搜索</button>
+                            <div class="flex w-full rounded-xl mb-3">
+                                <input type="text" class="form-input bg-gray-100 dark:bg-black grow rounded-l-xl" v-model="visualEditorSearchForm" placeholder="用户名、贴吧UID" />
+                                <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl" @click="searchAccount">搜索</button>
                             </div>
-                            <div class="border border-sky-500 flex" v-for="user in visualEditorSearchResponse" :key="user.portrait">
-                                <img :alt="`baidu-avatar-` + user.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${user.portrait}`" class="w-16 h-16" />
+                            <div class="border border-sky-500 flex rounded-xl" v-for="user in visualEditorSearchResponse" :key="user.portrait">
+                                <img :alt="`baidu-avatar-` + user.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${user.portrait}`" class="w-16 h-16 rounded-l-xl" />
                                 <div class="my-2 mx-5 grow">
                                     <span class="block">{{ user.name }} [ {{ user.name_show }} ]</span>
                                     <span class="block">{{ user.portrait }}</span>
                                 </div>
-                                <button v-if="tasksList.find((x) => x.portrait === user.portrait)" class="bg-gray-500 hover:bg-gray-600 dark:hover:bg-gray-400 text-gray-100 px-3 py-1 transition-colors" disabled>重复</button>
+                                <button v-if="tasksList.find((x) => x.portrait === user.portrait)" class="bg-gray-500 hover:bg-gray-600 dark:hover:bg-gray-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl" disabled>重复</button>
                                 <button
                                     v-else-if="taskToAdd.ban_list.includes(user.portrait)"
-                                    class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 text-gray-100 px-3 py-1 transition-colors"
+                                    class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl"
                                     @click="taskToAdd.ban_list = taskToAdd.ban_list.replace(user.portrait, '')"
                                 >
                                     移除
                                 </button>
-                                <button v-else class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 px-3 py-1 transition-colors" @click="taskToAdd.ban_list += '\n' + user.portrait">添加</button>
+                                <button v-else class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl" @click="taskToAdd.ban_list += '\n' + user.portrait">添加</button>
                             </div>
                         </div>
-                        <textarea v-else id="ban-user-list" v-model="taskToAdd.ban_list" class="form-textarea bg-gray-100 dark:bg-black w-full" rows="10" :placeholder="banPortraitListPlaceholder"></textarea>
+                        <textarea v-else id="ban-user-list" v-model="taskToAdd.ban_list" class="form-textarea bg-gray-100 dark:bg-black w-full rounded-xl" rows="10" :placeholder="banPortraitListPlaceholder"></textarea>
                     </div>
 
                     <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 mr-2 transition-colors" @click="isVisualEditor = !isVisualEditor">切换编辑器</button>

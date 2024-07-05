@@ -94,7 +94,7 @@ const saveSettings = (uid = 0) => {
                 //console.log(res)
                 return
             }
-            Notice('已修改 uid:' + uid + ' 的部分信息', 'success')
+            Notice('已修改 uid:' + uid + ' 的信息', 'success')
             //console.log(res)
         })
 }

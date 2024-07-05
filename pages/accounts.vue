@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
+import Modal from '~/components/Modal.vue'
 import { Notice } from '~/share/Tools'
 
 const store = useMainStore()
@@ -342,7 +343,7 @@ const addForum = () => {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: new URLSearchParams({
-            pid: addForumValue.pid,
+            pid: addForumValue.pid.toString(),
             fname: addForumValue.fname
         }).toString(),
         method: 'PATCH'
@@ -373,6 +374,58 @@ const addForum = () => {
         })
 }
 
+const addAccountForm = reactive<{
+    bduss: string
+    stoken: string
+}>({
+    bduss: '',
+    stoken: ''
+})
+
+const addAccount = (bduss = '', stoken = '') => {
+    if (!bduss || !stoken) {
+        Notice('BDUSS 或 Stoken 不可为空!', 'error')
+        return
+    }
+    fetch(store.basePath + '/account', {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'PATCH',
+        body: new URLSearchParams({
+            bduss,
+            stoken
+        })
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('/login')
+                return
+            }
+            //console.log(res)
+            router.replace({ query: {} })
+            if (res.code === 201) {
+                Notice('已添加 @' + res.data?.name || res.data?.portrait, 'success')
+                accounts.value.push(res.data)
+                return
+            } else if (res.code === 200) {
+                for (const accountIndex in accounts.value) {
+                    if (accounts.value[accountIndex].portrait === res.data.portrait) {
+                        Notice('更新 BDUSS 信息成功 @' + res.data.name || res.data.portrait, 'success')
+                        accounts.value[accountIndex] = res.data
+                        //console.log('find', accountIndex)
+                        return
+                    }
+                }
+            } else {
+                Notice(res.message, 'error')
+            }
+        })
+}
+
 onMounted(() => {
     if (route.hash.length > 2) {
         try {
@@ -381,43 +434,7 @@ onMounted(() => {
             if (hashParams.bduss && hashParams.stoken) {
                 if (csrfToken === hashParams.csrf) {
                     if (store.authorization) {
-                        fetch(store.basePath + '/account', {
-                            headers: {
-                                Authorization: store.authorization
-                            },
-                            method: 'PATCH',
-                            body: new URLSearchParams({
-                                bduss: hashParams.bduss,
-                                stoken: hashParams.stoken
-                            })
-                        })
-                            .then((res) => res.json())
-                            .then((res) => {
-                                if (res.code === 401) {
-                                    Notice(res.message, 'error')
-                                    store.logout()
-                                    navigateTo('/login')
-                                    return
-                                }
-                                //console.log(res)
-                                router.replace({ query: {} })
-                                if (res.code === 201) {
-                                    Notice('已添加 @' + res.data?.name || res.data?.portrait, 'success')
-                                    accounts.value.push(res.data)
-                                    return
-                                } else if (res.code === 200) {
-                                    for (const accountIndex in accounts.value) {
-                                        if (accounts.value[accountIndex].portrait === res.data.portrait) {
-                                            Notice('更新 BDUSS 信息成功 @' + res.data.name || res.data.portrait, 'success')
-                                            accounts.value[accountIndex] = res.data
-                                            //console.log('find', accountIndex)
-                                            return
-                                        }
-                                    }
-                                } else {
-                                    Notice(res.message, 'error')
-                                }
-                            })
+                        addAccount(hashParams.bduss, hashParams.stoken)
                     } else {
                         Notice('未登录', 'error')
                     }
@@ -444,7 +461,34 @@ onMounted(() => {
                 <span class="text-gray-600 dark:text-gray-400">{{ tbStatus.ignore }}</span> 个，还有 <span class="text-orange-500">{{ tbStatus.pending }}</span> 个贴吧等待签到
             </div>
             <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
-                <button @click="newTiebaAccount" class="col-span-3 md:col-span-1 rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="扫码登录并进行绑定或更新">绑定账号</button>
+                <Modal class="col-span-3 md:col-span-1" title="绑定账号">
+                    <template #default>
+                        <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="扫码登录并进行绑定或更新">绑定账号</button>
+                    </template>
+                    <template #container>
+                        <button @click="newTiebaAccount" class="w-full px-2 py-1 text-xl rounded-xl bg-sky-500 text-gray-100">自动导入</button>
+                        <hr class="my-3" />
+                        <form>
+                            <label for="add-bduss">BDUSS</label>
+                            <input autocomplete="off" id="add-bduss" type="text" v-model="addAccountForm.bduss" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl" />
+                            <label for="add-stoken">Stoken</label>
+                            <input autocomplete="off" id="add-stoken" type="text" v-model="addAccountForm.stoken" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl" />
+                            <input
+                                @click="
+                                    (e) => {
+                                        e.preventDefault()
+                                        addAccount(addAccountForm.bduss, addAccountForm.stoken)
+                                    }
+                                "
+                                role="button"
+                                type="submit"
+                                class="bg-sky-500 px-2 py-1 rounded-lg mt-3 mb-10"
+                                value="提交"
+                            />
+                        </form>
+                    </template>
+                </Modal>
+
                 <button @click="syncTiebaList" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="从贴吧拉取列表，更新数据库">同步列表</button>
                 <button @click="cleanTiebaList" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="清空贴吧列表">清空列表</button>
                 <button @click="checkAccountStatus" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="检查帐号状态">检查状态</button>
@@ -479,8 +523,8 @@ onMounted(() => {
                     <div class="flex justify-between cursor-pointer sticky top-0 bg-gray-200 dark:bg-gray-800" @click="accounts[index].more = !accounts[index].more">
                         <div class="flex gap-3">
                             <div class="relative">
-                                <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1" />
-                                <div :class="`h-2 w-2 absolute right-0.5 bottom-0.5 rounded-full ` + (account.status === undefined ? 'bg-gray-500' : account.status ? 'bg-green-500' : 'bg-pink-500')"></div>
+                                <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1 border border-white" />
+                                <div :class="`h-2 w-2 absolute right-1 bottom-1 rounded-full border border-white ` + (account.status === undefined ? 'bg-gray-500' : account.status ? 'bg-green-500' : 'bg-pink-500')"></div>
                             </div>
                             <div class="">
                                 <NuxtLink
@@ -507,7 +551,7 @@ onMounted(() => {
                                 }
                             "
                         >
-                            <button @click="deleteAccount(account.id)" class="rounded-full w-10 h-10 bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 text-gray-100 dark:text-gray-900 transition-colors p-2 my-1">
+                            <button v-show="editMode" @click="deleteAccount(account.id)" class="rounded-full w-10 h-10 bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 text-gray-100 dark:text-gray-900 transition-colors p-2 my-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em]" viewBox="0 0 16 16">
                                     <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"></path>
                                 </svg>
@@ -564,7 +608,7 @@ onMounted(() => {
                                             <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2a1 1 0 0 0 0-2" />
                                         </svg>
                                     </div>
-                                    <button v-show="!editMode" class="transition-colors" @click="updateIgnoreForum(tiebaItem.pid, tiebaItem.fid)">
+                                    <button v-show="editMode" class="transition-colors" @click="updateIgnoreForum(tiebaItem.pid, tiebaItem.fid)">
                                         <svg v-if="tiebaItem.no" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-gray-500" viewBox="0 0 16 16">
                                             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1z" />
                                         </svg>

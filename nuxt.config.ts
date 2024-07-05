@@ -1,6 +1,16 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     devtools: { enabled: true },
+    // https://github.com/nuxt/nuxt/discussions/27779#discussioncomment-9952440
+    // to fix the weird websocket errors
+    // `client:732 GET http://localhost:24678/_nuxt/ net::ERR_CONNECTION_REFUSED`
+    vite: {
+        server: {
+            hmr: {
+                clientPort: 3000
+            }
+        }
+    },
     devServer: {
         host: ''
     },

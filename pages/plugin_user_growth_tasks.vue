@@ -177,7 +177,7 @@ onMounted(() => {
 
                 <div class="my-5">
                     <p class="my-2">默认只做签到任务，选择全部任务将会尝试完成所有日常任务</p>
-                    <select v-model="settings.sign_only" class="bg-gray-100 dark:bg-black dark:text-gray-100 form-select">
+                    <select v-model="settings.sign_only" class="bg-gray-100 dark:bg-black dark:text-gray-100 form-select rounded-xl">
                         <option value="0">仅签到</option>
                         <option value="1">全部任务</option>
                     </select>
@@ -210,12 +210,11 @@ onMounted(() => {
                     </li>
                     <li class="marker:text-sky-500">
                         <span class="font-bold">状态 : </span>
-                        <template v-if="task.status && task.status.startsWith('[')">
-                            <li class="ml-5" v-for="taskStatus in JSON.parse(task.status)" :key="task.pid + '_' + taskStatus.name">
-                                <span class="font-bold">{{ taskStatus.name }} : </span>{{ taskStatus.status ? '✅' : '❌' }}
+                        <div v-if="task.status && task.status.startsWith('[')" class="grid grid-cols-6 gap-x-5">
+                            <li class="ml-5 col-span-6 md:col-span-3 lg:col-span-2" v-for="taskStatus in JSON.parse(task.status)" :key="task.pid + '_' + taskStatus.name">
+                                {{ taskStatus.status ? '✅' : '❌' }} <span class="font-bold">{{ taskStatus.name }}</span>
                             </li>
-                        </template>
-
+                        </div>
                         <span v-else class="font-mono">{{ task.status }}</span>
                     </li>
                     <details class="marker:text-sky-500">
