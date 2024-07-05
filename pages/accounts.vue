@@ -562,17 +562,17 @@ onMounted(() => {
                     <template #container>
                         <div>
                             <div v-if="qrLoginData.done" class="w-full">
-                                <button @click="getQRCode" class="col-span-2 md:col-span-1 px-2 py-1 my-1 w-full rounded-xl border-4 border-sky-500 bg-sky-500 dark:text-gray-100">再次添加</button>
+                                <button @click="getQRCode" class="col-span-2 md:col-span-1 px-2 py-1 my-1 w-full rounded-xl border-4 border-sky-500 bg-sky-500 text-gray-100">再次添加</button>
                             </div>
                             <div v-else-if="qrLoginData.sign && qrLoginData.imgurl">
                                 <div class="flex justify-center mb-5">
                                     <img class="max-w-36 max-h-36 aspect-square w-full h-full border-4" v-if="qrLoginData.imgurl" :src="'//' + qrLoginData.imgurl" :alt="'登录二维码#https://wappass.baidu.com/wp/?qrlogin=&sign=' + qrLoginData.sign" />
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
-                                    <button @click="submitQRLogin" class="col-span-2 md:col-span-1 px-2 py-1 my-1 rounded-xl border-4 border-sky-500 hover:bg-sky-500 dark:text-gray-100 hover:text-gray-100">确认</button>
+                                    <button @click="submitQRLogin" class="col-span-2 md:col-span-1 px-2 py-1 my-1 rounded-xl border-4 border-sky-500 hover:bg-sky-500 dark:text-gray-100 hover:text-gray-100 transition-colors">确认</button>
                                     <NuxtLink
                                         role="button"
-                                        class="col-span-2 md:col-span-1 px-2 py-1 my-1 rounded-xl border-4 border-sky-500 bg-sky-500 text-gray-100 block text-center transition-colors"
+                                        class="col-span-2 md:col-span-1 px-2 py-1 my-1 rounded-xl border-4 border-sky-500 bg-sky-500 text-gray-100 block text-center"
                                         v-if="qrLoginData.sign"
                                         :href="'https://wappass.baidu.com/wp/?qrlogin=&sign=' + qrLoginData.sign"
                                         target="_blank"
