@@ -595,7 +595,7 @@ onMounted(() => {
                             </div>
 
                             <p class="text-sm">* 注1：扫码确认后点击 “确认” 按钮</p>
-                            <p class="text-sm">* 注2：请通过移动设备（手机）打开 “网页授权” 页</p>
+                            <p class="text-sm">* 注2：或通过移动设备（手机）打开 “网页授权” 页确认</p>
                             <!--<hr class="border-gray-400 dark:border-gray-600 my-3" />
                             <button @click="newTiebaAccount" class="w-full px-2 py-1 text-xl rounded-xl bg-sky-500 text-gray-100">自动导入</button>-->
                             <hr class="border-gray-400 dark:border-gray-600 my-3" />
