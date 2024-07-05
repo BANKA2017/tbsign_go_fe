@@ -584,13 +584,13 @@ onMounted(() => {
 
                             <div v-else>
                                 <div class="flex justify-center mb-5">
-                                    <div class="max-w-36 max-h-36 w-full animate-pulse bg-slate-500">
+                                    <div class="max-w-36 max-h-36 w-full animate-pulse bg-slate-300 dark:bg-slate-500">
                                         <div class="w-[300px] h-[300px]"></div>
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
-                                    <div class="col-span-2 md:col-span-1 px-2 py-1 my-1 h-[2.5em] rounded-xl animate-pulse bg-slate-500"></div>
-                                    <div class="col-span-2 md:col-span-1 px-2 py-1 my-1 h-[2.5em] rounded-xl animate-pulse bg-slate-500"></div>
+                                    <div class="col-span-2 md:col-span-1 px-2 py-1 my-1 h-[2.5em] rounded-xl animate-pulse bg-slate-300 dark:bg-slate-500"></div>
+                                    <div class="col-span-2 md:col-span-1 px-2 py-1 my-1 h-[2.5em] rounded-xl animate-pulse bg-slate-300 dark:bg-slate-500"></div>
                                 </div>
                             </div>
 
