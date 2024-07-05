@@ -268,7 +268,7 @@ onMounted(() => {
                                 <NuxtLink
                                     v-if="serverStatus.build.commit_hash && serverStatus.build.commit_hash !== 'N/A'"
                                     :to="'https://github.com/BANKA2017/tbsign_go/commit/' + serverStatus.build.commit_hash"
-                                    class="font-mono bg-gray-500 px-2 rounded-xl"
+                                    class="font-mono text-gray-100 bg-gray-500 px-2 rounded-xl"
                                     >{{ (serverStatus.build.commit_hash || '').slice(0, 7) }}</NuxtLink
                                 >
                                 <span v-else class="font-mono">Dev</span>
