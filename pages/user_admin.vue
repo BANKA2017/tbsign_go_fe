@@ -197,10 +197,10 @@ onMounted(() => {
                     </select>
 
                     <div class="mt-5">
-                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 mr-2" @click="saveSettings(listItem.id)">保存</button>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 mr-2 mb-1" @click="saveSettings(listItem.id)">保存</button>
                         <!--<button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors mr-2" @click="deleteAccount(listItem.id)">删除</button>-->
-                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 mr-2" @click="kickDown(listItem.id)">下线</button>
-                        <Modal class="py-1 rounded-lg inline mr-2" title="清空帐号绑定">
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 mr-2 mb-1" @click="kickDown(listItem.id)">下线</button>
+                        <Modal class="py-1 rounded-lg inline mr-2 mb-1" title="清空帐号绑定">
                             <template #default>
                                 <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100">清空帐号绑定</button>
                             </template>

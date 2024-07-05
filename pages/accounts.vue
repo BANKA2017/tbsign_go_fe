@@ -389,7 +389,8 @@ const addAccount = (bduss = '', stoken = '') => {
     }
     fetch(store.basePath + '/account', {
         headers: {
-            Authorization: store.authorization
+            Authorization: store.authorization,
+            'Content-Type': 'application/x-www-form-urlencoded'
         },
         method: 'PATCH',
         body: new URLSearchParams({
@@ -429,12 +430,18 @@ const addAccount = (bduss = '', stoken = '') => {
 const qrLoginData = reactive<{
     sign: string
     imgurl: string
+    done: boolean
 }>({
     sign: '',
-    imgurl: ''
+    imgurl: '',
+    done: false
 })
 
 const getQRCode = () => {
+    qrLoginData.sign = ''
+    qrLoginData.imgurl = ''
+    qrLoginData.done = false
+    store.updateValue('loading', true)
     fetch(store.basePath + '/account/qrcode', {
         headers: {
             Authorization: store.authorization
@@ -442,6 +449,7 @@ const getQRCode = () => {
     })
         .then((res) => res.json())
         .then((res) => {
+            store.updateValue('loading', false)
             if (res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
@@ -450,17 +458,69 @@ const getQRCode = () => {
             }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
+                qrLoginData.done = true
                 return
             }
             qrLoginData.sign = res.data?.sign
             qrLoginData.imgurl = res.data?.imgurl
             //console.log(res)
         })
+        .catch((e) => {
+            qrLoginData.done = true
+            store.updateValue('loading', false)
+        })
+}
+
+const submitQRLogin = () => {
+    store.updateValue('loading', true)
+    fetch(store.basePath + '/account/qrlogin', {
+        headers: {
+            Authorization: store.authorization,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        method: 'POST',
+        body: new URLSearchParams({
+            sign: qrLoginData.sign
+        })
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            qrLoginData.done = true
+            store.updateValue('loading', false)
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('/login')
+                return
+            }
+            //console.log(res)
+            if (res.code === 201) {
+                Notice('已添加 @' + res.data?.name || res.data?.portrait, 'success')
+                accounts.value.push(res.data)
+                return
+            } else if (res.code === 200) {
+                for (const accountIndex in accounts.value) {
+                    if (accounts.value[accountIndex].portrait === res.data.portrait) {
+                        Notice('更新 BDUSS 信息成功 @' + res.data.name || res.data.portrait, 'success')
+                        accounts.value[accountIndex] = res.data
+                        //console.log('find', accountIndex)
+                        return
+                    }
+                }
+            } else {
+                Notice(res.message, 'error')
+            }
+        })
+        .catch((e) => {
+            qrLoginData.done = true
+            store.updateValue('loading', false)
+        })
 }
 
 onMounted(() => {
     if (route.hash.length > 2) {
         try {
+            store.updateValue('loading', true)
             const hashParams = Object.fromEntries(new URLSearchParams((route.hash || '').slice(2)).entries())
             const csrfToken = localStorage.getItem('tc_csrf_token') || ''
             if (hashParams.bduss && hashParams.stoken) {
@@ -476,8 +536,10 @@ onMounted(() => {
                 window.location.hash = ''
             }
             localStorage.removeItem('tc_csrf_token')
+            store.updateValue('loading', false)
         } catch (e) {
             console.error(e)
+            store.updateValue('loading', false)
             // Notice(e.toString(), 'error')
         }
     }
@@ -495,27 +557,48 @@ onMounted(() => {
             <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
                 <Modal class="col-span-3 md:col-span-1" title="绑定账号">
                     <template #default>
-                        <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="扫码登录并进行绑定或更新">绑定账号</button>
+                        <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="扫码登录并进行绑定或更新" @click="getQRCode">绑定账号</button>
                     </template>
                     <template #container>
                         <div>
-                            <!--<div class="flex justify-center mb-5">
-                                <img class="max-w-36 w-full" v-if="qrLoginData.imgurl" :src="'//' + qrLoginData.imgurl" alt="登录二维码" />
+                            <div v-if="qrLoginData.done" class="w-full">
+                                <button @click="getQRCode" class="col-span-2 md:col-span-1 px-2 py-1 my-1 w-full rounded-xl border-4 border-sky-500 bg-sky-500 dark:text-gray-100">再次添加</button>
                             </div>
-                            <button @click="newTiebaAccount" class="w-full px-2 py-1 my-1 rounded-xl border-4 border-sky-500 bg-sky-500 dark:text-gray-100">确认</button>
-                            <NuxtLink
-                                role="button"
-                                class="w-full px-2 py-1 my-1 rounded-xl border-4 border-sky-500 hover:bg-sky-500 text-gray-100 block text-center hover:text-gray-100 transition-colors"
-                                v-if="qrLoginData.sign"
-                                :href="'https://wappass.baidu.com/wp/?qrlogin=&sign=' + qrLoginData.sign"
-                                target="_blank"
-                            >
-                                网页授权
-                            </NuxtLink>
-                            <span class="text-sm my-2">* 注：请通过移动设备（手机）打开 “网页授权” 页</span>
-                            <hr class="my-3" />-->
-                            <button @click="newTiebaAccount" class="w-full px-2 py-1 text-xl rounded-xl bg-sky-500 text-gray-100">自动导入</button>
-                            <hr class="my-3" />
+                            <div v-else-if="qrLoginData.sign && qrLoginData.imgurl">
+                                <div class="flex justify-center mb-5">
+                                    <img class="max-w-36 max-h-36 aspect-square w-full h-full border-4" v-if="qrLoginData.imgurl" :src="'//' + qrLoginData.imgurl" :alt="'登录二维码#https://wappass.baidu.com/wp/?qrlogin=&sign=' + qrLoginData.sign" />
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button @click="submitQRLogin" class="col-span-2 md:col-span-1 px-2 py-1 my-1 rounded-xl border-4 border-sky-500 hover:bg-sky-500 dark:text-gray-100 hover:text-gray-100">确认</button>
+                                    <NuxtLink
+                                        role="button"
+                                        class="col-span-2 md:col-span-1 px-2 py-1 my-1 rounded-xl border-4 border-sky-500 bg-sky-500 text-gray-100 block text-center transition-colors"
+                                        v-if="qrLoginData.sign"
+                                        :href="'https://wappass.baidu.com/wp/?qrlogin=&sign=' + qrLoginData.sign"
+                                        target="_blank"
+                                    >
+                                        网页授权
+                                    </NuxtLink>
+                                </div>
+                            </div>
+
+                            <div v-else>
+                                <div class="flex justify-center mb-5">
+                                    <div class="max-w-36 max-h-36 w-full animate-pulse bg-slate-500">
+                                        <div class="w-[300px] h-[300px]"></div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div class="col-span-2 md:col-span-1 px-2 py-1 my-1 h-[2.5em] rounded-xl animate-pulse bg-slate-500"></div>
+                                    <div class="col-span-2 md:col-span-1 px-2 py-1 my-1 h-[2.5em] rounded-xl animate-pulse bg-slate-500"></div>
+                                </div>
+                            </div>
+
+                            <p class="text-sm">* 注1：扫码确认后点击 “确认” 按钮</p>
+                            <p class="text-sm">* 注2：请通过移动设备（手机）打开 “网页授权” 页</p>
+                            <!--<hr class="border-gray-400 dark:border-gray-600 my-3" />
+                            <button @click="newTiebaAccount" class="w-full px-2 py-1 text-xl rounded-xl bg-sky-500 text-gray-100">自动导入</button>-->
+                            <hr class="border-gray-400 dark:border-gray-600 my-3" />
                             <form>
                                 <label for="add-bduss">BDUSS</label>
                                 <input autocomplete="off" id="add-bduss" type="text" v-model="addAccountForm.bduss" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl" />
@@ -619,11 +702,10 @@ onMounted(() => {
                                         <NuxtLink class="hover:underline underline-offset-2" :to="`https://tieba.baidu.com/f?kw=${tiebaItem.tieba}`" target="blank">{{ tiebaItem.tieba }}</NuxtLink>
                                     </div>
                                     <span class="text-xs text-gray-500 block">
-                                        <span v-if="tiebaItem.status === 0 && new Date().getDate() === tiebaItem.latest" class="text-green-500">已签到</span>
+                                        <span v-if="tiebaItem.no" class="text-gray-500">已忽略</span>
+                                        <span v-else-if="tiebaItem.status === 0 && new Date().getDate() === tiebaItem.latest" class="text-green-500">已签到</span>
                                         <span v-else-if="new Date().getDate() !== tiebaItem.latest" class="text-orange-500">待签到</span>
                                         <span v-else-if="tiebaItem.status !== 0" class="text-pink-500" :title="tiebaItem.status + '#' + tiebaItem.last_error">{{ tiebaItem.status + '#' + tiebaItem.last_error }}</span>
-                                        <span v-else-if="tiebaItem.no" class="text-gray-500">已忽略</span>
-                                        <span v-else class="text-pink-500">未知错误</span>
                                     </span>
                                 </div>
                                 <div class="flex gap-2">
@@ -635,8 +717,11 @@ onMounted(() => {
                                         </svg>
                                     </button>
                                     <div v-show="!editMode">
+                                        <svg v-if="tiebaItem.no" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-gray-500" viewBox="0 0 16 16">
+                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1z" />
+                                        </svg>
                                         <svg
-                                            v-if="tiebaItem.status === 0 && new Date().getDate() === tiebaItem.latest"
+                                            v-else-if="tiebaItem.status === 0 && new Date().getDate() === tiebaItem.latest"
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="100%"
                                             height="100%"
