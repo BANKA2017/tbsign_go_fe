@@ -3,6 +3,7 @@ import FrameWork from '~/components/FrameWork.vue'
 import { Notice } from '~/share/Tools'
 
 const store = useMainStore()
+const config = useRuntimeConfig()
 const isAdmin = computed(() => store.admin)
 
 const serverStatus = ref<
@@ -264,13 +265,20 @@ onMounted(() => {
                                 <span class="font-bold">构建系统 : </span><span class="font-mono">{{ serverStatus.build.runtime }}</span>
                             </li>
                             <li class="marker:text-indigo-500">
-                                <span class="font-bold">构建版本 : </span>
+                                <span class="font-bold">后端版本 : </span>
                                 <NuxtLink
                                     v-if="serverStatus.build.commit_hash && serverStatus.build.commit_hash !== 'N/A'"
                                     :to="'https://github.com/BANKA2017/tbsign_go/commit/' + serverStatus.build.commit_hash"
                                     class="font-mono text-gray-100 bg-gray-500 px-2 rounded-xl"
                                     >{{ (serverStatus.build.commit_hash || '').slice(0, 7) }}</NuxtLink
                                 >
+                                <span v-else class="font-mono">Dev</span>
+                            </li>
+                            <li class="marker:text-indigo-500">
+                                <span class="font-bold">前端版本 : </span>
+                                <NuxtLink v-if="config.public.NUXT_COMMIT_HASH" :to="'https://github.com/BANKA2017/tbsign_go_fe/commit/' + config.public.NUXT_COMMIT_HASH" class="font-mono text-gray-100 bg-gray-500 px-2 rounded-xl">{{
+                                    (config.public.NUXT_COMMIT_HASH || '').slice(0, 7)
+                                }}</NuxtLink>
                                 <span v-else class="font-mono">Dev</span>
                             </li>
                         </div>

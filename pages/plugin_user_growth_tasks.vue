@@ -198,12 +198,12 @@ onMounted(() => {
                     <button class="px-3 py-1 rounded-lg my-2 bg-sky-500" @click="addTask">保存</button>
                 </div>
 
-                <div class="border border-sky-500 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.id">
+                <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.id">
                     <li class="marker:text-sky-500">
                         <span class="font-bold">序号 : </span><span class="font-mono">{{ task.id }}</span>
                     </li>
                     <li class="marker:text-sky-500">
-                        <span class="font-bold">贴吧账号 : </span><span class="font-mono">{{ pidNameKV[task.pid] }}</span>
+                        <span class="font-bold">贴吧账号 : </span><span class="font-sans">{{ pidNameKV[task.pid] }}</span>
                     </li>
                     <li class="marker:text-sky-500">
                         <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>

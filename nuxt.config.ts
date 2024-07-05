@@ -16,7 +16,8 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
-            NUXT_BASE_PATH: process.env.NUXT_BASE_PATH
+            NUXT_BASE_PATH: process.env.NUXT_BASE_PATH,
+            NUXT_COMMIT_HASH: process.env.NUXT_COMMIT_HASH
         }
     },
     modules: [

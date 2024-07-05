@@ -426,6 +426,38 @@ const addAccount = (bduss = '', stoken = '') => {
         })
 }
 
+const qrLoginData = reactive<{
+    sign: string
+    imgurl: string
+}>({
+    sign: '',
+    imgurl: ''
+})
+
+const getQRCode = () => {
+    fetch(store.basePath + '/account/qrcode', {
+        headers: {
+            Authorization: store.authorization
+        }
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('/login')
+                return
+            }
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            qrLoginData.sign = res.data?.sign
+            qrLoginData.imgurl = res.data?.imgurl
+            //console.log(res)
+        })
+}
+
 onMounted(() => {
     if (route.hash.length > 2) {
         try {
@@ -466,26 +498,43 @@ onMounted(() => {
                         <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="扫码登录并进行绑定或更新">绑定账号</button>
                     </template>
                     <template #container>
-                        <button @click="newTiebaAccount" class="w-full px-2 py-1 text-xl rounded-xl bg-sky-500 text-gray-100">自动导入</button>
-                        <hr class="my-3" />
-                        <form>
-                            <label for="add-bduss">BDUSS</label>
-                            <input autocomplete="off" id="add-bduss" type="text" v-model="addAccountForm.bduss" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl" />
-                            <label for="add-stoken">Stoken</label>
-                            <input autocomplete="off" id="add-stoken" type="text" v-model="addAccountForm.stoken" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl" />
-                            <input
-                                @click="
-                                    (e) => {
-                                        e.preventDefault()
-                                        addAccount(addAccountForm.bduss, addAccountForm.stoken)
-                                    }
-                                "
+                        <div>
+                            <!--<div class="flex justify-center mb-5">
+                                <img class="max-w-36 w-full" v-if="qrLoginData.imgurl" :src="'//' + qrLoginData.imgurl" alt="登录二维码" />
+                            </div>
+                            <button @click="newTiebaAccount" class="w-full px-2 py-1 my-1 rounded-xl border-4 border-sky-500 bg-sky-500 dark:text-gray-100">确认</button>
+                            <NuxtLink
                                 role="button"
-                                type="submit"
-                                class="bg-sky-500 px-2 py-1 rounded-lg mt-3 mb-10 text-gray-100"
-                                value="提交"
-                            />
-                        </form>
+                                class="w-full px-2 py-1 my-1 rounded-xl border-4 border-sky-500 hover:bg-sky-500 text-gray-100 block text-center hover:text-gray-100 transition-colors"
+                                v-if="qrLoginData.sign"
+                                :href="'https://wappass.baidu.com/wp/?qrlogin=&sign=' + qrLoginData.sign"
+                                target="_blank"
+                            >
+                                网页授权
+                            </NuxtLink>
+                            <span class="text-sm my-2">* 注：请通过移动设备（手机）打开 “网页授权” 页</span>
+                            <hr class="my-3" />-->
+                            <button @click="newTiebaAccount" class="w-full px-2 py-1 text-xl rounded-xl bg-sky-500 text-gray-100">自动导入</button>
+                            <hr class="my-3" />
+                            <form>
+                                <label for="add-bduss">BDUSS</label>
+                                <input autocomplete="off" id="add-bduss" type="text" v-model="addAccountForm.bduss" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl" />
+                                <label for="add-stoken">Stoken</label>
+                                <input autocomplete="off" id="add-stoken" type="text" v-model="addAccountForm.stoken" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl" />
+                                <input
+                                    @click="
+                                        (e) => {
+                                            e.preventDefault()
+                                            addAccount(addAccountForm.bduss, addAccountForm.stoken)
+                                        }
+                                    "
+                                    role="button"
+                                    type="submit"
+                                    class="bg-sky-500 px-2 py-1 rounded-lg my-3 text-gray-100"
+                                    value="提交"
+                                />
+                            </form>
+                        </div>
                     </template>
                 </Modal>
 
@@ -499,24 +548,26 @@ onMounted(() => {
                 >
                     编辑列表
                 </button>
+                <Modal class="col-span-3 md:col-span-1" title="手动添加贴吧">
+                    <template #default>
+                        <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="手动添加贴吧">添加贴吧</button>
+                    </template>
+                    <template #container>
+                        <div class="my-2">
+                            <label for="pid-to-add">选择帐号</label>
+                            <select id="pid-to-add" v-model="addForumValue.pid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full my-3 rounded-xl">
+                                <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
+                            </select>
+                        </div>
+
+                        <div class="my-2">
+                            <label for="add-fname">贴吧名称</label>
+                            <input id="add-fname" class="form-input bg-gray-200 dark:bg-gray-900 w-full rounded-xl" type="text" v-model="addForumValue.fname" placeholder="贴吧名称" />
+                        </div>
+                        <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 transition-colors" @click="addForum">保存</button>
+                    </template>
+                </Modal>
             </div>
-
-            <details role="button">
-                <summary>添加贴吧</summary>
-
-                <div class="my-2">
-                    <label for="pid-to-add">选择帐号</label>
-                    <select id="pid-to-add" v-model="addForumValue.pid" class="bg-gray-100 dark:bg-black dark:text-gray-100 form-select block w-full my-3 rounded-xl">
-                        <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
-                    </select>
-                </div>
-
-                <div class="my-2">
-                    <label for="add-fname">贴吧名称</label>
-                    <input id="add-fname" class="form-input bg-gray-100 dark:bg-black w-full rounded-xl" type="text" v-model="addForumValue.fname" placeholder="贴吧名称" />
-                </div>
-                <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 transition-colors" @click="addForum">保存</button>
-            </details>
 
             <div class="grid grid-cols-12 gap-2 my-2">
                 <div v-for="(account, index) in accounts" :key="account.id" class="bg-gray-200 dark:bg-gray-800 col-span-12 rounded-2xl py-2 px-3">

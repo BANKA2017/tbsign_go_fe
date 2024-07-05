@@ -470,7 +470,7 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
                     <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 transition-colors" @click="addTask">保存</button>
                 </details>
 
-                <div class="border border-sky-500 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.pid.toString() + '_' + task.portrait + '_' + task.fname">
+                <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.pid.toString() + '_' + task.portrait + '_' + task.fname">
                     <li class="marker:text-sky-500">
                         <span class="font-bold">账号 : </span
                         ><NuxtLink class="font-mono hover:underline underline-offset-1" :to="`https://tieba.baidu.com/home/main?id=${task.portrait}`" target="blank">{{ task.name_show || task.name || task.portrait || '全无账号（？）' }}</NuxtLink

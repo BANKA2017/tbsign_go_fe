@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
+import Modal from '~/components/Modal.vue'
 import { Notice } from '~/share/Tools'
 
 const store = useMainStore()
@@ -164,9 +165,9 @@ onMounted(() => {
 <template>
     <NuxtLayout name="tbsign">
         <frame-work>
-            <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-10">暂时没有防呆设计，注意别手抖删错号</div>
+            <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-10 mx-3">暂时没有防呆设计，注意别手抖删错号</div>
             <div class="w-full">
-                <select id="page" v-model="page" class="rounded-xl bg-gray-100 dark:bg-black dark:text-gray-100 form-select block w-full my-2">
+                <select id="page" v-model="page" class="rounded-xl bg-gray-100 dark:bg-black dark:text-gray-100 form-select block w-24 my-2 mx-3">
                     <option v-for="(_, i) in new Array(Math.ceil(total / count))" :key="'page-' + i" :value="i + 1">{{ i + 1 }} 页</option>
                 </select>
                 <div v-for="(listItem, index) in list" :key="listItem.id" class="p-3 rounded-xl mb-5">
@@ -195,11 +196,18 @@ onMounted(() => {
                         <option v-for="name in userGroupList" :key="name" :value="name">{{ name }}</option>
                     </select>
 
-                    <div class="flex justify-start gap-2 mt-5">
-                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100" @click="saveSettings(listItem.id)">保存</button>
-                        <!--<button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors" @click="deleteAccount(listItem.id)">删除</button>-->
-                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100" @click="kickDown(listItem.id)">下线</button>
-                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100" @click="deleteTiebaAccounts(listItem.id)">清空帐号绑定</button>
+                    <div class="mt-5">
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 mr-2" @click="saveSettings(listItem.id)">保存</button>
+                        <!--<button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors mr-2" @click="deleteAccount(listItem.id)">删除</button>-->
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 mr-2" @click="kickDown(listItem.id)">下线</button>
+                        <Modal class="py-1 rounded-lg inline mr-2" title="清空帐号绑定">
+                            <template #default>
+                                <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100">清空帐号绑定</button>
+                            </template>
+                            <template #container>
+                                <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTiebaAccounts(listItem.id)">确认</button>
+                            </template>
+                        </Modal>
                     </div>
                 </div>
             </div>
