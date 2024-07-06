@@ -103,25 +103,30 @@ onMounted(() => {
                 <input
                     autocomplete="username"
                     type="text"
-                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100 rounded-xl"
+                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                     v-model="settingsValue.username"
                 />
                 <label class="block my-1">邮箱</label>
-                <input autocomplete="email" type="email" class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100 rounded-xl" v-model="settingsValue.email" />
+                <input
+                    autocomplete="email"
+                    type="email"
+                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                    v-model="settingsValue.email"
+                />
                 <!--<abbr class="block my-1" title="忘记了原密码？试试退出后使用找回密码">密码</abbr>-->
                 <label class="block my-1">密码</label>
                 <input
                     type="password"
                     placeholder="当前密码"
                     autocomplete="current-password"
-                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100 rounded-xl"
+                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                     v-model="settingsValue.password"
                 />
                 <input
                     type="password"
                     placeholder="新密码"
                     autocomplete="new-password"
-                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100 rounded-xl"
+                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                     v-model="settingsValue.new_password"
                 />
                 <input type="submit" role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl transition-colors" @click="saveSettings" value="保存" />

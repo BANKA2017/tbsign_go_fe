@@ -21,7 +21,7 @@
                         </div>
                         <form class="mt-5 w-full">
                             <label for="base-path" class="mt-5">API 端点 (不带尾斜杠，示例: http://example.com)</label>
-                            <input class="bg-gray-100 dark:bg-black rounded-xl w-full my-2" id="base-path" type="text" name="base_path" v-model="basePath" />
+                            <input class="bg-gray-100 dark:bg-gray-900 rounded-xl w-full my-2" id="base-path" type="text" name="base_path" v-model="basePath" />
                             <input type="submit" role="button" class="text-gray-100 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl" @click="saveEndpoint" value="保存" />
                         </form>
                     </div>

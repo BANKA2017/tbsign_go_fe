@@ -167,7 +167,7 @@ onMounted(() => {
         <frame-work>
             <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-10 mx-3">暂时没有防呆设计，注意别手抖删错号</div>
             <div class="w-full">
-                <select id="page" v-model="page" class="rounded-xl bg-gray-100 dark:bg-black dark:text-gray-100 form-select block w-24 my-2 mx-3">
+                <select id="page" v-model="page" class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select block w-24 my-2 mx-3">
                     <option v-for="(_, i) in new Array(Math.ceil(total / count))" :key="'page-' + i" :value="i + 1">{{ i + 1 }} 页</option>
                 </select>
                 <div v-for="(listItem, index) in list" :key="listItem.id" class="p-3 rounded-xl mb-5">
@@ -180,7 +180,7 @@ onMounted(() => {
                         :id="'username-' + listItem.id"
                         autocomplete="username"
                         type="text"
-                        class="my-2 rounded-xl placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100"
+                        class="my-2 rounded-xl placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100"
                         v-model="list[index].name"
                     />
                     <label :for="'user-email-' + listItem.id">邮箱</label>
@@ -188,11 +188,11 @@ onMounted(() => {
                         :id="'user-email-' + listItem.id"
                         autocomplete="email"
                         type="email"
-                        class="my-2 rounded-xl placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-black dark:text-gray-100"
+                        class="my-2 rounded-xl placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100"
                         v-model="list[index].email"
                     />
                     <label :for="'user-group-' + listItem.id">用户组</label>
-                    <select :id="'user-group-' + listItem.id" v-model="list[index].role" class="rounded-xl bg-gray-100 dark:bg-black dark:text-gray-100 form-select block w-full my-2">
+                    <select :id="'user-group-' + listItem.id" v-model="list[index].role" class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select block w-full my-2">
                         <option v-for="name in userGroupList" :key="name" :value="name">{{ name }}</option>
                     </select>
 
@@ -205,6 +205,7 @@ onMounted(() => {
                                 <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100">清空帐号绑定</button>
                             </template>
                             <template #container>
+                                <p class="mb-3">注意：确认后将会清空对应账号的所有本站贴吧帐号绑定！</p>
                                 <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTiebaAccounts(listItem.id)">确认</button>
                             </template>
                         </Modal>

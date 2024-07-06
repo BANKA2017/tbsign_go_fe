@@ -220,29 +220,47 @@ onMounted(() => {
             <div class="px-3 py-2">
                 <h4 class="text-lg">任务列表</h4>
 
-                <details class="marker:text-sky-500 my-5">
-                    <summary class="cursor-pointer">编辑</summary>
-
-                    <button
-                        :class="{ 'px-3': true, 'py-1': true, 'rounded-lg': true, 'mr-2': true, 'my-2': true, 'bg-sky-500': activePID === account.id, 'hover:bg-sky-500': true, 'text-gray-100': activePID === account.id, 'transition-colors': true }"
-                        v-for="account in accounts"
-                        :key="account.id"
-                        @click="activePID = account.id"
-                    >
-                        {{ account.name }}
-                    </button>
-                    <div class="grid grid-cols-6" v-if="activePID">
-                        <div class="col-span-6 sm:col-span-3 md:col-span-6 lg:col-span-2 my-1" v-for="character in list" :key="character.nid">
-                            <input type="checkbox" class="form-checkbox bg-gray-100 dark:bg-black dark:checked:bg-blue-500" v-model="fourmSupportSettingsKV[activePID][character.nid]" :id="'forum_support:character:' + character.nid" /><label
-                                class="ml-2"
-                                :for="'forum_support:character:' + character.nid"
-                                >{{ character.name }} (<NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + character.tieba" target="blank">{{ character.tieba }}吧</NuxtLink>)</label
+                <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
+                    <Modal class="col-span-3 md:col-span-1" title="编辑名人堂任务">
+                        <template #default>
+                            <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="编辑名人堂任务">编辑列表</button>
+                        </template>
+                        <template #container>
+                            <button
+                                :class="{
+                                    'px-3': true,
+                                    'py-1': true,
+                                    'rounded-lg': true,
+                                    'mr-2': true,
+                                    'my-2': true,
+                                    'bg-sky-500': activePID === account.id,
+                                    'hover:bg-sky-500': true,
+                                    'text-gray-100': activePID === account.id,
+                                    'transition-colors': true
+                                }"
+                                v-for="account in accounts"
+                                :key="account.id"
+                                @click="activePID = account.id"
                             >
-                        </div>
-                    </div>
+                                {{ account.name }}
+                            </button>
+                            <div class="" v-if="activePID">
+                                <div class="my-1" v-for="character in list" :key="character.nid">
+                                    <input
+                                        type="checkbox"
+                                        class="form-checkbox bg-gray-100 dark:bg-gray-900 dark:checked:bg-blue-500"
+                                        v-model="fourmSupportSettingsKV[activePID][character.nid]"
+                                        :id="'forum_support:character:' + character.nid"
+                                    /><label class="ml-2" :for="'forum_support:character:' + character.nid"
+                                        >{{ character.name }} (<NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + character.tieba" target="blank">{{ character.tieba }}吧</NuxtLink>)</label
+                                    >
+                                </div>
+                            </div>
 
-                    <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 transition-colors" @click="saveSettings">保存</button>
-                </details>
+                            <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 transition-colors" @click="saveSettings">保存</button>
+                        </template>
+                    </Modal>
+                </div>
 
                 <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.id">
                     <li class="marker:text-sky-500">
@@ -264,8 +282,6 @@ onMounted(() => {
                         <summary class="cursor-pointer"><span class="font-bold ml-1">日志</span></summary>
                         <li class="marker:text-sky-500 ml-3 break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
                     </details>
-                    <!--<hr class="border-gray-400 dark:border-gray-600 my-3"/>
-                <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1" @click="() => {}">删除</button>-->
                 </div>
             </div>
             <div

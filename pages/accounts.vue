@@ -167,8 +167,15 @@ const tbStatus = computed(() => {
     }
 })
 
+const syncList = ref<boolean>(false)
+
 const syncTiebaList = async () => {
+    if (syncList.value) {
+        Notice('已有一个进行中的同步任务', 'error')
+        return
+    }
     store.updateValue('loading', true)
+    syncList.value = true
     fetch(store.basePath + '/list/sync', {
         headers: {
             Authorization: store.authorization
@@ -177,6 +184,7 @@ const syncTiebaList = async () => {
     })
         .then((res) => res.json())
         .then((res) => {
+            syncList.value = false
             store.updateValue('loading', false)
             if (res.code === 401) {
                 Notice(res.message, 'error')
@@ -195,6 +203,7 @@ const syncTiebaList = async () => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
+            syncList.value = false
             store.updateValue('loading', false)
         })
 }
@@ -594,11 +603,16 @@ onMounted(() => {
                                 </div>
                             </div>
 
-                            <p class="text-sm">* 注1：扫码确认后点击 “确认” 按钮</p>
-                            <p class="text-sm">* 注2：或通过移动设备（手机）打开 “网页授权” 页确认</p>
+                            <p class="text-sm mt-2">* 扫码确认后点击 “确认” 按钮</p>
+                            <p class="text-sm">** 或通过移动设备（手机）打开 “网页授权” 页确认后，点击 “确认” 按钮</p>
                             <!--<hr class="border-gray-400 dark:border-gray-600 my-3" />
                             <button @click="newTiebaAccount" class="w-full px-2 py-1 text-xl rounded-xl bg-sky-500 text-gray-100">自动导入</button>-->
-                            <hr class="border-gray-400 dark:border-gray-600 my-3" />
+                            <div class="flex gap-3 my-3">
+                                <hr class="border-gray-400 dark:border-gray-600 grow my-3" />
+                                <span>或</span>
+                                <hr class="border-gray-400 dark:border-gray-600 grow my-3" />
+                            </div>
+
                             <form>
                                 <label for="add-bduss">BDUSS</label>
                                 <input autocomplete="off" id="add-bduss" type="text" v-model="addAccountForm.bduss" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl" />
@@ -622,7 +636,15 @@ onMounted(() => {
                 </Modal>
 
                 <button @click="syncTiebaList" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="从贴吧拉取列表，更新数据库">同步列表</button>
-                <button @click="cleanTiebaList" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="清空贴吧列表">清空列表</button>
+                <Modal class="col-span-3 md:col-span-1" title="清空贴吧列表">
+                    <template #default>
+                        <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="清空贴吧列表">清空列表</button>
+                    </template>
+                    <template #container>
+                        <p class="mb-3">注意：确认后将会清空贴吧列表！</p>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="cleanTiebaList">确认</button>
+                    </template>
+                </Modal>
                 <button @click="checkAccountStatus" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="检查帐号状态">检查状态</button>
                 <button
                     @click="editMode = !editMode"
@@ -692,7 +714,7 @@ onMounted(() => {
                             </button>
                         </div>
                     </div>
-                    <div :class="{ 'my-3': true, hidden: !accounts[index].more }">
+                    <div class="my-3" v-if="accounts[index].more">
                         <hr class="border-gray-400 dark:border-gray-600 mb-3" />
                         <div v-for="(tiebaItem, i) in tbList[account.id]" :key="tiebaItem.id">
                             <hr v-if="i > 0" class="border-gray-400 dark:border-gray-600 my-1" />

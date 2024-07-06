@@ -177,7 +177,7 @@ onMounted(() => {
 
                 <div class="my-5">
                     <p class="my-2">默认只做签到任务，选择全部任务将会尝试完成所有日常任务</p>
-                    <select v-model="settings.sign_only" class="bg-gray-100 dark:bg-black dark:text-gray-100 form-select rounded-xl">
+                    <select v-model="settings.sign_only" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
                         <option value="0">仅签到</option>
                         <option value="1">全部任务</option>
                     </select>
@@ -191,11 +191,11 @@ onMounted(() => {
 
                 <div class="marker:text-sky-500 my-5" v-if="Object.keys(canSelectPIDList).length">
                     <label for="pid-to-add">添加</label>
-                    <select id="pid-to-add" v-model="selectedPID" class="bg-gray-100 dark:bg-black dark:text-gray-100 form-select block w-full my-3">
+                    <select id="pid-to-add" v-model="selectedPID" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl block w-full my-3">
                         <option v-for="(name, pid) in canSelectPIDList" :key="pid" :value="pid">{{ name }}</option>
                     </select>
 
-                    <button class="px-3 py-1 rounded-lg my-2 bg-sky-500" @click="addTask">保存</button>
+                    <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 text-gray-100" @click="addTask">保存</button>
                 </div>
 
                 <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.id">
