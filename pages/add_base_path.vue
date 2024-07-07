@@ -8,7 +8,13 @@
                     </div>
                     <div v-else>
                         <h4 class="mb-2">站点列表</h4>
-                        <div role="button" @click="saveEndpoint(endpoint)" :class="'flex justify-between rounded-lg hover:bg-sky-500 pl-2 ' + (endpoint === storeBasePath ? 'bg-sky-500' : '')" v-for="endpoint in endpointList" :key="endpoint">
+                        <div
+                            role="button"
+                            @click="saveEndpoint(endpoint)"
+                            :class="'flex justify-between rounded-lg transition-colors hover:bg-sky-500 hover:text-gray-100 pl-2 ' + (endpoint === storeBasePath ? 'bg-sky-500 text-gray-100' : '')"
+                            v-for="endpoint in endpointList"
+                            :key="endpoint"
+                        >
                             <span class="py-2">{{ endpoint }}</span>
                             <button role="button" class="px-3 py-0.5 hover:bg-pink-500 hover:text-gray-100 rounded-lg transition-colors" @click="deleteEndpoint(endpoint)">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">

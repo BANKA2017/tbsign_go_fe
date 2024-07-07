@@ -266,13 +266,24 @@ onMounted(() => {
                             </li>
                             <li class="marker:text-indigo-500">
                                 <span class="font-bold">后端版本 : </span>
-                                <NuxtLink
-                                    v-if="serverStatus.build.commit_hash && serverStatus.build.commit_hash !== 'N/A'"
-                                    :to="'https://github.com/BANKA2017/tbsign_go/commit/' + serverStatus.build.commit_hash"
-                                    class="font-mono text-gray-100 bg-gray-500 px-2 rounded-xl"
-                                    >{{ (serverStatus.build.commit_hash || '').slice(0, 7) }}</NuxtLink
-                                >
-                                <span v-else class="font-mono">Dev</span>
+                                <p class="inline-block font-mono" v-if="serverStatus?.build?.date">
+                                    <span>{{ serverStatus.build.date.slice(0, 10).replaceAll('-', '') }}.</span>
+                                    <NuxtLink
+                                        v-if="serverStatus?.build?.commit_hash && serverStatus.build.commit_hash !== 'N/A'"
+                                        :to="'https://github.com/BANKA2017/tbsign_go/commit/' + serverStatus.build.commit_hash"
+                                        class="text-gray-100 bg-gray-500 px-2 rounded-xl"
+                                        >{{ (serverStatus.build.commit_hash || '').slice(0, 7) }}</NuxtLink
+                                    >
+                                    <span v-else>_</span>
+                                    <span>.</span>
+                                    <NuxtLink
+                                        v-if="serverStatus?.build?.embedded_frontend_commit_hash && serverStatus.build.embedded_frontend_commit_hash !== 'N/A'"
+                                        :to="'https://github.com/BANKA2017/tbsign_go_fe/commit/' + serverStatus.build.embedded_frontend_commit_hash"
+                                        class="text-gray-100 bg-gray-500 px-2 rounded-xl"
+                                        >{{ (serverStatus.build.embedded_frontend_commit_hash || '').slice(0, 7) }}</NuxtLink
+                                    >
+                                    <span v-else>_</span>
+                                </p>
                             </li>
                             <li class="marker:text-indigo-500">
                                 <span class="font-bold">前端版本 : </span>

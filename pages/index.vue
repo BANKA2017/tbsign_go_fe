@@ -3,7 +3,7 @@
         <frame-work>
             <div class="rounded-2xl mb-2" v-if="accountInfo">
                 <div class="mx-3 my-2">
-                    <div class="border border-sky-500 border-l-8 rounded-xl p-2">
+                    <div class="border-4 border-sky-500 rounded-xl p-2">
                         <h4 class="text-lg font-bold">公告</h4>
                         <hr class="border-gray-400 dark:border-gray-600 my-2" />
                         <p v-if="notifications">{{ notifications }}</p>

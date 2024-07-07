@@ -457,10 +457,10 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
                                         <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl" @click="searchAccount">搜索</button>
                                     </div>
                                     <div class="border border-sky-500 flex rounded-xl" v-for="user in visualEditorSearchResponse" :key="user.portrait">
-                                        <img :alt="`baidu-avatar-` + user.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${user.portrait}`" class="w-16 h-16 rounded-l-xl" />
+                                        <img :alt="`baidu-avatar-` + user.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${user.portrait}`" class="w-10 h-10 sm:w-16 sm:h-16 rounded-l-xl" />
                                         <div class="my-2 mx-5 grow">
-                                            <span class="block">{{ user.name }} [ {{ user.name_show }} ]</span>
-                                            <span class="block">{{ user.portrait }}</span>
+                                            <span class="block" :title="user.name + ' [ ' + user.name_show + ' ] ' + user.portrait">{{ user.name }} [ {{ user.name_show }} ]</span>
+                                            <span class="hidden sm:block" :title="user.portrait">{{ user.portrait }}</span>
                                         </div>
                                         <button v-if="tasksList.find((x) => x.portrait === user.portrait)" class="bg-gray-500 hover:bg-gray-600 dark:hover:bg-gray-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl" disabled>重复</button>
                                         <button

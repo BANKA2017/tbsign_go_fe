@@ -5,6 +5,8 @@ import { Notice } from '~/share/Tools'
 
 const store = useMainStore()
 const loading = computed(() => store.loading)
+const accountInfo = computed(() => store._cache?.accountInfo)
+const pluginList = computed(() => store._cache?.plugin_list)
 
 const route = useRoute()
 const router = useRouter()
@@ -603,8 +605,8 @@ onMounted(() => {
                                 </div>
                             </div>
 
-                            <p class="text-sm mt-2">* 扫码确认后点击 “确认” 按钮</p>
-                            <p class="text-sm">** 或通过移动设备（手机）打开 “网页授权” 页确认后，点击 “确认” 按钮</p>
+                            <p class="text-sm mt-2">* 使用任意百度可扫码的客户端扫码确认后点击 “确认” 按钮</p>
+                            <p class="text-sm">** 或通过移动设备（手机）打开 “网页授权” 页确认后，返回点击 “确认” 按钮</p>
                             <!--<hr class="border-gray-400 dark:border-gray-600 my-3" />
                             <button @click="newTiebaAccount" class="w-full px-2 py-1 text-xl rounded-xl bg-sky-500 text-gray-100">自动导入</button>-->
                             <div class="flex gap-3 my-3">
@@ -635,14 +637,22 @@ onMounted(() => {
                     </template>
                 </Modal>
 
-                <button @click="syncTiebaList" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="从贴吧拉取列表，更新数据库">同步列表</button>
+                <Modal class="col-span-3 md:col-span-1" title="同步列表">
+                    <template #default>
+                        <button class="w-full rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="从贴吧拉取列表，更新数据库">同步列表</button>
+                    </template>
+                    <template #container>
+                        <p class="mb-3">注意：同步贴吧列表可能需要较长时间，请等到右上角圈圈消失并弹出“列表已同步”消息后再跳出本页！</p>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="syncTiebaList">确认同步</button>
+                    </template>
+                </Modal>
                 <Modal class="col-span-3 md:col-span-1" title="清空贴吧列表">
                     <template #default>
                         <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="清空贴吧列表">清空列表</button>
                     </template>
                     <template #container>
                         <p class="mb-3">注意：确认后将会清空贴吧列表！</p>
-                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="cleanTiebaList">确认</button>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="cleanTiebaList">确认清空</button>
                     </template>
                 </Modal>
                 <button @click="checkAccountStatus" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="检查帐号状态">检查状态</button>
@@ -658,6 +668,10 @@ onMounted(() => {
                         <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="手动添加贴吧">添加贴吧</button>
                     </template>
                     <template #container>
+                        <div class="rounded-2xl border-4 border-pink-500 p-5 mb-5" v-if="accountInfo?.system_settings?.forum_sync_policy === 'add_delete' && (pluginList?.['ver4_ref']?.status || false)">
+                            注意：本站的贴吧同步策略处于 [严格模式]。现在手动添加的贴吧，都将会在下次同步时被移除
+                        </div>
+
                         <div class="my-2">
                             <label for="pid-to-add">选择帐号</label>
                             <select id="pid-to-add" v-model="addForumValue.pid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full my-3 rounded-xl">
@@ -667,7 +681,7 @@ onMounted(() => {
 
                         <div class="my-2">
                             <label for="add-fname">贴吧名称</label>
-                            <input id="add-fname" class="form-input bg-gray-200 dark:bg-gray-900 w-full rounded-xl" type="text" v-model="addForumValue.fname" placeholder="贴吧名称" />
+                            <input id="add-fname" class="form-input bg-gray-200 dark:bg-gray-900 w-full rounded-xl" type="text" v-model="addForumValue.fname" placeholder="贴吧名（不带末尾吧字）" />
                         </div>
                         <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 transition-colors" @click="addForum">保存</button>
                     </template>
