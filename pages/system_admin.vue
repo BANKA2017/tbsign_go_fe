@@ -237,34 +237,34 @@ onMounted(() => {
                         <span class="text-lg">服务器状态</span>
                     </div>
                     <div class="p-3 grid grid-cols-2 gap-2">
-                        <div class="col-span-2 md:col-span-1">
-                            <li class="marker:text-sky-500">
+                        <ul class="col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside">
+                            <li>
                                 <span class="font-bold">Goroutines : </span><span class="font-mono">{{ serverStatus.goroutine }}</span>
                             </li>
-                            <li class="marker:text-sky-500">
+                            <li>
                                 <span class="font-bold">Go 版本 : </span><span class="font-mono">{{ serverStatus.goversion }}</span>
                             </li>
-                            <li class="marker:text-sky-500">
+                            <li>
                                 <span class="font-bold">数据库模式 : </span><span class="font-mono">{{ serverStatus.variables?.dbmode }}</span>
                             </li>
-                            <li class="marker:text-sky-500">
+                            <li>
                                 <span class="font-bold">测试模式 : </span><span class="font-mono">{{ serverStatus.variables?.testmode }}</span>
                             </li>
-                            <li class="marker:text-sky-500">
+                            <li>
                                 <span class="font-bold">兼容版本 : </span><span class="font-mono">{{ serverStatus.compat }}</span>
                             </li>
-                            <li class="marker:text-sky-500">
+                            <li>
                                 <span class="font-bold">运行模式 : </span><span class="font-mono">{{ serverStatus.pure_go ? 'pure' : 'compat' }}</span>
                             </li>
-                        </div>
-                        <div class="col-span-2 md:col-span-1">
-                            <li class="marker:text-indigo-500">
+                        </ul>
+                        <ul class="col-span-2 md:col-span-1 marker:text-indigo-500 list-disc list-inside">
+                            <li>
                                 <span class="font-bold">构建时间 : </span><span class="font-mono">{{ serverStatus.build.date }}</span>
                             </li>
-                            <li class="marker:text-indigo-500">
+                            <li>
                                 <span class="font-bold">构建系统 : </span><span class="font-mono">{{ serverStatus.build.runtime }}</span>
                             </li>
-                            <li class="marker:text-indigo-500">
+                            <li>
                                 <span class="font-bold">后端版本 : </span>
                                 <p class="inline-block font-mono" v-if="serverStatus?.build?.date">
                                     <span>{{ serverStatus.build.date.slice(0, 10).replaceAll('-', '') }}.</span>
@@ -285,30 +285,31 @@ onMounted(() => {
                                     <span v-else>_</span>
                                 </p>
                             </li>
-                            <li class="marker:text-indigo-500">
+                            <li>
                                 <span class="font-bold">前端版本 : </span>
                                 <NuxtLink v-if="config.public.NUXT_COMMIT_HASH" :to="'https://github.com/BANKA2017/tbsign_go_fe/commit/' + config.public.NUXT_COMMIT_HASH" class="font-mono text-gray-100 bg-gray-500 px-2 rounded-xl">{{
                                     (config.public.NUXT_COMMIT_HASH || '').slice(0, 7)
                                 }}</NuxtLink>
                                 <span v-else class="font-mono">Dev</span>
                             </li>
-                        </div>
-                        <div class="col-span-2 md:col-span-1">
-                            <li class="marker:text-teal-500">
+                        </ul>
+                        <ul class="col-span-2 md:col-span-1 marker:text-teal-500 list-disc list-inside">
+                            <li>
                                 <span class="font-bold">帐号总数 : </span><span class="font-mono">{{ serverStatus.uid_count }}</span>
                             </li>
-                            <li class="marker:text-teal-500">
+                            <li>
                                 <span class="font-bold">绑定总数 : </span><span class="font-mono">{{ serverStatus.pid_count }}</span>
                             </li>
-                            <li class="marker:text-teal-500">
+                            <li>
                                 <span class="font-bold">贴吧总数 : </span><span class="font-mono">{{ serverStatus.forum_count }}</span>
                             </li>
-                            <li class="marker:text-teal-500">
+                            <li>
                                 <span class="font-bold">最后签到/重签次数 : </span><span class="font-mono">{{ resignStatus }}</span>
                             </li>
-                        </div>
+                        </ul>
                     </div>
                 </div>
+
                 <div class="my-2 rounded-2xl">
                     <div class="px-3 py-2">
                         <span class="text-lg">插件总开关</span>

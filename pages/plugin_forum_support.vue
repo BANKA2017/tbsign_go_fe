@@ -263,24 +263,29 @@ onMounted(() => {
                 </div>
 
                 <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.id">
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">序号 : </span><span class="font-mono">{{ task.id }}</span>
-                    </li>
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">贴吧账号 : </span><span class="font-mono">{{ pidNameKV[task.pid] }}</span>
-                    </li>
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">贴吧 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + task.tieba" target="blank">{{ task.tieba }}</NuxtLink>
-                    </li>
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">名人 : </span><span class="font-mono">{{ task.name }}</span>
-                    </li>
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
-                    </li>
+                    <ul class="marker:text-sky-500 list-disc list-inside">
+                        <li>
+                            <span class="font-bold">序号 : </span><span class="font-mono">{{ task.id }}</span>
+                        </li>
+                        <li>
+                            <span class="font-bold">贴吧账号 : </span><span class="font-mono">{{ pidNameKV[task.pid] }}</span>
+                        </li>
+                        <li>
+                            <span class="font-bold">贴吧 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + task.tieba" target="blank">{{ task.tieba }}</NuxtLink>
+                        </li>
+                        <li>
+                            <span class="font-bold">名人 : </span><span class="font-mono">{{ task.name }}</span>
+                        </li>
+                        <li>
+                            <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
+                        </li>
+                    </ul>
+
                     <details class="marker:text-sky-500">
                         <summary class="cursor-pointer"><span class="font-bold ml-1">日志</span></summary>
-                        <li class="marker:text-sky-500 ml-3 break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
+                        <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
+                            <li class="break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
+                        </ul>
                     </details>
                 </div>
             </div>

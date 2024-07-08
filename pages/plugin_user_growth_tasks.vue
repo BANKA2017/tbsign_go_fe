@@ -199,27 +199,32 @@ onMounted(() => {
                 </div>
 
                 <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.id">
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">序号 : </span><span class="font-mono">{{ task.id }}</span>
-                    </li>
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">贴吧账号 : </span><span class="font-sans">{{ pidNameKV[task.pid] }}</span>
-                    </li>
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
-                    </li>
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">状态 : </span>
-                        <div v-if="task.status && task.status.startsWith('[')" class="grid grid-cols-6 gap-x-5">
-                            <li class="ml-5 col-span-6 md:col-span-3 lg:col-span-2" v-for="taskStatus in JSON.parse(task.status)" :key="task.pid + '_' + taskStatus.name">
-                                {{ taskStatus.status ? '✅' : '❌' }} <span class="font-bold">{{ taskStatus.name }}</span>
-                            </li>
-                        </div>
-                        <span v-else class="font-mono">{{ task.status }}</span>
-                    </li>
+                    <ul class="marker:text-sky-500 list-disc list-inside">
+                        <li>
+                            <span class="font-bold">序号 : </span><span class="font-mono">{{ task.id }}</span>
+                        </li>
+                        <li>
+                            <span class="font-bold">贴吧账号 : </span><span class="font-sans">{{ pidNameKV[task.pid] }}</span>
+                        </li>
+                        <li>
+                            <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
+                        </li>
+                        <li>
+                            <span class="font-bold">状态 : </span>
+                            <ul v-if="task.status && task.status.startsWith('[')" class="grid grid-cols-6 gap-x-5 marker:text-sky-500 list-disc list-inside">
+                                <li class="ml-5 col-span-6 md:col-span-3 lg:col-span-2" v-for="taskStatus in JSON.parse(task.status)" :key="task.pid + '_' + taskStatus.name">
+                                    {{ taskStatus.status ? '✅' : '❌' }} <span class="font-bold">{{ taskStatus.name }}</span>
+                                </li>
+                            </ul>
+                            <span v-else class="font-mono">{{ task.status }}</span>
+                        </li>
+                    </ul>
+
                     <details class="marker:text-sky-500">
                         <summary class="cursor-pointer"><span class="font-bold ml-1">日志</span></summary>
-                        <li class="marker:text-sky-500 ml-3 break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
+                        <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
+                            <li class="break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
+                        </ul>
                     </details>
                     <hr class="border-gray-400 dark:border-gray-600 my-3" />
                     <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors" @click="deleteTask(task.id)">删除</button>

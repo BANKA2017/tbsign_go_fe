@@ -482,31 +482,37 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
                     </Modal>
                 </div>
                 <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.pid.toString() + '_' + task.portrait + '_' + task.fname">
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">账号 : </span
-                        ><NuxtLink class="font-mono hover:underline underline-offset-1" :to="`https://tieba.baidu.com/home/main?id=${task.portrait}`" target="blank">{{ task.name_show || task.name || task.portrait || '全无账号（？）' }}</NuxtLink
-                        ><span class="font-mono"></span>
-                    </li>
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">封禁贴吧 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + task.fname" target="blank">{{ task.fname }}</NuxtLink>
-                    </li>
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">执行时间 : </span><span class="font-mono">{{ getPubDate(new Date(task.start * 1000)) }} ~ {{ getPubDate(new Date(task.end * 1000)) }}</span>
-                    </li>
-                    <hr class="border-gray-400 dark:border-gray-600 my-3" />
-                    <li class="marker:text-sky-500">
-                        <!--TODO use portrait-->
-                        <span class="font-bold">吧务账号 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/home/main?un=' + pidNameKV[task.pid]" target="blank">{{ pidNameKV[task.pid] }}</NuxtLink>
-                    </li>
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
-                    </li>
-                    <li class="marker:text-sky-500">
-                        <span class="font-bold">执行情况 : </span><span>{{ task.success ? '✅' : '❌' }}</span>
-                    </li>
+                    <ul class="marker:text-sky-500 list-disc list-inside">
+                        <li>
+                            <span class="font-bold">账号 : </span
+                            ><NuxtLink class="font-mono hover:underline underline-offset-1" :to="`https://tieba.baidu.com/home/main?id=${task.portrait}`" target="blank">{{ task.name_show || task.name || task.portrait || '全无账号（？）' }}</NuxtLink
+                            ><span class="font-mono"></span>
+                        </li>
+                        <li>
+                            <span class="font-bold">封禁贴吧 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + task.fname" target="blank">{{ task.fname }}</NuxtLink>
+                        </li>
+                        <li>
+                            <span class="font-bold">执行时间 : </span><span class="font-mono">{{ getPubDate(new Date(task.start * 1000)) }} ~ {{ getPubDate(new Date(task.end * 1000)) }}</span>
+                        </li>
+                        <hr class="border-gray-400 dark:border-gray-600 my-3" />
+                        <li>
+                            <!--TODO use portrait-->
+                            <span class="font-bold">吧务账号 : </span
+                            ><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/home/main?un=' + pidNameKV[task.pid]" target="blank">{{ pidNameKV[task.pid] }}</NuxtLink>
+                        </li>
+                        <li>
+                            <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
+                        </li>
+                        <li>
+                            <span class="font-bold">执行情况 : </span><span>{{ task.success ? '✅' : '❌' }}</span>
+                        </li>
+                    </ul>
+
                     <details class="marker:text-sky-500">
                         <summary class="cursor-pointer"><span class="font-bold ml-1">日志</span></summary>
-                        <li class="marker:text-sky-500 ml-3 break-all" v-for="(log_, i) in getTaskLog(task.log)" :key="task.pid.toString() + '_' + task.portrait + '_' + task.fname + i">{{ log_ }}</li>
+                        <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
+                            <li class="break-all" v-for="(log_, i) in getTaskLog(task.log)" :key="task.pid.toString() + '_' + task.portrait + '_' + task.fname + i">{{ log_ }}</li>
+                        </ul>
                     </details>
                     <hr class="border-gray-400 dark:border-gray-600 my-3" />
                     <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors" @click="deleteTask(task.id)">删除</button>
