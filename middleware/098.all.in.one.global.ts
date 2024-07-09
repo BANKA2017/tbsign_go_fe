@@ -140,7 +140,16 @@ export default defineNuxtRouteMiddleware((to, from) => {
                                 if (res.code !== 200) {
                                     return
                                 }
-                                store.updateCache('accounts', res.data)
+                                store.updateCache(
+                                    'accounts',
+                                    (res.data || []).map((account) => {
+                                        account.page = 0
+                                        account.more = false
+                                        account.filter = 'all'
+                                        account.search = ''
+                                        return account
+                                    })
+                                )
                                 //console.log(res)
                             })
                     }

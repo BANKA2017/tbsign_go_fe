@@ -282,6 +282,10 @@ watch([taskToAddPID, taskToAddFname], () => {
     taskToAddFnameTimeoutHandle = setTimeout(preCheckManager, 500)
 })
 
+onBeforeUnmount(() => {
+    clearTimeout(taskToAddFnameTimeoutHandle)
+})
+
 const tasksSwitch = ref<boolean>(false)
 
 const updateTasksSwitch = () => {
