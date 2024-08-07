@@ -49,9 +49,9 @@ export default defineNuxtConfig({
         viewer: true
     },
     routeRules: {
-        '/login': { ssr: false },
-        '/reset_password': { ssr: false },
-        '/signup': { ssr: false },
+        '/login': { ssr: true },
+        '/reset_password': { ssr: true },
+        '/signup': { ssr: true },
         '/add_base_path': { prerender: true },
         //'/tools': { prerender: true },
         '/': { ssr: false },
