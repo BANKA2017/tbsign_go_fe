@@ -535,25 +535,27 @@ const submitQRLogin = () => {
 }
 
 const accountListFilterWrapper = (id: number, accountIndex: number) => {
-    const tmpList = (tbList.value[id] || []).filter((tiebaItem) => {
-        switch (accounts.value[accountIndex].filter) {
-            case 'ignore':
-                return !!tiebaItem.no
-            case 'wait':
-                return !tiebaItem.no && new Date().getDate() !== tiebaItem.latest
-            case 'fail':
-                return !tiebaItem.no && tiebaItem.status !== 0
-            case 'success':
-                return !tiebaItem.no && tiebaItem.status === 0 && new Date().getDate() === tiebaItem.latest
-            default:
+    const tmpList = (tbList.value[id] || [])
+        .filter((tiebaItem) => {
+            switch (accounts.value[accountIndex].filter) {
+                case 'ignore':
+                    return !!tiebaItem.no
+                case 'wait':
+                    return !tiebaItem.no && new Date().getDate() !== tiebaItem.latest
+                case 'fail':
+                    return !tiebaItem.no && tiebaItem.status !== 0
+                case 'success':
+                    return !tiebaItem.no && tiebaItem.status === 0 && new Date().getDate() === tiebaItem.latest
+                default:
+                    return true
+            }
+        })
+        .filter((tiebaItem) => {
+            if (!accounts.value[accountIndex].search) {
                 return true
-        }
-    }).filter(tiebaItem => {
-        if (!accounts.value[accountIndex].search) {
-            return true
-        }
-        return tiebaItem.tieba.toString().includes(accounts.value[accountIndex].search)
-    })
+            }
+            return tiebaItem.tieba.toString().includes(accounts.value[accountIndex].search)
+        })
     // effect
     if (tmpList.length / 100 < accounts.value[accountIndex].page) {
         accounts.value[accountIndex].page = tmpList.length > 0 ? Math.ceil(tmpList.length / 100) - 1 : 0
@@ -595,13 +597,15 @@ onMounted(() => {
     <NuxtLayout name="tbsign">
         <frame-work>
             <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5">
-                共绑定 {{ tbStatus.accountCount }} 个帐号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，忽略
+                共有 {{ tbStatus.accountCount }} 个帐号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，忽略
                 <span class="text-gray-600 dark:text-gray-400">{{ tbStatus.ignore }}</span> 个，还有 <span class="text-orange-500">{{ tbStatus.pending }}</span> 个贴吧等待签到
             </div>
             <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
-                <Modal class="col-span-3 md:col-span-1" title="绑定贴吧账号" aria-label="绑定贴吧账号">
+                <Modal class="col-span-3 md:col-span-1" title="添加贴吧账号" aria-label="添加贴吧账号">
                     <template #default>
-                        <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="扫码登录并进行绑定或更新" aria-label="扫码登录并进行绑定或更新" @click="getQRCode">绑定账号</button>
+                        <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="扫码登录并更新或添加贴吧账号" aria-label="扫码登录并更新或添加贴吧账号" @click="getQRCode">
+                            添加账号
+                        </button>
                     </template>
                     <template #container>
                         <div>
@@ -672,10 +676,10 @@ onMounted(() => {
 
                 <Modal class="col-span-3 md:col-span-1" title="同步列表" aria-label="同步列表">
                     <template #default>
-                        <button class="w-full rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="从贴吧拉取列表，更新数据库" aria-label="从贴吧拉取列表，更新数据库" >同步列表</button>
+                        <button class="w-full rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="从贴吧拉取列表，更新数据库" aria-label="从贴吧拉取列表，更新数据库">同步列表</button>
                     </template>
                     <template #container>
-                        <p class="mb-3">注意：同步贴吧列表可能需要较长时间，请等到右上角圈圈消失并弹出“列表已同步”消息后再跳出本页！</p>
+                        <p class="mb-3">注意：同步贴吧列表可能需要较长时间，请等到右上角圈圈消失并弹出“列表已同步”消息后再关闭本窗口！</p>
                         <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="syncTiebaList">确认同步</button>
                     </template>
                 </Modal>
@@ -688,11 +692,14 @@ onMounted(() => {
                         <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="cleanTiebaList">确认清空</button>
                     </template>
                 </Modal>
-                <button @click="checkAccountStatus" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="检查帐号状态" aria-label="检查贴吧帐号状态" >检查状态</button>
+                <button @click="checkAccountStatus" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="检查帐号状态" aria-label="检查贴吧帐号状态">
+                    检查状态
+                </button>
                 <button
                     @click="editMode = !editMode"
                     :class="'col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors ' + (editMode ? 'bg-gray-300 text-black' : '')"
-                    title="编辑贴吧列表" aria-label="编辑贴吧列表"
+                    title="编辑贴吧列表"
+                    aria-label="编辑贴吧列表"
                 >
                     编辑列表
                 </button>
@@ -702,7 +709,7 @@ onMounted(() => {
                     </template>
                     <template #container>
                         <div class="rounded-2xl border-4 border-pink-500 p-5 mb-5" v-if="accountInfo?.system_settings?.forum_sync_policy === 'add_delete' && (pluginList?.['ver4_ref']?.status || false)">
-                            注意：本站的贴吧同步策略处于 [严格模式]。现在手动添加的贴吧，都将会在下次同步时被移除
+                            注意：本站的贴吧同步策略处于 [严格模式]。全部手动添加的贴吧，都将会在下次同步贴吧列表时被移除
                         </div>
 
                         <div class="my-2">
@@ -714,7 +721,7 @@ onMounted(() => {
 
                         <div class="my-2">
                             <label for="add-fname">贴吧名称</label>
-                            <input id="add-fname" class="form-input bg-gray-200 dark:bg-gray-900 w-full rounded-xl" type="text" v-model="addForumValue.fname" placeholder="贴吧名（不带末尾吧字）" />
+                            <input id="add-fname" class="form-input bg-gray-200 dark:bg-gray-900 w-full rounded-xl" type="text" v-model="addForumValue.fname" placeholder="贴吧名字（不带末尾吧字）" />
                         </div>
                         <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 transition-colors" @click="addForum">保存</button>
                     </template>
@@ -744,7 +751,10 @@ onMounted(() => {
                                         (tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.pending || 0) + '等待，' + (tblistFilter[account.id]?.failed || 0) + '失败，' + (tblistFilter[account.id]?.ignore || 0) + '忽略'
                                     "
                                 >
-                                    <span class="text-green-500">{{ tblistFilter[account.id]?.success || 0 }}</span><span class="mx-0.5">/</span><span class="text-orange-500">{{ tblistFilter[account.id]?.pending || 0 }}</span><span class="mx-0.5">/</span><span class="text-pink-500">{{ tblistFilter[account.id]?.failed || 0 }}</span><span class="mx-0.5">/</span><span class="text-gray-600 dark:text-gray-400">{{ tblistFilter[account.id]?.ignore || 0 }}</span>
+                                    <span class="text-green-500">{{ tblistFilter[account.id]?.success || 0 }}</span
+                                    ><span class="mx-0.5">/</span><span class="text-orange-500">{{ tblistFilter[account.id]?.pending || 0 }}</span
+                                    ><span class="mx-0.5">/</span><span class="text-pink-500">{{ tblistFilter[account.id]?.failed || 0 }}</span
+                                    ><span class="mx-0.5">/</span><span class="text-gray-600 dark:text-gray-400">{{ tblistFilter[account.id]?.ignore || 0 }}</span>
                                 </div>
                             </div>
                         </div>
@@ -757,10 +767,22 @@ onMounted(() => {
                             "
                         >
                             <div v-show="accounts[index].more" class="flex">
-                                <select title="页码" :aria-label="accounts[index].name + '贴吧列表的页码'" v-model="accounts[index].page" class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select block w-24 mx-1 my-1 text-sm h-10" placeholder="页码">
+                                <select
+                                    title="页码"
+                                    :aria-label="accounts[index].name + '贴吧列表的页码'"
+                                    v-model="accounts[index].page"
+                                    class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select block w-24 mx-1 my-1 text-sm h-10"
+                                    placeholder="页码"
+                                >
                                     <option :value="i" v-for="i in Object.keys(new Array(Math.ceil((accountListFilterWrapper(account.id, index) || []).length / 100)).fill(null))">第{{ Number(i) + 1 }}页</option>
                                 </select>
-                                <select title="筛选" :aria-label="accounts[index].name + '贴吧列表的筛选类型'" v-model="accounts[index].filter" class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select w-24 mx-1 my-1 text-sm h-10 hidden sm:block" placeholder="筛选">
+                                <select
+                                    title="筛选"
+                                    :aria-label="accounts[index].name + '贴吧列表的筛选类型'"
+                                    v-model="accounts[index].filter"
+                                    class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select w-24 mx-1 my-1 text-sm h-10 hidden sm:block"
+                                    placeholder="筛选"
+                                >
                                     <option value="all">全部</option>
                                     <option value="success">成功</option>
                                     <option value="fail">失败</option>
@@ -792,8 +814,7 @@ onMounted(() => {
                         </div>
                     </div>
                     <div class="my-3" v-show="accounts[index].more">
-
-                        <input type="text" placeholder="搜索绑定贴吧" v-model="accounts[index].search" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl mb-3" />
+                        <input type="text" placeholder="搜索贴吧列表" v-model="accounts[index].search" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl mb-3" />
 
                         <div v-for="(tiebaItem, i) in accountListFilterWrapper(account.id, index).slice(100 * (accounts[index].page || 0), 100 + 100 * (accounts[index].page || 0))" :key="account.id + '_' + i">
                             <hr v-if="i > 0" class="border-gray-400 dark:border-gray-600 my-1" />
@@ -806,7 +827,9 @@ onMounted(() => {
                                         <span v-if="tiebaItem.no" class="text-gray-500">已忽略</span>
                                         <span v-else-if="tiebaItem.status === 0 && new Date().getDate() === tiebaItem.latest" class="text-green-500">已签到</span>
                                         <span v-else-if="new Date().getDate() !== tiebaItem.latest" class="text-orange-500">待签到</span>
-                                        <span v-else-if="tiebaItem.status !== 0" class="text-pink-500" :title="tiebaItem.status + '#' + tiebaItem.last_error" :aria-label="tiebaItem.status + '#' + tiebaItem.last_error" >{{ tiebaItem.status + '#' + tiebaItem.last_error }}</span>
+                                        <span v-else-if="tiebaItem.status !== 0" class="text-pink-500" :title="tiebaItem.status + '#' + tiebaItem.last_error" :aria-label="tiebaItem.status + '#' + tiebaItem.last_error">{{
+                                            tiebaItem.status + '#' + tiebaItem.last_error
+                                        }}</span>
                                     </span>
                                 </div>
                                 <div class="flex gap-2">

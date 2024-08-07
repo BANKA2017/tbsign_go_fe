@@ -51,6 +51,7 @@ const saveSettings = (e: Event) => {
                 const newAccountInfo = JSON.parse(JSON.stringify(accountInfo.value))
                 newAccountInfo.email = res.data.email
                 newAccountInfo.name = res.data.username
+                newAccountInfo.avatar = res.data.avatar
                 store.updateCache('accountInfo', newAccountInfo)
                 //console.log(res)
             })

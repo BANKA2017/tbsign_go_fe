@@ -25,7 +25,7 @@
                         </div>
                         <span class="text-sm">{{ accountInfo.email }}</span>
                     </div>
-                    <img v-show="gravatarImg" :src="gravatarImg" alt="gravatar-avatar" class="w-20 h-20 rounded-2xl my-1" />
+                    <img :src="accountInfo.avatar" alt="gravatar-avatar" class="w-20 h-20 rounded-2xl my-1" loading="lazy" />
                 </div>
                 <hr class="border-gray-400 dark:border-gray-600 px-3" />
                 <div class="inline-block md:block">
@@ -43,19 +43,7 @@ import FrameWork from '../components/FrameWork.vue'
 const store = useMainStore()
 
 const accountInfo = computed(() => store._cache?.accountInfo)
-const gravatarImg = ref<string>('')
 const notifications = ref<string>('')
-
-const sha256sum = async (text: string) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)))].map((x) => x.toString(16).padStart(2, '0')).join('')
-watch(
-    accountInfo,
-    async () => {
-        if (accountInfo.value?.email && crypto.subtle) {
-            gravatarImg.value = `https://www.gravatar.com/avatar/${await sha256sum(accountInfo.value.email)}`
-        }
-    },
-    { deep: true }
-)
 
 onMounted(async () => {
     // get account info
@@ -78,9 +66,6 @@ onMounted(async () => {
                 notifications.value = res.data || '没有公告'
                 //console.log(res)
             })
-        if (accountInfo.value?.email && crypto.subtle) {
-            gravatarImg.value = `https://www.gravatar.com/avatar/${await sha256sum(accountInfo.value.email)}`
-        }
     }
 })
 
