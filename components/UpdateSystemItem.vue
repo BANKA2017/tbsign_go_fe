@@ -94,7 +94,7 @@ const refreshPage = () => {
             <span v-if="isCurrent" title="当前版本"> ✅ </span>
         </div>
         <ul role="list" class="my-2 marker:text-sky-500 list-disc list-inside">
-            <li>编译时间 : {{ item.created_at }}</li>
+            <li>上传时间 : {{ item.created_at }}</li>
             <li>版本 : {{ targetVersion }}</li>
             <li>
                 大小 : <span :title="item.size + ' 字节'"> {{ (item.size / 1024 / 1024).toFixed(2) }} MB ({{ item.size }}) </span>
