@@ -8,7 +8,7 @@ const accounts = computed(() => store._cache?.accounts || [])
 const pidNameKV = computed(() => store.pidNameKV)
 const loading = computed(() => store.loading)
 
-const settings = ref<{ sign_only: '0' | '1', break_icon_tasks: '0'|'1' }>({ sign_only: '0',break_icon_tasks: '0' })
+const settings = ref<{ sign_only: '0' | '1'; break_icon_tasks: '0' | '1' }>({ sign_only: '0', break_icon_tasks: '0' })
 const selectedPID = ref<number>(0)
 
 const tasksList = ref<

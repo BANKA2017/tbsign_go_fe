@@ -18,6 +18,42 @@ const serverStatus = ref<
     variables: {}
 })
 
+const isSupportVersion = (os = '', arch = '') => {
+    return os === 'linux' && ['arm64', 'amd64'].includes(arch)
+    //return (['linux', 'darwin'].includes(os) && ['arm64', 'amd64'].includes(arch)) || (os === 'windows' && arch === 'amd64')
+}
+
+const serverGoStatus = computed(() => {
+    const res = {
+        os: '',
+        arch: ''
+    }
+    if (typeof serverStatus.value?.goversion === 'string') {
+        const tmpVersion = serverStatus.value?.goversion.split(' ')
+        if (tmpVersion.length !== 2) {
+            return res
+        }
+        const [os, arch] = tmpVersion[1].split('/')
+        if (os && arch) {
+            res.os = os
+            res.arch = arch
+        }
+        return res
+    } else {
+        return res
+    }
+})
+
+const fullVersion = computed(() => {
+    return (
+        serverStatus.value.build.date.slice(0, 10).replaceAll('-', '') +
+        '.' +
+        (serverStatus.value?.build?.commit_hash && serverStatus.value.build.commit_hash !== 'N/A' ? (serverStatus.value.build.commit_hash || '').slice(0, 7) : '_') +
+        '.' +
+        (serverStatus.value?.build?.embedded_frontend_commit_hash && serverStatus.value.build.embedded_frontend_commit_hash !== 'N/A' ? (serverStatus.value.build.embedded_frontend_commit_hash || '').slice(0, 7) : '_')
+    )
+})
+
 const serverSettings = ref<{ [p in string]: any }>({})
 
 const pluginList = ref<{ [p in string]: { name: string; status: boolean; ver: string; options: string } }>({})
@@ -52,7 +88,7 @@ const resignStatus = computed(() => {
 const settingsGroup = {
     system: {
         name: '系统',
-        data: { ann: '公告', system_url: '地址', system_name: '网站名称', system_keywords: '关键词', system_description: '简介' }
+        data: { ann: '公告', system_url: '地址' } //, system_name: '网站名称', system_keywords: '关键词', system_description: '简介' }
     },
     account: {
         name: '帐号',
@@ -155,6 +191,23 @@ const sendTestMail = (e: Event) => {
             }
             Notice('测试邮件已发送', 'success')
             //console.log(res)
+        })
+        .catch((e) => {
+            store.updateValue('loading', false)
+            Notice(e.toString(), 'error')
+            console.error(e)
+        })
+}
+
+const releaseList = ref<any[]>([])
+
+const getReleasesList = () => {
+    store.updateValue('loading', true)
+    fetch('https://api.github.com/repos/banka2017/tbsign_go/releases?per_page=5')
+        .then((res) => res.json())
+        .then((res) => {
+            store.updateValue('loading', false)
+            releaseList.value = res.filter((x) => x.tag_name.startsWith('tbsign_go.') && x.tag_name.replace('tbsign_go.', '') >= fullVersion.value)
         })
         .catch((e) => {
             store.updateValue('loading', false)
@@ -307,6 +360,39 @@ onMounted(() => {
                                 <span class="font-bold">最后签到/重签次数 : </span><span class="font-mono">{{ resignStatus }}</span>
                             </li>
                         </ul>
+                    </div>
+                </div>
+
+                <div class="my-2 rounded-2xl" v-if="isSupportVersion(serverGoStatus.os, serverGoStatus.arch)">
+                    <div class="px-3 py-2">
+                        <span class="text-lg">系统更新 (BETA)</span>
+                    </div>
+                    <div v-if="releaseList.length == 0">
+                        <button class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg px-3 py-1 text-gray-100 transition-colors" title="检查更新" aria-label="检查更新" @click="getReleasesList">检查更新</button>
+                    </div>
+                    <div v-else>
+                        <ul role="list" class="px-3 my-2 marker:text-sky-500 list-disc list-inside">
+                            <li>升级前建议先查看版本信息，可能会有不向前兼容的重大修改</li>
+                            <li>如果下面列表中没有一项的右上角有✅，说明当前版本可能过于老旧，请当心不兼容更新</li>
+                            <li>不支持自动降级，请手动下载旧版本的二进制文件替换</li>
+                        </ul>
+
+                        <div class="p-3 grid grid-cols-2 gap-2">
+                            <div class="col-span-2 md:col-span-1" v-for="(release, i) in releaseList" :key="release.tag_name">
+                                <UpdateSystemItem
+                                    :item="release.assets.find((x) => x.name.endsWith(Object.values(serverGoStatus).join('-') + (serverGoStatus.os === 'windows' ? '.exe' : '')))"
+                                    :url="release.html_url"
+                                    :is-current="
+                                        releaseList
+                                            .map((x) => x.tag_name)
+                                            .map((x) => x.replace('tbsign_go.', ''))
+                                            .indexOf(fullVersion) === i
+                                    "
+                                    :os="serverGoStatus.os"
+                                    :arch="serverGoStatus.arch"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
