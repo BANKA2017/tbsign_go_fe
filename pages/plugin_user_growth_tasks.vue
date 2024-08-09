@@ -8,7 +8,7 @@ const accounts = computed(() => store._cache?.accounts || [])
 const pidNameKV = computed(() => store.pidNameKV)
 const loading = computed(() => store.loading)
 
-const settings = ref<{ sign_only: '0' | '1' }>({ sign_only: '0' })
+const settings = ref<{ sign_only: '0' | '1', break_icon_tasks: '0'|'1' }>({ sign_only: '0',break_icon_tasks: '0' })
 const selectedPID = ref<number>(0)
 
 const tasksList = ref<
@@ -181,6 +181,12 @@ onMounted(() => {
                         <option value="0">仅签到</option>
                         <option value="1">全部任务</option>
                     </select>
+
+                    <p class="my-2">印记任务开关，完成印记任务可能会导致帐号的 IP 归属地更变为签到服务的服务器所在地</p>
+                    <select v-model="settings.break_icon_tasks" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
+                        <option value="0">不跳过印记任务</option>
+                        <option value="1">跳过印记任务</option>
+                    </select>
                 </div>
 
                 <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded-lg px-3 py-1 text-gray-100 transition-colors" @click="saveSettings">保存</button>
@@ -221,7 +227,7 @@ onMounted(() => {
                     </ul>
 
                     <details class="marker:text-sky-500">
-                        <summary class="cursor-pointer"><span class="font-bold ml-1">日志</span></summary>
+                        <summary class="cursor-pointer"><span class="font-bold ml-1">最近30天日志</span></summary>
                         <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
                             <li class="break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
                         </ul>
