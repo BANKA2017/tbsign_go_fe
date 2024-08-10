@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
-import UpdateSystemItem from '~/components/UpdateSystemItem.vue';
+import UpdateSystemItem from '~/components/UpdateSystemItem.vue'
 import { Notice } from '~/share/Tools'
 
 const store = useMainStore()

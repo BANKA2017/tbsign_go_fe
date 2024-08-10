@@ -16,7 +16,7 @@
                 <div class="px-3 py-2">
                     <span class="text-lg">账号信息</span>
                 </div>
-                <div class="p-3 flex justify-between gap-2">
+                <div class="p-3 flex flex-col justify-between gap-2">
                     <div class="flex flex-col">
                         <div class="text-2xl">
                             {{ accountInfo.name }}
@@ -25,7 +25,16 @@
                         </div>
                         <span class="text-sm">{{ accountInfo.email }}</span>
                     </div>
-                    <img :src="accountInfo.avatar" alt="gravatar-avatar" class="w-20 h-20 rounded-2xl my-1" loading="lazy" />
+                    <div v-if="tbaccounts.length > 0" class="mt-3 flex -space-x-5 overflow-hidden">
+                        <img
+                            v-for="tbaccount in tbaccounts"
+                            :key="tbaccount.portrait"
+                            :src="'https://himg.bdimg.com/sys/portrait/item/' + tbaccount.portrait"
+                            :alt="'baidu-avatar-' + tbaccount.portrait"
+                            class="w-14 h-14 rounded-2xl my-1 inline-block ring-2"
+                            loading="lazy"
+                        />
+                    </div>
                 </div>
                 <hr class="border-gray-400 dark:border-gray-600 px-3" />
                 <div class="inline-block md:block">
@@ -43,6 +52,7 @@ import FrameWork from '../components/FrameWork.vue'
 const store = useMainStore()
 
 const accountInfo = computed(() => store._cache?.accountInfo)
+const tbaccounts = computed(() => store._cache?.accounts || [])
 const notifications = ref<string>('')
 
 onMounted(async () => {

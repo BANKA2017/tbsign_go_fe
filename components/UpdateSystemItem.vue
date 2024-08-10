@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Notice } from '~/share/Tools'
-import Modal from './Modal.vue';
+import Modal from './Modal.vue'
 
 const props = defineProps({
     item: Object,
