@@ -215,7 +215,7 @@ const getReleasesList = () => {
         .then((res) => {
             store.updateValue('loading', false)
             releaseList.value = res.filter((x) => x.tag_name.startsWith('tbsign_go.') && Number(new Date(x.published_at)) > Number(serverStatus.value?.build?.date === 'Now' ? Date.now() : new Date(serverStatus.value?.build?.date || 0)))
-            if (releaseList.value.length === 1) {
+            if (releaseList.value.length === 1 && releaseList.value[0].tag_name.replace('tbsign_go.', '') === fullVersion.value) {
                 tenMinutesDelay.value = false
             }
         })
@@ -364,13 +364,17 @@ onMounted(() => {
                                 <span class="font-bold">帐号总数 : </span><span class="font-mono">{{ serverStatus.uid_count }}</span>
                             </li>
                             <li>
-                                <span class="font-bold">绑定总数 : </span><span class="font-mono">{{ serverStatus.pid_count }}</span>
+                                <span class="font-bold">绑定总数/<abbr title="(每分钟签到数*60*(24-开始签到小时))/现现存贴吧数/绑定总数">建议容量</abbr> : </span
+                                ><span class="font-mono"
+                                    >{{ serverStatus.pid_count }}/{{ Math.floor((serverSettings.cron_limit * 60 * (24 - Number(serverSettings.sign_hour) + 1)) / (Number(serverStatus.forum_count) / Number(serverStatus.pid_count))) }}</span
+                                >
                             </li>
                             <li>
-                                <span class="font-bold">贴吧总数 : </span><span class="font-mono">{{ serverStatus.forum_count }}</span>
+                                <span class="font-bold">贴吧总数/<abbr title="每分钟签到数*60*(24-开始签到小时)">站点容量</abbr> : </span
+                                ><span class="font-mono">{{ serverStatus.forum_count }}/{{ serverSettings.cron_limit * 60 * (24 - Number(serverSettings.sign_hour) + 1) }}</span>
                             </li>
                             <li>
-                                <span class="font-bold">最后签到/重签次数 : </span><span class="font-mono">{{ resignStatus }}</span>
+                                <span class="font-bold">最后执行/重签次数 : </span><span class="font-mono">{{ resignStatus }}</span>
                             </li>
                         </ul>
                     </div>
