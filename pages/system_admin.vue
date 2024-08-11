@@ -201,6 +201,7 @@ const sendTestMail = (e: Event) => {
 }
 
 const releaseList = ref<any[]>([])
+const tenMinutesDelay = ref<boolean>(true)
 
 const getReleasesList = () => {
     store.updateValue('loading', true)
@@ -208,18 +209,10 @@ const getReleasesList = () => {
         .then((res) => res.json())
         .then((res) => {
             store.updateValue('loading', false)
-            let breakFlag = false
-            releaseList.value = res
-                .filter((x) => x.tag_name.startsWith('tbsign_go.') && Number(new Date(x.published_at)) + 1000 * 60 * 5 < Date.now())
-                .map((x) => {
-                    if (breakFlag) {
-                        return null
-                    } else if (x.tag_name.replace('tbsign_go.', '') === fullVersion.value) {
-                        breakFlag = true
-                    }
-                    return x
-                })
-                .filter((x) => x)
+            releaseList.value = res.filter((x) => x.tag_name.startsWith('tbsign_go.') && Number(new Date(x.published_at)) > Number(serverStatus.value?.build?.date === 'Now' ? Date.now() : new Date(serverStatus.value?.build?.date || 0)))
+            if (releaseList.value.length === 1) {
+                tenMinutesDelay.value = false
+            }
         })
         .catch((e) => {
             store.updateValue('loading', false)
@@ -392,12 +385,12 @@ onMounted(() => {
                             <li>
                                 如果下面列表中没有一项的右上角有✅，说明当前版本可能过于老旧，请前往 <a href="https://github.com/BANKA2017/tbsign_go/releases" target="_blank" class="underline"><code>Releases</code></a> 下载后续文件替换更新
                             </li>
-                            <li>最后更新会有 10 分钟的延迟</li>
+                            <li @click="tenMinutesDelay = false">最后更新会有 10 分钟的延迟</li>
                             <li>不支持自动降级</li>
                         </ul>
 
                         <div class="p-3 grid grid-cols-2 gap-2">
-                            <div class="col-span-2 md:col-span-1" v-for="(release, i) in releaseList" :key="release.tag_name">
+                            <div class="col-span-2 md:col-span-1" v-for="(release, i) in releaseList.filter((x) => !tenMinutesDelay || Number(new Date(x.published_at)) + 1000 * 60 * 10 < Date.now())" :key="release.tag_name">
                                 <UpdateSystemItem
                                     :item="release.assets.find((x) => x.name.endsWith(Object.values(serverGoStatus).join('-') + (serverGoStatus.os === 'windows' ? '.exe' : '')))"
                                     :url="release.html_url"
