@@ -94,17 +94,24 @@ const refreshPage = () => {
             <span v-if="isCurrent" title="当前版本"> ✅ </span>
         </div>
         <ul role="list" class="my-2 marker:text-sky-500 list-disc list-inside">
-            <li>上传时间 : {{ item.created_at }}</li>
-            <li>版本 : {{ targetVersion }}</li>
             <li>
-                大小 : <span :title="item.size + ' 字节'"> {{ (item.size / 1024 / 1024).toFixed(2) }} MB ({{ item.size }}) </span>
+                上传时间 : <code>{{ item.created_at }}</code>
+            </li>
+            <li>
+                版本 : <code>{{ targetVersion }}</code>
+            </li>
+            <li>
+                大小 :
+                <code
+                    ><span :title="item.size + ' 字节'"> {{ (item.size / 1024 / 1024).toFixed(2) }} MB ({{ item.size }}) </span></code
+                >
             </li>
         </ul>
 
         <div class="flex justify-start gap-2">
             <Modal class="col-span-3 md:col-span-1" title="更新系统" aria-label="更新系统" v-if="!isCurrent">
                 <template #default>
-                    <button class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg px-3 py-1 text-gray-100 transition-colors" title="更新系统" aria-label="更新系统">更新系统</button>
+                    <button class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg px-3 py-1 hover:text-gray-100 transition-colors" title="更新系统" aria-label="更新系统">更新系统</button>
                 </template>
                 <template #container>
                     <div v-if="flowStep === 0">

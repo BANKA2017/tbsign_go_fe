@@ -20,8 +20,8 @@ const serverStatus = ref<
 })
 
 const isSupportVersion = (os = '', arch = '') => {
-    return os === 'linux' && ['arm64', 'amd64'].includes(arch)
-    //return (['linux', 'darwin'].includes(os) && ['arm64', 'amd64'].includes(arch)) || (os === 'windows' && arch === 'amd64')
+    // Windows will lock the binary file
+    return ['linux', 'darwin'].includes(os) && ['arm64', 'amd64'].includes(arch) // || (os === 'windows' && arch === 'amd64')
 }
 
 const serverGoStatus = computed(() => {
@@ -204,11 +204,22 @@ const releaseList = ref<any[]>([])
 
 const getReleasesList = () => {
     store.updateValue('loading', true)
-    fetch('https://api.github.com/repos/banka2017/tbsign_go/releases?per_page=5')
+    fetch('https://api.github.com/repos/banka2017/tbsign_go/releases?per_page=6')
         .then((res) => res.json())
         .then((res) => {
             store.updateValue('loading', false)
-            releaseList.value = res.filter((x) => x.tag_name.startsWith('tbsign_go.') && x.tag_name.replace('tbsign_go.', '') >= fullVersion.value)
+            let breakFlag = false
+            releaseList.value = res
+                .filter((x) => x.tag_name.startsWith('tbsign_go.') && Number(new Date(x.published_at)) + 1000 * 60 * 5 < Date.now())
+                .map((x) => {
+                    if (breakFlag) {
+                        return null
+                    } else if (x.tag_name.replace('tbsign_go.', '') === fullVersion.value) {
+                        breakFlag = true
+                    }
+                    return x
+                })
+                .filter((x) => x)
         })
         .catch((e) => {
             store.updateValue('loading', false)
@@ -368,14 +379,21 @@ onMounted(() => {
                     <div class="px-3 py-2">
                         <span class="text-lg">系统更新 (BETA)</span>
                     </div>
-                    <div v-if="releaseList.length == 0">
-                        <button class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg px-3 py-1 text-gray-100 transition-colors" title="检查更新" aria-label="检查更新" @click="getReleasesList">检查更新</button>
+                    <div v-if="serverStatus.build.runtime === 'Dev'">
+                        <p class="px-3">
+                            ❌ 不支持的版本 (开发版)，请参考 <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 自行编译运行
+                        </p>
                     </div>
-                    <div v-else>
+                    <div v-else-if="releaseList.length == 0">
+                        <button class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg ml-3 px-3 py-1 hover:text-gray-100 transition-colors" title="检查更新" aria-label="检查更新" @click="getReleasesList">检查更新</button>
+                    </div>
+                    <div v-if="releaseList.length > 0">
                         <ul role="list" class="px-3 my-2 marker:text-sky-500 list-disc list-inside">
-                            <li>升级前建议先查看版本信息，可能会有不向前兼容的重大修改</li>
-                            <li>如果下面列表中没有一项的右上角有✅，说明当前版本可能过于老旧，请当心不兼容更新</li>
-                            <li>不支持自动降级，请手动下载旧版本的二进制文件替换</li>
+                            <li>
+                                如果下面列表中没有一项的右上角有✅，说明当前版本可能过于老旧，请前往 <a href="https://github.com/BANKA2017/tbsign_go/releases" target="_blank" class="underline"><code>Releases</code></a> 下载后续文件替换更新
+                            </li>
+                            <li>最后更新会有 10 分钟的延迟</li>
+                            <li>不支持自动降级</li>
                         </ul>
 
                         <div class="p-3 grid grid-cols-2 gap-2">
