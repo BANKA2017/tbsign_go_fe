@@ -56,6 +56,11 @@ const fullVersion = computed(() => {
 })
 
 const serverSettings = ref<{ [p in string]: any }>({})
+const now = ref<number>(Date.now())
+setInterval(() => {
+    now.value = Date.now()
+}, 1000)
+const uptime = computed(() => Math.round((now.value - (serverStatus.value?.start_time || now.value)) / 1000 / 60))
 
 const pluginList = ref<{ [p in string]: { name: string; status: boolean; ver: string; options: string } }>({})
 
@@ -301,6 +306,9 @@ onMounted(() => {
                             </li>
                             <li>
                                 <span class="font-bold">Go 版本 : </span><span class="font-mono">{{ serverStatus.goversion }}</span>
+                            </li>
+                            <li>
+                                <span class="font-bold">运行时长 : </span><span class="font-mono">{{ uptime }} {{ uptime === 1 ? 'min' : 'mins' }}</span>
                             </li>
                             <li>
                                 <span class="font-bold">数据库模式 : </span><span class="font-mono">{{ serverStatus.variables?.dbmode }}</span>
