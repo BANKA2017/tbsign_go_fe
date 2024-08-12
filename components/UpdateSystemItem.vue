@@ -4,7 +4,7 @@ import Modal from './Modal.vue'
 
 const props = defineProps({
     item: Object,
-    isCurrent: Boolean,
+    current: String,
     url: String,
     os: String,
     arch: String
@@ -13,6 +13,7 @@ const props = defineProps({
 const store = useMainStore()
 
 const targetVersion = computed(() => props.item.name.replace('tbsign_go.', '').replace(`.${props.os}-${props.arch}`, ''))
+const isCurrent = computed(() => targetVersion.value === props.current)
 
 const flowStep = ref<number>(0)
 const doubleCheck = ref<boolean>(false)

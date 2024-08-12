@@ -214,7 +214,13 @@ const getReleasesList = () => {
         .then((res) => res.json())
         .then((res) => {
             store.updateValue('loading', false)
-            releaseList.value = res.filter((x) => x.tag_name.startsWith('tbsign_go.') && Number(new Date(x.published_at)) > Number(serverStatus.value?.build?.date === 'Now' ? Date.now() : new Date(serverStatus.value?.build?.date || 0)))
+
+            releaseList.value = res.filter((x) => x.tag_name.startsWith('tbsign_go.'))
+            const currentIndex = releaseList.value.map((x) => x.tag_name.replace('tbsign_go.', '')).indexOf(fullVersion.value)
+            if (currentIndex > -1) {
+                releaseList.value = releaseList.value.filter((_, i) => i <= currentIndex)
+            }
+
             if (releaseList.value.length === 1 && releaseList.value[0].tag_name.replace('tbsign_go.', '') === fullVersion.value) {
                 tenMinutesDelay.value = false
             }
@@ -397,7 +403,7 @@ onMounted(() => {
                             <li>
                                 如果下面列表中没有一项的右上角有✅，说明当前版本可能过于老旧，请前往 <a href="https://github.com/BANKA2017/tbsign_go/releases" target="_blank" class="underline"><code>Releases</code></a> 下载后续文件替换更新
                             </li>
-                            <li @click="tenMinutesDelay = false">最后更新会有 10 分钟的延迟</li>
+                            <li @click="tenMinutesDelay = false" role="button">最后更新会有 10 分钟的延迟</li>
                             <li>不支持自动降级</li>
                         </ul>
 
@@ -406,12 +412,7 @@ onMounted(() => {
                                 <UpdateSystemItem
                                     :item="release.assets.find((x) => x.name.endsWith(Object.values(serverGoStatus).join('-') + (serverGoStatus.os === 'windows' ? '.exe' : '')))"
                                     :url="release.html_url"
-                                    :is-current="
-                                        releaseList
-                                            .map((x) => x.tag_name)
-                                            .map((x) => x.replace('tbsign_go.', ''))
-                                            .indexOf(fullVersion) === i
-                                    "
+                                    :current="fullVersion"
                                     :os="serverGoStatus.os"
                                     :arch="serverGoStatus.arch"
                                 />
