@@ -364,13 +364,13 @@ onMounted(() => {
                                 <span class="font-bold">帐号总数 : </span><span class="font-mono">{{ serverStatus.uid_count }}</span>
                             </li>
                             <li>
-                                <span class="font-bold">绑定总数/<abbr title="(每分钟签到数*60*(24-开始签到小时))/贴吧总数/绑定总数">建议容量</abbr> : </span
+                                <span class="font-bold">绑定总数/<abbr title="建议总数=(每分钟签到数*60*(24-开始签到小时))/贴吧总数/绑定总数，根据站点实际情况推算的动态值，建议将站内百度账号数限制在建议总数以下">建议总数</abbr> : </span
                                 ><span class="font-mono"
                                     >{{ serverStatus.pid_count }}/{{ Math.floor((serverSettings.cron_limit * 60 * (24 - Number(serverSettings.sign_hour) + 1)) / (Number(serverStatus.forum_count) / Number(serverStatus.pid_count))) }}</span
                                 >
                             </li>
                             <li>
-                                <span class="font-bold">贴吧总数/<abbr title="每分钟签到数*60*(24-开始签到小时)">站点容量</abbr> : </span
+                                <span class="font-bold">贴吧总数/<abbr title="贴吧容量=每分钟签到数*60*(24-开始签到小时)，超过此值后添加到贴吧一定无法签到">贴吧容量</abbr> : </span
                                 ><span class="font-mono">{{ serverStatus.forum_count }}/{{ serverSettings.cron_limit * 60 * (24 - Number(serverSettings.sign_hour) + 1) }}</span>
                             </li>
                             <li>

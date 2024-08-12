@@ -25,13 +25,14 @@
                         </div>
                         <span class="text-sm">{{ accountInfo.email }}</span>
                     </div>
-                    <div v-if="tbaccounts.length > 0" class="mt-3 flex -space-x-5">
+                    <div v-if="tbaccounts.length > 0" class="mt-3 ml-5">
                         <img
                             v-for="tbaccount in tbaccounts"
                             :key="tbaccount.portrait"
                             :src="'https://himg.bdimg.com/sys/portrait/item/' + tbaccount.portrait"
-                            :alt="'baidu-avatar-' + tbaccount.portrait"
-                            class="w-14 h-14 rounded-2xl my-1 inline-block ring-2 ring-gray-400 dark:ring-gray-600 bg-gray-300 dark:bg-gray-700"
+                            :alt="'avatar-' + tbaccount.name + '-' + tbaccount.portrait"
+                            :title="tbaccount.name + '的头像'"
+                            class="w-14 h-14 transition-all -ml-5 hover:mr-7 rounded-2xl my-1 inline-block ring-2 ring-gray-400 dark:ring-gray-600 bg-gray-300 dark:bg-gray-700"
                             loading="lazy"
                         />
                     </div>
