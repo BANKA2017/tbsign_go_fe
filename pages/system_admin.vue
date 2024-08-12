@@ -376,7 +376,7 @@ onMounted(() => {
                                 >
                             </li>
                             <li>
-                                <span class="font-bold">贴吧总数/<abbr title="贴吧容量=每分钟签到数*60*(24-开始签到小时)，超过此值后添加到贴吧一定无法签到">贴吧容量</abbr> : </span
+                                <span class="font-bold">贴吧总数/<abbr title="贴吧容量=每分钟签到数*60*(24-开始签到小时)，超过此值后添加的贴吧一定无法签到">贴吧容量</abbr> : </span
                                 ><span class="font-mono">{{ serverStatus.forum_count }}/{{ serverSettings.cron_limit * 60 * (24 - Number(serverSettings.sign_hour) + 1) }}</span>
                             </li>
                             <li>
