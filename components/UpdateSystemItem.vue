@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Notice } from '~/share/Tools'
 import Modal from './Modal.vue'
+import { getPubDate } from '~/share/Time'
 
 const props = defineProps({
     item: Object,
@@ -96,7 +97,7 @@ const refreshPage = () => {
         </div>
         <ul role="list" class="my-2 marker:text-sky-500 list-disc list-inside">
             <li>
-                上传时间 : <code>{{ item.created_at }}</code>
+                上传时间 : <code>{{ getPubDate(new Date(item.created_at)) }}</code>
             </li>
             <li>
                 版本 : <code>{{ targetVersion }}</code>

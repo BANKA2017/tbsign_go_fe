@@ -215,7 +215,7 @@ const getReleasesList = () => {
         .then((res) => {
             store.updateValue('loading', false)
 
-            releaseList.value = res.filter((x) => x.tag_name.startsWith('tbsign_go.'))
+            releaseList.value = res.sort((a, b) => (a.published_at < b.published_at ? 1 : -1)).filter((x) => x.tag_name.startsWith('tbsign_go.'))
             const currentIndex = releaseList.value.map((x) => x.tag_name.replace('tbsign_go.', '')).indexOf(fullVersion.value)
             if (currentIndex > -1) {
                 releaseList.value = releaseList.value.filter((_, i) => i <= currentIndex)
