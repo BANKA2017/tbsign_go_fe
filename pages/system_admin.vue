@@ -448,7 +448,7 @@ onMounted(() => {
                                 <label :for="'input-' + key" class="block text-sm font-medium mb-1 mt-3">{{ name }}</label>
                                 <textarea
                                     :id="'input-' + key"
-                                    v-if="key === 'system_description'"
+                                    v-if="['system_description', 'ann'].includes(key)"
                                     class="form-textarea placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                                     rows="8"
                                     v-model="serverSettings[key]"

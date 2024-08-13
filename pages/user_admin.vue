@@ -11,6 +11,8 @@ const total = ref<number>(0)
 const page = ref<number>(1)
 const count = ref<number>(10)
 
+const query = ref<string>('')
+
 const route = useRoute()
 const router = useRouter()
 
@@ -26,6 +28,8 @@ const list = ref<
         name: string
         role: string
         t: string
+        baidu_account_count: number
+        forum_count: number
     }[]
 >([])
 
@@ -35,7 +39,8 @@ const getList = () => {
             '/admin/account?' +
             new URLSearchParams({
                 page: page.value.toString(),
-                count: count.value.toString()
+                count: count.value.toString(),
+                q: query.value
             }),
         {
             headers: {
@@ -165,15 +170,23 @@ onMounted(() => {
 <template>
     <NuxtLayout name="tbsign">
         <frame-work>
-            <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-10 mx-3">暂时没有防呆设计，注意别手抖删错号</div>
+            <div class="p-3 mb-5">
+                <label for="search-account" class="text-lg">搜索帐号</label>
+                <div class="flex w-full rounded-xl my-3">
+                    <input id="search-account" type="text" class="form-input bg-gray-200 dark:bg-gray-900 grow rounded-l-xl" v-model="query" placeholder="用户名、邮箱" />
+                    <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl" @click="getList">搜索</button>
+                </div>
+            </div>
             <div class="w-full">
                 <select id="page" v-model="page" class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select block w-24 my-2 mx-3">
                     <option v-for="(_, i) in new Array(Math.ceil(total / count))" :key="'page-' + i" :value="i + 1">{{ i + 1 }} 页</option>
                 </select>
                 <div v-for="(listItem, index) in list" :key="listItem.id" class="p-3 rounded-xl mb-5">
                     <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-3" />
-                    <div class="text-2xl">
-                        <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2 mr-1">uid: {{ listItem.id }}</span>
+                    <div class="text-2xl flex gap-2 mb-2">
+                        <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">uid: {{ listItem.id }}</span>
+                        <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">帐号: {{ listItem.baidu_account_count }}</span>
+                        <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">贴吧: {{ listItem.forum_count }}</span>
                     </div>
                     <label :for="'username-' + listItem.id">用户名</label>
                     <input
