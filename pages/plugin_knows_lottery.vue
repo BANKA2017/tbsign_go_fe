@@ -131,14 +131,16 @@ onMounted(() => {
                     {{ account.name }}
                 </button>
 
-                <div class="bg-gray-300 dark:bg-gray-700 rounded-xl p-3 my-2 flex flex-col sm:flex-row justify-between" v-for="log in activeLogs" :key="log.id">
-                    <div>
-                        <SvgCheck class="inline-block" height="1em" width="1em" v-if="log.result === ''" />
-                        <SvgCross class="inline-block" height="1em" width="1em" v-else />
-                        <span class="ml-2 hidden md:inline-block">{{ pidNameKV[log.pid] }}</span>
+                <div class="bg-gray-300 dark:bg-gray-700 rounded-xl p-3 my-2 grid grid-cols-3 gap-2" v-for="log in activeLogs" :key="log.id">
+                    <div class="col-span-3 md:col-span-1 flex">
+                        <SvgCheck class="inline-block" height="1.5rem" width="1.2rem" v-if="log.result === ''" />
+                        <SvgCross class="inline-block" height="1.5rem" width="1.2rem" v-else />
+                        <span class="ml-2 inline-block grow truncate">{{ pidNameKV[log.pid] }} </span>
                     </div>
-                    <div :class="{ underline: log.result !== '', 'underline-offset-2': true, 'decoration-pink-500': true, 'decoration-wavy': log.result !== '' }">{{ log.result === '' ? log.prize : log.result }}</div>
-                    <div>{{ getPubDate(new Date(log.date * 1000)) }}</div>
+                    <div :class="{ underline: log.result !== '', 'underline-offset-2': true, 'decoration-pink-500': true, 'decoration-wavy': log.result !== '', 'col-span-3': true, 'md:col-span-1': true }">
+                        {{ log.result === '' ? log.prize : log.result }}
+                    </div>
+                    <div class="col-span-3 md:col-span-1">{{ getPubDate(new Date(log.date * 1000)) }}</div>
                 </div>
 
                 <hr class="my-10 border-gray-400 dark:border-gray-600" />
