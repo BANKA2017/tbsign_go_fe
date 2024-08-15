@@ -235,6 +235,7 @@ onMounted(() => {
                                     'my-2': true,
                                     'bg-sky-500': activePID === account.id,
                                     'hover:bg-sky-500': true,
+                                    'hover:text-gray-100': true,
                                     'text-gray-100': activePID === account.id,
                                     'transition-colors': true
                                 }"

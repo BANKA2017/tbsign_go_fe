@@ -508,7 +508,11 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
                             <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
                         </li>
                         <li>
-                            <span class="font-bold">执行情况 : </span><span>{{ task.success ? '✅' : '❌' }}</span>
+                            <span class="font-bold">执行情况 : </span>
+                            <span>
+                                <SvgCheck v-if="task.success" height="1em" width="1em" class="inline-block" />
+                                <SvgCross v-else height="1em" width="1em" class="inline-block" />
+                            </span>
                         </li>
                     </ul>
 

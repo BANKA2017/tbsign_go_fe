@@ -68,7 +68,8 @@ const pluginGroup: { [p in string]: string } = {
     kd_growth: '用户成长任务',
     ver4_ban: '循环封禁',
     ver4_rank: '贴吧名人堂助攻',
-    ver4_ref: '自动同步贴吧列表'
+    ver4_ref: '自动同步贴吧列表',
+    ver4_lottery: '知道商城抽奖'
 }
 
 const signMode = computed({
@@ -388,11 +389,12 @@ onMounted(() => {
 
                 <div class="my-2 rounded-2xl" v-if="isSupportVersion(serverGoStatus.os, serverGoStatus.arch)">
                     <div class="px-3 py-2">
-                        <span class="text-lg">系统更新 (BETA)</span>
+                        <span class="text-lg">系统更新 (beta)</span>
                     </div>
                     <div v-if="serverStatus.build.runtime === 'Dev'">
                         <p class="px-3">
-                            ❌ 不支持的版本 (开发版)，请参考 <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 自行编译运行
+                            <SvgCross height="1.2em" width="1.2em" class="inline-block mx-0.5" /> 不支持的版本 (开发版)，请参考
+                            <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 自行编译运行
                         </p>
                     </div>
                     <div v-else-if="releaseList.length == 0">
@@ -401,7 +403,8 @@ onMounted(() => {
                     <div v-if="releaseList.length > 0">
                         <ul role="list" class="px-3 my-2 marker:text-sky-500 list-disc list-inside">
                             <li>
-                                如果下面列表中没有一项的右上角有✅，说明当前版本可能过于老旧，请前往 <a href="https://github.com/BANKA2017/tbsign_go/releases" target="_blank" class="underline"><code>Releases</code></a> 下载后续文件替换更新
+                                如果下面列表中没有一项的右上角有<SvgCheck height="1.2em" width="1.2em" class="inline-block mx-0.5" />，说明当前版本过于老旧，或者属于拥有严重 BUG 被撤回的版本，请前往
+                                <a href="https://github.com/BANKA2017/tbsign_go/releases" target="_blank" class="underline"><code>Releases</code></a> 下载文件替换更新
                             </li>
                             <li @click="tenMinutesDelay = false" role="button">最后更新会有 10 分钟的延迟</li>
                             <li>不支持自动降级</li>
@@ -429,7 +432,7 @@ onMounted(() => {
                         <div class="flex justify-between my-1" v-for="(value, pluginName) in pluginList" :key="pluginName">
                             <span class="font-bold">{{ pluginGroup[pluginName] }}</span>
                             <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true }" @click="pluginSwitch(pluginName)">
-                                {{ value.status ? '已开启' : '已关闭' }}
+                                {{ value.status ? '已开启' : value.ver === '-1' ? '未安装' : '已关闭' }}
                             </button>
                         </div>
                     </div>

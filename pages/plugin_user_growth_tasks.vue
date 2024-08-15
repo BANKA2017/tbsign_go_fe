@@ -219,7 +219,9 @@ onMounted(() => {
                             <span class="font-bold">状态 : </span>
                             <ul v-if="task.status && task.status.startsWith('[')" class="grid grid-cols-6 gap-x-5 marker:text-sky-500 list-disc list-inside">
                                 <li class="ml-5 col-span-6 md:col-span-3 lg:col-span-2" v-for="taskStatus in JSON.parse(task.status)" :key="task.pid + '_' + taskStatus.name">
-                                    {{ taskStatus.status ? '✅' : '❌' }} <span class="font-bold">{{ taskStatus.name }}</span>
+                                    <SvgCheck v-if="taskStatus.status" height="1em" width="1em" class="inline-block mr-1" />
+                                    <SvgCross v-else height="1em" width="1em" class="inline-block mr-1" />
+                                    <span class="font-bold">{{ taskStatus.name }}</span>
                                 </li>
                             </ul>
                             <span v-else class="font-mono">{{ task.status }}</span>
