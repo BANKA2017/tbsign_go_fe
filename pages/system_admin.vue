@@ -103,7 +103,7 @@ const settingsGroup = {
     },
     sign: {
         name: '签到',
-        data: { sign_mode: '签到模式 (TODO)', sign_hour: '下个整点签到 (-1 为 0 时开始签到，以此类推)', cron_limit: '单次签到贴吧数量', sign_sleep: '签到时间间隔 (ms)', retry_max: '最大重签次数', go_forum_sync_policy: '贴吧同步策略' }
+        data: { sign_mode: '签到模式 (TODO)', sign_hour: '下个整点签到 (-1 为 0 时开始签到，以此类推)', cron_limit: '单次单帐号签到贴吧数量 (单次签到行为贴吧数量上限为 此值*3)', sign_sleep: '签到时间间隔 (ms)', retry_max: '最大重签次数', go_forum_sync_policy: '贴吧同步策略' }
     },
     mail: {
         name: '邮件',
@@ -371,14 +371,10 @@ onMounted(() => {
                                 <span class="font-bold">帐号总数 : </span><span class="font-mono">{{ serverStatus.uid_count }}</span>
                             </li>
                             <li>
-                                <span class="font-bold">绑定总数/<abbr title="建议总数=(每分钟签到数*60*(24-开始签到小时))/贴吧总数/绑定总数，根据站点实际情况推算的动态值，建议将站内百度账号数限制在建议总数以下">建议总数</abbr> : </span
-                                ><span class="font-mono"
-                                    >{{ serverStatus.pid_count }}/{{ Math.floor((serverSettings.cron_limit * 60 * (24 - Number(serverSettings.sign_hour) + 1)) / (Number(serverStatus.forum_count) / Number(serverStatus.pid_count))) }}</span
-                                >
+                                <span class="font-bold">绑定总数 : </span><span class="font-mono">{{ serverStatus.pid_count }}</span>
                             </li>
                             <li>
-                                <span class="font-bold">贴吧总数/<abbr title="贴吧容量=每分钟签到数*60*(24-开始签到小时)，超过此值后添加的贴吧一定无法签到">贴吧容量</abbr> : </span
-                                ><span class="font-mono">{{ serverStatus.forum_count }}/{{ serverSettings.cron_limit * 60 * (24 - Number(serverSettings.sign_hour) + 1) }}</span>
+                                <span class="font-bold">贴吧总数 : </span><span class="font-mono">{{ serverStatus.forum_count }}</span>
                             </li>
                             <li>
                                 <span class="font-bold">最后执行/重签次数 : </span><span class="font-mono">{{ resignStatus }}</span>
