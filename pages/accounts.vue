@@ -336,6 +336,49 @@ const deleteForum = (pid = 0, fid = 0) => {
         })
 }
 
+const resetForum = (pid = 0, fid = 0) => {
+    if (pid <= 0 || fid <= 0) {
+        return
+    }
+
+    let forumIndex = (list.value || []).map((forumData) => `${forumData?.pid || -1},${forumData?.fid || -1}`).indexOf(`${pid},${fid}`)
+
+    if (forumIndex === -1) {
+        Notice('pid:' + pid + '/fid:' + fid + ' 不存在')
+        return
+    }
+    const forumInfo = list.value[forumIndex]
+    store.updateValue('loading', true)
+    fetch(store.basePath + '/list/' + forumInfo.pid + '/' + forumInfo.fid + '/reset', {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'POST'
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            store.updateValue('loading', false)
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('/login')
+                return
+            }
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            Notice('已重置 ' + pidNameKV.value[pid] + '/' + list.value[forumIndex]?.tieba || 'fid:' + list.value[forumIndex]?.fid + ' 的签到状态', 'success')
+            list.value[forumIndex].latest = 0
+            //console.log(res)
+        })
+        .catch((e) => {
+            console.error(e)
+            Notice(e.toString(), 'error')
+            store.updateValue('loading', false)
+        })
+}
+
 const addForumValue = reactive<{
     pid: number
     fname: string
@@ -728,17 +771,27 @@ onMounted(() => {
                 </Modal>
             </div>
 
-            <div class="grid grid-cols-12 gap-2 my-2">
+            <div class="grid grid-cols-12 gap-2 mt-2 mb-12">
                 <div v-for="(account, index) in accounts" :key="account.id" class="bg-gray-200 dark:bg-gray-800 col-span-12 rounded-2xl py-2 px-3">
-                    <div class="flex justify-between cursor-pointer sticky top-0 bg-gray-200 dark:bg-gray-800" @click="accounts[index].more = !accounts[index].more">
+                    <div :class="{ flex: true, 'justify-between': true, 'cursor-pointer': true, sticky: true, 'top-0': true, 'bg-gray-200': true, 'dark:bg-gray-800': true }" @click="accounts[index].more = !accounts[index].more">
                         <div class="flex gap-3">
-                            <div class="relative" v-show="!editMode">
+                            <div :class="{ relative: true, hidden: editMode || accounts[index].more, 'md:block': true }">
                                 <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1 border border-white" />
                                 <div :class="`h-2 w-2 absolute right-1 bottom-1 rounded-full border border-white ` + (account.status === undefined ? 'bg-gray-500' : account.status ? 'bg-green-500' : 'bg-pink-500')"></div>
                             </div>
                             <div class="">
                                 <NuxtLink
-                                    class="max-w-[10em] overflow-hidden text-ellipsis whitespace-nowrap hover:underline underline-offset-2"
+                                    :class="{
+                                        'max-w-20': accounts[index].more,
+                                        'max-w-40': !accounts[index].more,
+                                        'sm:max-w-40': true,
+                                        'overflow-hidden': true,
+                                        'text-ellipsis': true,
+                                        'whitespace-nowrap': true,
+                                        'inline-block': true,
+                                        'hover:underline': true,
+                                        'underline-offset-2': true
+                                    }"
                                     :title="account.portrait"
                                     :to="`https://tieba.baidu.com/home/main?id=${account.portrait}`"
                                     target="blank"
@@ -773,6 +826,7 @@ onMounted(() => {
                                     v-model="accounts[index].page"
                                     class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select block w-24 mx-1 my-1 text-sm h-10"
                                     placeholder="页码"
+                                    v-show="new Array(Math.ceil((accountListFilterWrapper(account.id, index) || []).length / 100)).length > 0"
                                 >
                                     <option :value="i" v-for="i in Object.keys(new Array(Math.ceil((accountListFilterWrapper(account.id, index) || []).length / 100)).fill(null))">第{{ Number(i) + 1 }}页</option>
                                 </select>
@@ -780,13 +834,13 @@ onMounted(() => {
                                     title="筛选"
                                     :aria-label="accounts[index].name + '贴吧列表的筛选类型'"
                                     v-model="accounts[index].filter"
-                                    class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select w-24 mx-1 my-1 text-sm h-10 hidden sm:block"
+                                    class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select w-24 mx-1 my-1 text-sm h-10"
                                     placeholder="筛选"
                                 >
                                     <option value="all">全部</option>
                                     <option value="success">成功</option>
                                     <option value="fail">失败</option>
-                                    <option value="wait">待签到</option>
+                                    <option value="wait">待签</option>
                                     <option value="ignore">忽略</option>
                                 </select>
                             </div>
@@ -833,7 +887,13 @@ onMounted(() => {
                                     </span>
                                 </div>
                                 <div class="flex gap-2">
-                                    <button v-show="editMode" class="transition-colors" @click="deleteForum(tiebaItem.pid, tiebaItem.fid)">
+                                    <button
+                                        v-show="editMode"
+                                        class="transition-colors"
+                                        @click="deleteForum(tiebaItem.pid, tiebaItem.fid)"
+                                        :title="'删除贴吧 ' + account.name + '/' + tiebaItem.tieba"
+                                        :aria-label="'删除贴吧 ' + account.name + '/' + tiebaItem.tieba"
+                                    >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] rounded-full text-pink-500 transition-colors" viewBox="0 0 16 16">
                                             <path
                                                 d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"
@@ -860,21 +920,41 @@ onMounted(() => {
                                         </svg>
                                         <svg v-else-if="new Date().getDate() !== tiebaItem.latest" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-orange-500" viewBox="0 0 16 16">
                                             <path
-                                                fill="currentColor"
-                                                d="M2.5 15a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1zm2-13v1c0 .537.12 1.045.337 1.5h6.326c.216-.455.337-.963.337-1.5V2zm3 6.35c0 .701-.478 1.236-1.011 1.492A3.5 3.5 0 0 0 4.5 13s.866-1.299 3-1.48zm1 0v3.17c2.134.181 3 1.48 3 1.48a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351z"
+                                                d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z"
                                             />
+                                            <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0z" />
+                                            <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5" />
                                         </svg>
                                         <svg v-else xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-pink-500" viewBox="0 0 16 16">
                                             <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2a1 1 0 0 0 0-2" />
                                         </svg>
                                     </div>
-                                    <button v-show="editMode" class="transition-colors" @click="updateIgnoreForum(tiebaItem.pid, tiebaItem.fid)">
+                                    <button
+                                        v-show="editMode"
+                                        class="transition-colors"
+                                        @click="updateIgnoreForum(tiebaItem.pid, tiebaItem.fid)"
+                                        :title="'忽略签到贴吧 ' + account.name + '/' + tiebaItem.tieba"
+                                        :aria-label="'忽略签到贴吧 ' + account.name + '/' + tiebaItem.tieba"
+                                    >
                                         <svg v-if="tiebaItem.no" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-gray-500" viewBox="0 0 16 16">
                                             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1z" />
                                         </svg>
                                         <svg v-else xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-gray-500" viewBox="0 0 16 16">
                                             <path
                                                 d="M8 0q-.264 0-.523.017l.064.998a7 7 0 0 1 .918 0l.064-.998A8 8 0 0 0 8 0M6.44.152q-.52.104-1.012.27l.321.948q.43-.147.884-.237L6.44.153zm4.132.271a8 8 0 0 0-1.011-.27l-.194.98q.453.09.884.237zm1.873.925a8 8 0 0 0-.906-.524l-.443.896q.413.205.793.459zM4.46.824q-.471.233-.905.524l.556.83a7 7 0 0 1 .793-.458zM2.725 1.985q-.394.346-.74.74l.752.66q.303-.345.648-.648zm11.29.74a8 8 0 0 0-.74-.74l-.66.752q.346.303.648.648zm1.161 1.735a8 8 0 0 0-.524-.905l-.83.556q.254.38.458.793l.896-.443zM1.348 3.555q-.292.433-.524.906l.896.443q.205-.413.459-.793zM.423 5.428a8 8 0 0 0-.27 1.011l.98.194q.09-.453.237-.884zM15.848 6.44a8 8 0 0 0-.27-1.012l-.948.321q.147.43.237.884zM.017 7.477a8 8 0 0 0 0 1.046l.998-.064a7 7 0 0 1 0-.918zM16 8a8 8 0 0 0-.017-.523l-.998.064a7 7 0 0 1 0 .918l.998.064A8 8 0 0 0 16 8M.152 9.56q.104.52.27 1.012l.948-.321a7 7 0 0 1-.237-.884l-.98.194zm15.425 1.012q.168-.493.27-1.011l-.98-.194q-.09.453-.237.884zM.824 11.54a8 8 0 0 0 .524.905l.83-.556a7 7 0 0 1-.458-.793zm13.828.905q.292-.434.524-.906l-.896-.443q-.205.413-.459.793zm-12.667.83q.346.394.74.74l.66-.752a7 7 0 0 1-.648-.648zm11.29.74q.394-.346.74-.74l-.752-.66q-.302.346-.648.648zm-1.735 1.161q.471-.233.905-.524l-.556-.83a7 7 0 0 1-.793.458zm-7.985-.524q.434.292.906.524l.443-.896a7 7 0 0 1-.793-.459zm1.873.925q.493.168 1.011.27l.194-.98a7 7 0 0 1-.884-.237zm4.132.271a8 8 0 0 0 1.012-.27l-.321-.948a7 7 0 0 1-.884.237l.194.98zm-2.083.135a8 8 0 0 0 1.046 0l-.064-.998a7 7 0 0 1-.918 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1z"
+                                            />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        v-show="editMode"
+                                        class="transition-colors"
+                                        @click="resetForum(tiebaItem.pid, tiebaItem.fid)"
+                                        :title="'重置签到状态 ' + account.name + '/' + tiebaItem.tieba"
+                                        :aria-label="'重置签到状态 ' + account.name + '/' + tiebaItem.tieba"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-orange-500" viewBox="0 0 16 16">
+                                            <path
+                                                d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828zm.66 11.34L3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293z"
                                             />
                                         </svg>
                                     </button>

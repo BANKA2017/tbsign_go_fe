@@ -103,7 +103,14 @@ const settingsGroup = {
     },
     sign: {
         name: '签到',
-        data: { sign_mode: '签到模式 (TODO)', sign_hour: '下个整点签到 (-1 为 0 时开始签到，以此类推)', cron_limit: '单次单帐号签到贴吧数量 (单次签到行为贴吧数量上限为 此值*3)', sign_sleep: '签到时间间隔 (ms)', retry_max: '最大重签次数', go_forum_sync_policy: '贴吧同步策略' }
+        data: {
+            sign_mode: '签到模式 (TODO)',
+            sign_hour: '下个整点签到 (-1 为 0 时开始签到，以此类推)',
+            cron_limit: '单次单帐号签到贴吧数量 (单次签到行为贴吧数量上限为 此值*3)',
+            sign_sleep: '签到时间间隔 (ms)',
+            retry_max: '最大重签次数',
+            go_forum_sync_policy: '贴吧同步策略'
+        }
     },
     mail: {
         name: '邮件',
@@ -375,6 +382,14 @@ onMounted(() => {
                             </li>
                             <li>
                                 <span class="font-bold">贴吧总数 : </span><span class="font-mono">{{ serverStatus.forum_count }}</span>
+                            </li>
+                            <li>
+                                <span class="font-bold">签到情况 : </span>
+                                <ul class="col-span-2 md:col-span-1 marker:text-teal-500 list-disc list-inside ml-5">
+                                    <li v-for="(v, k) in serverStatus.checkin_status || []" :key="k">
+                                        <span class="font-bold">{{ k }} : </span><span class="font-mono">{{ v }}</span>
+                                    </li>
+                                </ul>
                             </li>
                             <li>
                                 <span class="font-bold">最后执行/重签次数 : </span><span class="font-mono">{{ resignStatus }}</span>
