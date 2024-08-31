@@ -775,16 +775,13 @@ onMounted(() => {
                 <div v-for="(account, index) in accounts" :key="account.id" class="bg-gray-200 dark:bg-gray-800 col-span-12 rounded-2xl py-2 px-3">
                     <div :class="{ flex: true, 'justify-between': true, 'cursor-pointer': true, sticky: true, 'top-0': true, 'bg-gray-200': true, 'dark:bg-gray-800': true }" @click="accounts[index].more = !accounts[index].more">
                         <div class="flex gap-3">
-                            <div :class="{ relative: true, hidden: editMode || accounts[index].more, 'md:block': true }">
+                            <div :class="{ relative: true, hidden: true, '2xs:block': !(editMode || accounts[index].more), 'xs:block': true }">
                                 <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1 border border-white" />
                                 <div :class="`h-2 w-2 absolute right-1 bottom-1 rounded-full border border-white ` + (account.status === undefined ? 'bg-gray-500' : account.status ? 'bg-green-500' : 'bg-pink-500')"></div>
                             </div>
-                            <div class="">
+                            <div :class="{ 'max-w-20': accounts[index].more, 'max-w-40': !accounts[index].more, 'xs:max-w-40': true, flex: true, 'flex-col': true }">
                                 <NuxtLink
                                     :class="{
-                                        'max-w-20': accounts[index].more,
-                                        'max-w-40': !accounts[index].more,
-                                        'sm:max-w-40': true,
                                         'overflow-hidden': true,
                                         'text-ellipsis': true,
                                         'whitespace-nowrap': true,
@@ -799,15 +796,23 @@ onMounted(() => {
                                     {{ account.name }}</NuxtLink
                                 >
                                 <div
-                                    class="text-sm"
+                                    :class="{ 'text-sm': true, flex: true, 'flex-col': accounts[index].more, 'flex-row': !accounts[index].more, '2xs:flex-row': true }"
                                     :title="
                                         (tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.pending || 0) + '等待，' + (tblistFilter[account.id]?.failed || 0) + '失败，' + (tblistFilter[account.id]?.ignore || 0) + '忽略'
                                     "
+                                    :aria-label="
+                                        (tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.pending || 0) + '等待，' + (tblistFilter[account.id]?.failed || 0) + '失败，' + (tblistFilter[account.id]?.ignore || 0) + '忽略'
+                                    "
                                 >
-                                    <span class="text-green-500">{{ tblistFilter[account.id]?.success || 0 }}</span
-                                    ><span class="mx-0.5">/</span><span class="text-orange-500">{{ tblistFilter[account.id]?.pending || 0 }}</span
-                                    ><span class="mx-0.5">/</span><span class="text-pink-500">{{ tblistFilter[account.id]?.failed || 0 }}</span
-                                    ><span class="mx-0.5">/</span><span class="text-gray-600 dark:text-gray-400">{{ tblistFilter[account.id]?.ignore || 0 }}</span>
+                                    <div>
+                                        <span class="text-green-500">{{ tblistFilter[account.id]?.success || 0 }}</span
+                                        ><span class="mx-0.5">/</span><span class="text-orange-500">{{ tblistFilter[account.id]?.pending || 0 }}</span
+                                        ><span class="mx-0.5">/</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-pink-500">{{ tblistFilter[account.id]?.failed || 0 }}</span
+                                        ><span class="mx-0.5">/</span><span class="text-gray-600 dark:text-gray-400">{{ tblistFilter[account.id]?.ignore || 0 }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -834,7 +839,7 @@ onMounted(() => {
                                     title="筛选"
                                     :aria-label="accounts[index].name + '贴吧列表的筛选类型'"
                                     v-model="accounts[index].filter"
-                                    class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select w-24 mx-1 my-1 text-sm h-10"
+                                    class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select w-22 mx-1 my-1 text-sm h-10"
                                     placeholder="筛选"
                                 >
                                     <option value="all">全部</option>
