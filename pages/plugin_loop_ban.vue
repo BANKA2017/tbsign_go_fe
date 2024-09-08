@@ -86,7 +86,7 @@ const getTaskLog = (_log = ''): string[] => {
 }
 
 const saveSettings = () => {
-    fetch(store.basePath + '/plugins/loop_ban/reason', {
+    fetch(store.basePath + '/plugins/ver4_ban/reason', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -170,7 +170,7 @@ const deleteTask = (id = 0) => {
     if (id <= 0) {
         return
     }
-    fetch(store.basePath + '/plugins/loop_ban/list/' + id, {
+    fetch(store.basePath + '/plugins/ver4_ban/list/' + id, {
         headers: {
             Authorization: store.authorization
         },
@@ -202,7 +202,7 @@ const addTask = () => {
     if (!Object.keys(pidNameKV.value).includes(taskToAdd.value.pid.toString())) {
         return
     }
-    fetch(store.basePath + '/plugins/loop_ban/list', {
+    fetch(store.basePath + '/plugins/ver4_ban/list', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -250,7 +250,7 @@ const preCheckManager = () => {
         return
     }
     isManagerMessage.value = '检查权限中'
-    fetch(store.basePath + '/plugins/loop_ban/check/' + taskToAdd.value.pid + '/is_manager/' + taskToAdd.value.fname, {
+    fetch(store.basePath + '/plugins/ver4_ban/check/' + taskToAdd.value.pid + '/is_manager/' + taskToAdd.value.fname, {
         headers: {
             Authorization: store.authorization
         }
@@ -289,7 +289,7 @@ onBeforeUnmount(() => {
 const tasksSwitch = ref<boolean>(false)
 
 const updateTasksSwitch = () => {
-    fetch(store.basePath + '/plugins/loop_ban/switch', {
+    fetch(store.basePath + '/plugins/ver4_ban/switch', {
         headers: {
             Authorization: store.authorization
         },
@@ -314,7 +314,7 @@ const updateTasksSwitch = () => {
 
 const getLoopBanList = () => {
     store.updateValue('loading', true)
-    fetch(store.basePath + '/plugins/loop_ban/list', {
+    fetch(store.basePath + '/plugins/ver4_ban/list', {
         headers: {
             Authorization: store.authorization
         }
@@ -348,7 +348,7 @@ const getLoopBanList = () => {
 
 onMounted(() => {
     getLoopBanList()
-    fetch(store.basePath + '/plugins/loop_ban/reason', {
+    fetch(store.basePath + '/plugins/ver4_ban/reason', {
         headers: {
             Authorization: store.authorization
         }
@@ -368,7 +368,7 @@ onMounted(() => {
             settings.value = res.data
             //console.log(res)
         })
-    fetch(store.basePath + '/plugins/loop_ban/switch', {
+    fetch(store.basePath + '/plugins/ver4_ban/switch', {
         headers: {
             Authorization: store.authorization
         }

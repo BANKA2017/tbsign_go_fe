@@ -24,7 +24,7 @@ const activeLogs = computed(() => {
 })
 
 const updateTasksSwitch = () => {
-    fetch(store.basePath + '/plugins/knows_lottery/switch', {
+    fetch(store.basePath + '/plugins/ver4_lottery/switch', {
         headers: {
             Authorization: store.authorization
         },
@@ -48,7 +48,7 @@ const updateTasksSwitch = () => {
 }
 
 const getLogs = () => {
-    fetch(store.basePath + '/plugins/knows_lottery/log', {
+    fetch(store.basePath + '/plugins/ver4_lottery/log', {
         headers: {
             Authorization: store.authorization
         }
@@ -75,7 +75,7 @@ onMounted(() => {
         activePID.value = accounts.value[0].id
     }
     getLogs()
-    fetch(store.basePath + '/plugins/knows_lottery/switch', {
+    fetch(store.basePath + '/plugins/ver4_lottery/switch', {
         headers: {
             Authorization: store.authorization
         }

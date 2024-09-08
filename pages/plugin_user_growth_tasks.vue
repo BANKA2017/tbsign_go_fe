@@ -25,7 +25,7 @@ const tasksList = ref<
 const canSelectPIDList = computed(() => Object.fromEntries(Object.entries(pidNameKV.value).filter((x) => !tasksList.value.find((y) => y.pid.toString() === x[0]))))
 
 const saveSettings = () => {
-    fetch(store.basePath + '/plugins/growth_tasks/settings', {
+    fetch(store.basePath + '/plugins/kd_growth/settings', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -54,7 +54,7 @@ const deleteTask = (id = 0) => {
     if (id <= 0) {
         return
     }
-    fetch(store.basePath + '/plugins/growth_tasks/list/' + id, {
+    fetch(store.basePath + '/plugins/kd_growth/list/' + id, {
         headers: {
             Authorization: store.authorization
         },
@@ -86,7 +86,7 @@ const addTask = () => {
     if (selectedPID.value <= 0) {
         return
     }
-    fetch(store.basePath + '/plugins/growth_tasks/list', {
+    fetch(store.basePath + '/plugins/kd_growth/list', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -116,7 +116,7 @@ const addTask = () => {
 const getTasksList = () => {
     store.updateValue('loading', true)
 
-    fetch(store.basePath + '/plugins/growth_tasks/list', {
+    fetch(store.basePath + '/plugins/kd_growth/list', {
         headers: {
             Authorization: store.authorization
         }
@@ -146,7 +146,7 @@ const getTasksList = () => {
 
 onMounted(() => {
     getTasksList()
-    fetch(store.basePath + '/plugins/growth_tasks/settings', {
+    fetch(store.basePath + '/plugins/kd_growth/settings', {
         headers: {
             Authorization: store.authorization
         }

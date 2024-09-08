@@ -52,7 +52,7 @@ watch([accounts, tasksList, list], () => {
 const tasksSwitch = ref<boolean>(false)
 
 const updateTasksSwitch = () => {
-    fetch(store.basePath + '/plugins/forum_support/switch', {
+    fetch(store.basePath + '/plugins/ver4_rank/switch', {
         headers: {
             Authorization: store.authorization
         },
@@ -76,7 +76,7 @@ const updateTasksSwitch = () => {
 }
 
 const saveSettings = () => {
-    fetch(store.basePath + '/plugins/forum_support/settings', {
+    fetch(store.basePath + '/plugins/ver4_rank/settings', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -113,7 +113,7 @@ const saveSettings = () => {
 
 const getForumSupportList = () => {
     store.updateValue('loading', true)
-    fetch(store.basePath + '/plugins/forum_support/settings', {
+    fetch(store.basePath + '/plugins/ver4_rank/settings', {
         headers: {
             Authorization: store.authorization
         }
@@ -143,7 +143,7 @@ const getForumSupportList = () => {
 
 onMounted(() => {
     getForumSupportList()
-    fetch(store.basePath + '/plugins/forum_support/settings', {
+    fetch(store.basePath + '/plugins/ver4_rank/settings', {
         headers: {
             Authorization: store.authorization
         }
@@ -163,7 +163,7 @@ onMounted(() => {
             tasksList.value = res.data
             //console.log(res)
         })
-    fetch(store.basePath + '/plugins/forum_support/switch', {
+    fetch(store.basePath + '/plugins/ver4_rank/switch', {
         headers: {
             Authorization: store.authorization
         }
@@ -184,7 +184,7 @@ onMounted(() => {
             //console.log(res)
         })
 
-    fetch(store.basePath + '/plugins/forum_support/list', {
+    fetch(store.basePath + '/plugins/ver4_rank/list', {
         headers: {
             Authorization: store.authorization
         }
@@ -251,8 +251,8 @@ onMounted(() => {
                                         type="checkbox"
                                         class="form-checkbox bg-gray-100 dark:bg-gray-900 dark:checked:bg-blue-500"
                                         v-model="fourmSupportSettingsKV[activePID][character.nid]"
-                                        :id="'forum_support:character:' + character.nid"
-                                    /><label class="ml-2" :for="'forum_support:character:' + character.nid"
+                                        :id="'ver4_rank:character:' + character.nid"
+                                    /><label class="ml-2" :for="'ver4_rank:character:' + character.nid"
                                         >{{ character.name }} (<NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + character.tieba" target="blank">{{ character.tieba }}吧</NuxtLink>)</label
                                     >
                                 </div>
