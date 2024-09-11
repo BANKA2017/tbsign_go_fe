@@ -179,8 +179,8 @@ onMounted(() => {
                 <div class="my-5">
                     <p class="my-2">默认只做签到任务，选择全部任务将会尝试完成所有任务</p>
                     <select v-model="settings.checkin_only" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
-                        <option value="0">仅签到</option>
-                        <option value="1">全部任务</option>
+                        <option value="1">仅签到</option>
+                        <option value="0">全部任务</option>
                     </select>
                 </div>
 
