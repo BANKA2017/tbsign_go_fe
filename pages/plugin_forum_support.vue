@@ -247,12 +247,9 @@ onMounted(() => {
                             </button>
                             <div class="" v-if="activePID">
                                 <div class="my-1" v-for="character in list" :key="character.nid">
-                                    <input
-                                        type="checkbox"
-                                        class="form-checkbox bg-gray-100 dark:bg-gray-900 dark:checked:bg-blue-500"
-                                        v-model="fourmSupportSettingsKV[activePID][character.nid]"
-                                        :id="'ver4_rank:character:' + character.nid"
-                                    /><label class="ml-2" :for="'ver4_rank:character:' + character.nid"
+                                    <input type="checkbox" class="form-checkbox bg-gray-100 dark:bg-gray-900 dark:checked:bg-blue-500" v-model="fourmSupportSettingsKV[activePID][character.nid]" :id="'ver4_rank:character:' + character.nid" /><label
+                                        class="ml-2"
+                                        :for="'ver4_rank:character:' + character.nid"
                                         >{{ character.name }} (<NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + character.tieba" target="blank">{{ character.tieba }}吧</NuxtLink>)</label
                                     >
                                 </div>

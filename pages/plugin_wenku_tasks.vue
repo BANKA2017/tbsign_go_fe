@@ -7,7 +7,7 @@ const store = useMainStore()
 const pidNameKV = computed(() => store.pidNameKV)
 const loading = computed(() => store.loading)
 
-const settings = ref<{ sign_only: '0' | '1'; break_icon_tasks: '0' | '1' }>({ sign_only: '0', break_icon_tasks: '0' })
+const settings = ref<{ checkin_only: '0' | '1'; vip_matrix: '0' | '1' }>({ checkin_only: '0', vip_matrix: '0' })
 const selectedPID = ref<number>(0)
 
 const tasksList = ref<
@@ -24,7 +24,7 @@ const tasksList = ref<
 const canSelectPIDList = computed(() => Object.fromEntries(Object.entries(pidNameKV.value).filter((x) => !tasksList.value.find((y) => y.pid.toString() === x[0]))))
 
 const saveSettings = () => {
-    fetch(store.basePath + '/plugins/kd_growth/settings', {
+    fetch(store.basePath + '/plugins/kd_wenku_tasks/settings', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -53,7 +53,7 @@ const deleteTask = (id = 0) => {
     if (id <= 0) {
         return
     }
-    fetch(store.basePath + '/plugins/kd_growth/list/' + id, {
+    fetch(store.basePath + '/plugins/kd_wenku_tasks/list/' + id, {
         headers: {
             Authorization: store.authorization
         },
@@ -85,7 +85,7 @@ const addTask = () => {
     if (selectedPID.value <= 0) {
         return
     }
-    fetch(store.basePath + '/plugins/kd_growth/list', {
+    fetch(store.basePath + '/plugins/kd_wenku_tasks/list', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -115,7 +115,7 @@ const addTask = () => {
 const getTasksList = () => {
     store.updateValue('loading', true)
 
-    fetch(store.basePath + '/plugins/kd_growth/list', {
+    fetch(store.basePath + '/plugins/kd_wenku_tasks/list', {
         headers: {
             Authorization: store.authorization
         }
@@ -143,9 +143,11 @@ const getTasksList = () => {
         })
 }
 
+const _atob = (s: string = '') => atob(s)
+
 onMounted(() => {
     getTasksList()
-    fetch(store.basePath + '/plugins/kd_growth/settings', {
+    fetch(store.basePath + '/plugins/kd_wenku_tasks/settings', {
         headers: {
             Authorization: store.authorization
         }
@@ -175,16 +177,10 @@ onMounted(() => {
                 <h4 class="text-lg mb-4">设置</h4>
 
                 <div class="my-5">
-                    <p class="my-2">默认只做签到任务，选择全部任务将会尝试完成所有日常任务</p>
-                    <select v-model="settings.sign_only" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
+                    <p class="my-2">默认只做签到任务，选择全部任务将会尝试完成所有任务</p>
+                    <select v-model="settings.checkin_only" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
                         <option value="0">仅签到</option>
                         <option value="1">全部任务</option>
-                    </select>
-
-                    <p class="my-2">印记任务开关，完成印记任务可能会导致帐号的 IP 归属地更变为签到服务的服务器所在地</p>
-                    <select v-model="settings.break_icon_tasks" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
-                        <option value="0">不跳过印记任务</option>
-                        <option value="1">跳过印记任务</option>
                     </select>
                 </div>
 
@@ -218,9 +214,9 @@ onMounted(() => {
                             <span class="font-bold">状态 : </span>
                             <ul v-if="task.status && task.status.startsWith('[')" class="grid grid-cols-6 gap-x-5 marker:text-sky-500 list-disc list-inside">
                                 <li class="ml-5 col-span-6 md:col-span-3 lg:col-span-2" v-for="taskStatus in JSON.parse(task.status)" :key="task.pid + '_' + taskStatus.name">
-                                    <SvgCheck v-if="taskStatus.status" height="1em" width="1em" class="inline-block mr-1" />
-                                    <SvgCross v-else height="1em" width="1em" class="inline-block mr-1" />
-                                    <span class="font-bold">{{ taskStatus.name }}</span>
+                                    <SvgCheck v-if="taskStatus.task_status === 3" height="1em" width="1em" class="inline-block mr-1" title="完成" />
+                                    <SvgCross v-else height="1em" width="1em" class="inline-block mr-1" :title="taskStatus.task_status === 2 ? '完成未领取' : '未完成'" />
+                                    <span class="font-bold">{{ taskStatus.task_name }}</span>
                                 </li>
                             </ul>
                             <span v-else class="font-mono">{{ task.status }}</span>
@@ -236,6 +232,11 @@ onMounted(() => {
                     <hr class="border-gray-400 dark:border-gray-600 my-3" />
                     <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors" @click="deleteTask(task.id)">删除</button>
                 </div>
+                <hr class="my-10 border-gray-400 dark:border-gray-600" />
+                <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
+                    <li><a :href="_atob('aHR0cHM6Ly90YW5iaS5iYWlkdS5jb20vaDUtYnVzaW5lc3MvYnJvd3NlL2RhaWx5Y2hlY2tpbj9hcHBfdmVyPTkuMC43MA')" target="_blank" class="underline underline-offset-2">查看任务</a></li>
+                    <li><a :href="_atob('aHR0cHM6Ly90YW5iaS5iYWlkdS5jb20vaDVhcHB0b3BpYy9icm93c2UvbG90dGVyeXZpcDIwMjIxMQ')" target="_blank" class="underline underline-offset-2">签到7天抽奖</a></li>
+                </ul>
             </div>
             <div
                 :class="{

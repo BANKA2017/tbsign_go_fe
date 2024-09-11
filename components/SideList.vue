@@ -23,6 +23,7 @@ const state = reactive<{
         { name: '名人堂', to: '/plugin_forum_support', routeName: 'plugin_forum_support', active: false, show: true },
         { name: '成长任务', to: '/plugin_user_growth_tasks', routeName: 'plugin_user_growth_tasks', active: false, show: true },
         { name: '知道商城', to: '/plugin_knows_lottery', routeName: 'plugin_knows_lottery', active: false, show: true },
+        { name: '文库任务', to: '/plugin_wenku_tasks', routeName: 'plugin_wenku_tasks', active: false, show: true },
         { name: '用户管理', to: '/user_admin', routeName: 'user_admin', active: false, show: true },
         { name: '系统管理', to: '/system_admin', routeName: 'system_admin', active: false, show: true },
         //{ name: '更多工具', to: '/tools', routeName: 'tools', active: false, show: true },
@@ -65,6 +66,9 @@ const updateNavStatus = () => {
                 break
             case 'plugin_knows_lottery':
                 state.navs[i].active = pluginList.value?.['ver4_lottery']?.status || false
+                break
+            case 'plugin_wenku_tasks':
+                state.navs[i].active = pluginList.value?.['kd_wenku_tasks']?.status || false
                 break
             default:
                 state.navs[i].active = authorization.value !== ''

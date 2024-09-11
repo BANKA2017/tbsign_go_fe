@@ -69,7 +69,8 @@ const pluginGroup: { [p in string]: string } = {
     ver4_ban: '循环封禁',
     ver4_rank: '贴吧名人堂助攻',
     ver4_ref: '自动同步贴吧列表',
-    ver4_lottery: '知道商城抽奖'
+    ver4_lottery: '知道商城抽奖',
+    kd_wenku_tasks: '文库任务'
 }
 
 const signMode = computed({
@@ -512,8 +513,8 @@ onMounted(() => {
                                     class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                                     v-model="serverSettings[key]"
                                 >
-                                    <option value="add_delete">[严格同步] 增加新关注的贴吧，删除不再关注的贴吧</option>
                                     <option value="add_only">[仅新增] 增加新关注的贴吧</option>
+                                    <option value="add_delete">[严格同步] 增加新关注的贴吧，删除不再关注的贴吧</option>
                                 </select>
                                 <input
                                     :id="'input-' + key"
