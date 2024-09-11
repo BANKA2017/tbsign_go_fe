@@ -441,12 +441,15 @@ onMounted(() => {
                         <span class="text-lg">插件总开关</span>
                     </div>
                     <div class="p-3">
-                        <div class="flex justify-between my-1" v-for="(value, pluginName) in pluginList" :key="pluginName">
-                            <span class="font-bold">{{ pluginGroup[pluginName] }}</span>
-                            <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true }" @click="pluginSwitch(pluginName)">
-                                {{ value.status ? '已开启' : value.ver === '-1' ? '未安装' : '已关闭' }}
-                            </button>
-                        </div>
+                        <template v-for="(value, pluginName, index) in pluginList" :key="pluginName">
+                            <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-1" />
+                            <div class="flex justify-between">
+                                <span class="font-bold">{{ pluginGroup[pluginName] }}</span>
+                                <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true }" @click="pluginSwitch(pluginName)">
+                                    {{ value.status ? '已开启' : value.ver === '-1' ? '未安装' : '已关闭' }}
+                                </button>
+                            </div>
+                        </template>
                     </div>
                 </div>
 
