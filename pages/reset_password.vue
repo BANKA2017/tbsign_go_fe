@@ -7,8 +7,8 @@ const runtimeConfig = useRuntimeConfig()
 const basePath = computed(() => store._basePath)
 const pageLoginConfig = computed(() => store._cache?.config_page_login)
 watch(pageLoginConfig, () => {
-    if (!pageLoginConfig.value?.enabled_reset_password) {
-        navigateTo('/login')
+    if (pageLoginConfig.value?.enabled_email) {
+        canSendEmail.value = true
     }
 })
 
@@ -16,6 +16,8 @@ const email = ref<string>('')
 const password = ref<string>('')
 const code = ref<string>('')
 const step = ref<number>(0)
+
+const canSendEmail = ref<boolean>(false)
 
 const sendRequest = (e: Event) => {
     e.preventDefault()
@@ -67,10 +69,11 @@ const sendRequest = (e: Event) => {
             <ClientOnly>
                 <div class="flex justify-center">
                     <form class="rounded-2xl p-5 flex grow flex-col gap-2 max-w-[32em]">
-                        <span v-if="runtimeConfig.public.NUXT_BASE_PATH === ''" class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-10" v-show="step === 0">正在找回 {{ basePath }} 的密码</span>
-                        <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2" v-show="step === 1 || step === 2">{{ step === 1 ? '如果此邮箱存在，您将会收到一封包含六位数字验证码的邮件' : '密码修改成功 🎉' }}</div>
-                        <label for="email">注册邮箱</label>
-                        <input class="bg-gray-100 dark:bg-gray-900 rounded-xl" id="email" type="email" placeholder="注册邮箱" v-model="email" />
+                        <span v-if="runtimeConfig.public.NUXT_BASE_PATH === ''" class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5" v-show="step === 0">正在找回 {{ basePath }} 的密码</span>
+                        <span v-if="!canSendEmail" class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5" v-show="step === 0">本站仅支持 Ntfy 和 Bark，不支持邮件找回</span>
+                        <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2" v-show="step === 1 || step === 2">{{ step === 1 ? '如果此帐号存在，并且推送渠道可用，您将会收到一条包含六位数字验证码的消息' : '密码修改成功 🎉' }}</div>
+                        <label for="email">登录邮箱</label>
+                        <input class="bg-gray-100 dark:bg-gray-900 rounded-xl" id="email" type="email" placeholder="邮箱" v-model="email" />
                         <label v-show="step > 0" for="invite-code">验证码</label>
                         <input v-show="step > 0" class="bg-gray-100 dark:bg-gray-900 rounded-xl" id="invite-code" type="text" placeholder="六位验证码" v-model="code" />
                         <label v-show="step > 0 && code" for="new-password">密码</label>

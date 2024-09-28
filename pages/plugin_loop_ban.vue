@@ -417,7 +417,7 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
                 <p v-show="tasksList.length >= limit" class="text-sm">注：任务数已达到或超出上限</p>
 
                 <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
-                    <Modal class="col-span-3 md:col-span-1" title="添加封禁帐号" v-show="tasksList.length < limit">
+                    <Modal class="col-span-6 sm:col-span-3 lg:col-span-1" title="添加封禁帐号" v-show="tasksList.length < limit">
                         <template #default>
                             <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="添加封禁帐号">添加帐号</button>
                         </template>

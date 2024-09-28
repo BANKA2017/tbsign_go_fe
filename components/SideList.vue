@@ -49,7 +49,7 @@ const updateNavStatus = () => {
                 state.navs[i].active = (authorization.value === '' && pageLoginConfig.value?.enabled_signup) || false
                 break
             case 'reset_password':
-                state.navs[i].active = (authorization.value === '' && pageLoginConfig.value?.enabled_reset_password) || false
+                state.navs[i].active = authorization.value === '' || false
                 break
             case 'user_admin':
             case 'system_admin':

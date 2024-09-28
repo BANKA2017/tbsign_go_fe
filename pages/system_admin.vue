@@ -117,6 +117,10 @@ const settingsGroup = {
         name: '邮件',
         data: { mail_name: '发件人邮箱', mail_yourname: '发件人名称', mail_host: 'SMTP服务器地址', mail_port: 'SMTP服务器端口', mail_secure: '加密方式 (TODO)', mail_auth: '需要身份验证', mail_smtpname: 'SMTP用户名', mail_smtppw: 'SMTP密码' }
     },
+    push: {
+        name: '推送',
+        data: { go_bark_addr: 'Bark 推送地址', go_ntfy_addr: 'ntfy 推送地址' }
+    },
     plugin: {
         name: '插件',
         data: { ver4_ban_limit: '可添加循环封禁帐号上限（循环封禁插件）', ver4_ban_break_check: '跳过吧务权限检查（循环封禁插件）' }
@@ -182,10 +186,9 @@ const pluginSwitch = (pluginName = '') => {
         })
 }
 
-const sendTestMail = (e: Event) => {
-    e.preventDefault()
+const sendTestMail = (_type: string = 'email') => {
     store.updateValue('loading', true)
-    fetch(store.basePath + '/admin/service/push/mail/test', {
+    fetch(store.basePath + '/admin/service/push/mail/test?type=' + _type, {
         headers: {
             Authorization: store.authorization
         },
@@ -204,7 +207,7 @@ const sendTestMail = (e: Event) => {
                 Notice(res.message, 'error')
                 return
             }
-            Notice('测试邮件已发送', 'success')
+            Notice('测试消息已发送', 'success')
             //console.log(res)
         })
         .catch((e) => {
@@ -552,6 +555,26 @@ onMounted(() => {
                                     class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
                                     v-model="serverSettings[key]"
                                 />
+                                <div v-else-if="['go_bark_addr', 'go_ntfy_addr'].includes(key)" class="flex w-full">
+                                    <input
+                                        :id="'input-' + key"
+                                        type="text"
+                                        class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-l-xl inline-block grow"
+                                        v-model="serverSettings[key]"
+                                    />
+                                    <button
+                                        type="button"
+                                        class="inline-block px-3 py-1 rounded-r-xl border-2 hover:bg-[#e5e7eb] hover:text-black transition-colors"
+                                        @click="
+                                            (e) => {
+                                                e.preventDefault()
+                                                sendTestMail(key.split('_')[1])
+                                            }
+                                        "
+                                    >
+                                        测试
+                                    </button>
+                                </div>
                                 <input
                                     :id="'input-' + key"
                                     v-else
@@ -560,7 +583,19 @@ onMounted(() => {
                                     v-model="serverSettings[key]"
                                 />
                             </template>
-                            <button type="button" v-if="_set.name === '邮件'" class="px-3 py-1 mt-3 rounded-lg border-2 hover:bg-[#e5e7eb] hover:text-black transition-colors" @click="sendTestMail">发送测试邮件</button>
+                            <button
+                                type="button"
+                                v-if="_set.name === '邮件'"
+                                class="px-3 py-1 mt-3 rounded-lg border-2 hover:bg-[#e5e7eb] hover:text-black transition-colors"
+                                @click="
+                                    (e) => {
+                                        e.preventDefault()
+                                        sendTestMail('email')
+                                    }
+                                "
+                            >
+                                发送测试邮件
+                            </button>
                         </div>
                         <input type="submit" role="button" class="text-gray-100 text-lg bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded-xl ml-3 px-5 py-1 transition-colors" @click="SaveSettings" value="保存" />
                     </form>

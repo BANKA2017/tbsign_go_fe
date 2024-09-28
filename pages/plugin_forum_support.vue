@@ -221,7 +221,7 @@ onMounted(() => {
                 <h4 class="text-lg">任务列表</h4>
 
                 <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
-                    <Modal class="col-span-3 md:col-span-1" title="编辑名人堂任务">
+                    <Modal class="col-span-6 sm:col-span-3 lg:col-span-1" title="编辑名人堂任务">
                         <template #default>
                             <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="编辑名人堂任务">编辑列表</button>
                         </template>
