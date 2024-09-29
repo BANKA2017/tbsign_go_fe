@@ -35,6 +35,7 @@ const state = reactive<{
 })
 
 const wholeRouteName = computed(() => state.navs.map((x) => x.routeName))
+const activeNavs = computed(() => state.navs.filter((x) => x.active))
 
 const updateNavStatus = () => {
     for (const i in state.navs) {
@@ -96,29 +97,31 @@ updateNavStatus()
 
 <template>
     <div id="side-list" class="select-none" v-show="wholeRouteName.includes(route.name)">
-        <div class="inline-block md:block" v-for="nav in state.navs.filter((x) => x.active)" :key="nav.name" v-show="nav.show">
-            <NuxtLink
-                :class="{
-                    'inline-block': true,
-                    'my-1': true,
-                    'px-5': true,
-                    'mx-1': true,
-                    'md:-mx-5': true,
-                    'rounded-full': true,
-                    'transition-colors': true,
-                    'hover:bg-sky-500': true,
-                    'bg-sky-500': route.name === nav.routeName,
-                    'text-black': route.name !== nav.routeName,
-                    'hover:text-gray-100': true,
-                    'dark:text-gray-100': true,
-                    'text-gray-100': route.name === nav.routeName,
-                    'py-2': true
-                }"
-                :to="nav.to"
-            >
-                {{ nav.name }}
-            </NuxtLink>
-        </div>
+        <client>
+            <div class="inline-block md:block" v-for="nav in activeNavs" :key="nav.routeName" v-show="nav.show">
+                <NuxtLink
+                    :class="{
+                        'inline-block': true,
+                        'my-1': true,
+                        'px-5': true,
+                        'mx-1': true,
+                        'md:-mx-5': true,
+                        'rounded-full': true,
+                        'transition-colors': true,
+                        'hover:bg-sky-500': true,
+                        'bg-sky-500': route.name === nav.routeName,
+                        'text-black': route.name !== nav.routeName,
+                        'hover:text-gray-100': true,
+                        'dark:text-gray-100': true,
+                        'text-gray-100': route.name === nav.routeName,
+                        'py-2': true
+                    }"
+                    :to="nav.to"
+                >
+                    {{ nav.name }}
+                </NuxtLink>
+            </div>
+        </client>
     </div>
 </template>
 

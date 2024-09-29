@@ -38,18 +38,6 @@ const buffer_to_base64 = (buf: ArrayBuffer) => {
     return globalThis.btoa(binary)
 }
 
-const newTiebaAccount = () => {
-    if (typeof window === 'undefined') {
-        return ''
-    }
-    const csrfToken = buffer_to_base64(crypto.getRandomValues(new Uint8Array(16)))
-        .replaceAll('/', '_')
-        .replaceAll('+', '-')
-        .replaceAll('=', '')
-    localStorage.setItem('tc_csrf_token', csrfToken)
-    window.open(`https://bduss.nest.moe/#/` + str_to_base64url(window.location.origin + route.fullPath + '#/stoken_type=tb&csrf=' + csrfToken), '_self')
-}
-
 const checkAccountStatus = async () => {
     if (!accounts.value) {
         return
@@ -103,10 +91,6 @@ const deleteAccount = async (id: string) => {
             )
             //console.log(res)
         })
-}
-
-const str_to_base64url = (text: string) => {
-    return btoa(text).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
 }
 
 const cleanTiebaList = async () => {

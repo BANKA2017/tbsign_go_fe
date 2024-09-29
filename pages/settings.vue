@@ -49,7 +49,8 @@ const saveSettings = (e: Event) => {
                 email: settingsValue.value.email,
                 ntfy_topic: settingsValue.value.ntfy_topic,
                 bark_key: settingsValue.value.bark_key,
-                push_type: settingsValue.value.push_type
+                push_type: settingsValue.value.push_type,
+                password: settingsValue.value.password
             }).toString()
         })
             .then((res) => res.json())
@@ -141,10 +142,90 @@ onMounted(() => {
                     class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                     v-model="settingsValue.email"
                 />
+                <!--<abbr class="block my-1" title="忘记了原密码？试试退出后使用找回密码">密码</abbr>-->
+                <label class="block my-1">密码</label>
+                <input
+                    type="password"
+                    placeholder="当前密码"
+                    autocomplete="current-password"
+                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                    v-model="settingsValue.password"
+                />
+                <input
+                    type="password"
+                    placeholder="新密码（留空不修改）"
+                    autocomplete="new-password"
+                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                    v-model="settingsValue.new_password"
+                />
 
-                <label class="block my-1" for="bark-key">Bark key ({{ accountInfo?.system_settings?.bark_addr }})</label>
+                <hr class="border-gray-400 dark:border-gray-600 px-3 my-3" />
+
+                <label class="my-1 flex justify-between" for="bark-key">
+                    Bark key
+                    <Modal class="col-span-3 md:col-span-1" title="关于Bark" aria-label="关于Bark">
+                        <template #default>
+                            <span
+                                role="button"
+                                @click="
+                                    (e) => {
+                                        e.preventDefault()
+                                    }
+                                "
+                                class="underline underline-offset-2 text-sm"
+                                title="关于Bark"
+                                aria-label="关于Bark"
+                            >
+                                关于Bark
+                            </span>
+                        </template>
+                        <template #container>
+                            <ul role="list" class="mb-3 marker:text-sky-500 list-disc list-inside">
+                                <li>Bark 仅支持 <a href="https://apps.apple.com/us/app/bark-customed-notifications/id1403753865" target="_blank" class="underline underline-offset-2">iOS/iPadOS 操作系统</a></li>
+                                <li>
+                                    本站使用的端点为 <span class="break-all font-mono mx-2 bg-gray-800 py-1 px-2 rounded-lg select-all">{{ accountInfo?.system_settings?.bark_addr }}</span
+                                    >{{ accountInfo?.system_settings?.bark_addr === 'https://api.day.app' ? '(官服)' : '' }}
+                                </li>
+                            </ul>
+                        </template>
+                    </Modal>
+                </label>
                 <input id="bark-key" type="text" class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl" v-model="settingsValue.bark_key" />
-                <label class="block my-1" for="ntfy-topic">Ntfy topic ({{ accountInfo?.system_settings?.ntfy_addr }})</label>
+                <label class="my-1 flex justify-between" for="ntfy-topic">
+                    Ntfy topic
+                    <Modal class="col-span-3 md:col-span-1" title="关于Ntfy" aria-label="关于Ntfy">
+                        <template #default>
+                            <span
+                                role="button"
+                                @click="
+                                    (e) => {
+                                        e.preventDefault()
+                                    }
+                                "
+                                class="underline underline-offset-2 text-sm"
+                                title="关于Ntfy"
+                                aria-label="关于Ntfy"
+                            >
+                                关于Ntfy
+                            </span>
+                        </template>
+                        <template #container>
+                            <ul role="list" class="mb-3 marker:text-sky-500 list-disc list-inside">
+                                <li><a href="https://ntfy.sh" target="_blank" class="underline underline-offset-2">Ntfy.sh</a> 支持 Android/iOS/iPadOS/网页推送</li>
+                                <li>
+                                    任何人都可以访问<span class="break-all font-mono mx-2 bg-gray-800 py-1 px-2 rounded-lg select-all">{{
+                                        accountInfo?.system_settings?.ntfy_addr + '/' + (settingsValue.ntfy_topic ? settingsValue.ntfy_topic : '${ntfy_topic}')
+                                    }}</span
+                                    >取得历史推送，历史推送无法修改难以删除，所以此值建议设置得尽可能长
+                                </li>
+                                <li>
+                                    本站使用的端点为 <span class="break-all font-mono mx-2 bg-gray-800 py-1 px-2 rounded-lg select-all">{{ accountInfo?.system_settings?.ntfy_addr }}</span
+                                    >{{ accountInfo?.system_settings?.ntfy_addr === 'https://ntfy.sh' ? '(官服)' : '' }}
+                                </li>
+                            </ul>
+                        </template>
+                    </Modal>
+                </label>
                 <input
                     id="ntfy-topic"
                     type="text"
@@ -158,23 +239,8 @@ onMounted(() => {
                     <option value="bark">Bark</option>
                 </select>
 
-                <!--<abbr class="block my-1" title="忘记了原密码？试试退出后使用找回密码">密码</abbr>-->
-                <label class="block my-1">密码</label>
-                <input
-                    type="password"
-                    placeholder="当前密码"
-                    autocomplete="current-password"
-                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                    v-model="settingsValue.password"
-                />
-                <input
-                    type="password"
-                    placeholder="新密码"
-                    autocomplete="new-password"
-                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                    v-model="settingsValue.new_password"
-                />
-                <input type="submit" role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl transition-colors" @click="saveSettings" value="保存" />
+                <input v-if="settingsValue.password !== ''" type="submit" role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl transition-colors" @click="saveSettings" value="保存" />
+                <button v-else role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-500 text-xl transition-colors" disabled>填写当前密码后保存</button>
             </form>
         </frame-work>
     </NuxtLayout>

@@ -7,9 +7,10 @@ const runtimeConfig = useRuntimeConfig()
 const basePath = computed(() => store._basePath)
 const pageLoginConfig = computed(() => store._cache?.config_page_login)
 watch(pageLoginConfig, () => {
-    if (pageLoginConfig.value?.enabled_email) {
-        canSendEmail.value = true
-    }
+    canSendEmail.value = !!pageLoginConfig.value?.enabled_email
+})
+onMounted(() => {
+    canSendEmail.value = !!pageLoginConfig.value?.enabled_email
 })
 
 const email = ref<string>('')
@@ -52,7 +53,11 @@ const sendRequest = (e: Event) => {
                 Notice(res.message, 'error')
                 return
             }
+
             step.value = (email.value.length ? 1 : 0) + (code.value.length ? 1 : 0)
+            if (step.value === 1) {
+                Notice('请确认 emoji 顺序一致：' + res.data?.verify_emoji, 'info', 0)
+            }
             // success
             //console.log(res)
         })
