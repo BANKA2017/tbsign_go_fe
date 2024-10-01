@@ -374,7 +374,7 @@ onMounted(() => {
                     <details class="marker:text-sky-500">
                         <summary class="cursor-pointer"><span class="font-bold ml-1">日志</span></summary>
                         <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
-                            <li class="break-all" v-for="(log_, i) in task.log.split('<br/>')" :key="task.pid.toString() + '_' + task.fid + i" v-show="log_">{{ log_ }}</li>
+                            <li class="break-all" v-for="(log_, i) in task.log.split('<br />')" :key="task.pid.toString() + '_' + task.fid + i" v-show="log_">{{ log_ }}</li>
                         </ul>
                     </details>
                     <hr class="border-gray-400 dark:border-gray-600 my-3" />
