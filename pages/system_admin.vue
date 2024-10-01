@@ -641,7 +641,7 @@ onMounted(() => {
                                     />
                                     <button
                                         type="button"
-                                        class="inline-block px-3 py-1 rounded-r-xl border-2 hover:bg-[#e5e7eb] hover:text-black transition-colors"
+                                        class="inline-block px-3 py-1 rounded-r-xl border hover:bg-[#e5e7eb] hover:text-black transition-colors"
                                         @click="
                                             (e) => {
                                                 e.preventDefault()
