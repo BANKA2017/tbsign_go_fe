@@ -298,7 +298,7 @@ onMounted(() => {
                 </button>
 
                 <div class="my-5">
-                    <p class="my-2">根据设置，当本地记录时间小于10天将会每天推送手动完成任务提醒</p>
+                    <p class="my-2">根据设置，当本地记录时间小于15天将会每天推送手动完成任务提醒</p>
                     <button :class="{ 'bg-sky-500': !tasksAlertSwitch, 'bg-pink-500': tasksAlertSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-gray-100': true, 'transition-colors': true }" @click="updateAlertTasksSwitch">
                         {{ tasksAlertSwitch ? '已开启推送' : '已停止推送' }}
                     </button>
