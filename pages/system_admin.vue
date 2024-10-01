@@ -70,7 +70,8 @@ const pluginGroup: { [p in string]: string } = {
     ver4_rank: '贴吧名人堂助攻',
     ver4_ref: '自动同步贴吧列表',
     ver4_lottery: '知道商城抽奖',
-    kd_wenku_tasks: '文库任务'
+    kd_wenku_tasks: '文库任务',
+    kd_renew_manager: '吧主考核'
 }
 
 const signMode = computed({
@@ -179,6 +180,39 @@ const pluginSwitch = (pluginName = '') => {
                 return
             }
             if (res.data?.exists) {
+                pluginList.value[pluginName].status = res.data?.status || false
+                pluginList.value[pluginName].ver = res.data?.version || -1
+                store.updateCache('plugin_list', pluginList.value)
+            }
+            //console.log(res)
+        })
+}
+
+const pluginDelete = (pluginName = '') => {
+    const pluginNameList = Object.keys(pluginList.value)
+    if (!pluginNameList.includes(pluginName)) {
+        return
+    }
+    fetch(store.basePath + '/admin/plugin/' + pluginName, {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'DELETE'
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('/login')
+                return
+            }
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            if (res.data?.version === -1) {
+                pluginList.value[pluginName].ver = '-1'
                 pluginList.value[pluginName].status = res.data?.status || false
                 store.updateCache('plugin_list', pluginList.value)
             }
@@ -448,9 +482,21 @@ onMounted(() => {
                             <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-1" />
                             <div class="flex justify-between">
                                 <span class="font-bold">{{ pluginGroup[pluginName] }}</span>
-                                <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true }" @click="pluginSwitch(pluginName)">
-                                    {{ value.status ? '已开启' : value.ver === '-1' ? '未安装' : '已关闭' }}
-                                </button>
+                                <div class="inline-block">
+                                    <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true }" @click="pluginSwitch(pluginName)">
+                                        {{ value.status ? '已开启' : value.ver === '-1' ? '未安装' : '已关闭' }}
+                                    </button>
+                                    <Modal class="inline-block" :title="'确认卸载插件: ' + pluginGroup[pluginName] + '?'" :aria-label="'确认卸载插件: ' + pluginGroup[pluginName] + '?'" v-if="value.ver !== '-1'">
+                                        <template #default>
+                                            <button class="px-3 py-1 bg-pink-500 text-gray-100 transition-colors">卸载</button>
+                                        </template>
+                                        <template #container>
+                                            <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="pluginDelete(pluginName)">
+                                                确认卸载 {{ pluginGroup[pluginName] }} ({{ pluginName }})
+                                            </button>
+                                        </template>
+                                    </Modal>
+                                </div>
                             </div>
                         </template>
                     </div>

@@ -1,4 +1,4 @@
-const getPubDate = (date: Date | string = new Date()): string => {
+export const getPubDate = (date: Date | string = new Date()): string => {
     if (typeof date === 'string') {
         date = new Date(date.replaceAll('-', '/'))
     }
@@ -17,15 +17,18 @@ const getPubDate = (date: Date | string = new Date()): string => {
     )
 }
 
-const dayToShortString: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
-const monthToShortString: string[] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-const getFragmentDate = (timestamp: number = 0) => {
-    const tmpDate = new Date(timestamp)
-    const monthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Set', 'Oct', 'Nov', 'Dec']
-    //4:22 PM · 19 Aug, 2022
-    return `${tmpDate.getHours()}:${tmpDate.getMinutes().toString().padStart(2, '0')} · ${tmpDate.getDate()} ${monthName[tmpDate.getMonth()]}, ${tmpDate.getFullYear()}`
+// Unix, NOT UnixMilli!!!
+export const Eta = (now: number = Date.now() / 1000, end: number = 0) => {
+    if (now > end) {
+        return '0'
+    }
+    let diff = end - now
+    const seconds = diff % 60
+    diff = (diff - seconds) / 60
+    const minutes = diff % 60
+    diff = (diff - minutes) / 60
+    const hours = diff % 24
+    diff = (diff - hours) / 24
+    const days = diff
+    return `${days.toString().padStart(2, '0')} 天 ${hours.toString().padStart(2, '0')} 小时 ${minutes.toString().padStart(2, '0')} 分钟 ${Math.ceil(seconds).toString().padStart(2, '0') + ' 秒'}`
 }
-
-export { getPubDate, getFragmentDate, dayToShortString, monthToShortString }

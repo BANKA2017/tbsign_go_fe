@@ -4,6 +4,7 @@ import { useMainStore } from '~/stores/main'
 
 const store = useMainStore()
 const runtimeConfig = useRuntimeConfig()
+const showList = ref<boolean>(false)
 
 const isAdmin = computed(() => store.admin)
 const authorization = computed(() => store.rawAuthorization)
@@ -24,6 +25,7 @@ const state = reactive<{
         { name: '成长任务', to: '/plugin_user_growth_tasks', routeName: 'plugin_user_growth_tasks', active: false, show: true },
         { name: '知道商城', to: '/plugin_knows_lottery', routeName: 'plugin_knows_lottery', active: false, show: true },
         { name: '文库任务', to: '/plugin_wenku_tasks', routeName: 'plugin_wenku_tasks', active: false, show: true },
+        { name: '吧主考核', to: '/plugin_renew_manager', routeName: 'plugin_renew_manager', active: false, show: true },
         { name: '用户管理', to: '/user_admin', routeName: 'user_admin', active: false, show: true },
         { name: '系统管理', to: '/system_admin', routeName: 'system_admin', active: false, show: true },
         //{ name: '更多工具', to: '/tools', routeName: 'tools', active: false, show: true },
@@ -71,6 +73,9 @@ const updateNavStatus = () => {
             case 'plugin_wenku_tasks':
                 state.navs[i].active = pluginList.value?.['kd_wenku_tasks']?.status || false
                 break
+            case 'plugin_renew_manager':
+                state.navs[i].active = pluginList.value?.['kd_renew_manager']?.status || false
+                break
             default:
                 state.navs[i].active = authorization.value !== ''
         }
@@ -98,7 +103,43 @@ updateNavStatus()
 <template>
     <div id="side-list" class="select-none" v-show="wholeRouteName.includes(route.name)">
         <client>
-            <div class="inline-block md:block" v-for="nav in activeNavs" :key="nav.routeName" v-show="nav.show">
+            <div class="md:hidden">
+                <div v-for="nav in activeNavs" :key="nav.routeName" v-show="nav.show">
+                    <NuxtLink
+                        v-show="showList || route.name === nav.routeName"
+                        :class="{
+                            block: true,
+                            'my-1': true,
+                            'px-5': true,
+                            'mx-1': true,
+                            'md:-mx-5': true,
+                            'rounded-full': true,
+                            'transition-colors': true,
+                            'hover:bg-sky-500': true,
+                            'bg-sky-500': route.name === nav.routeName,
+                            'text-black': route.name !== nav.routeName,
+                            'hover:text-gray-100': true,
+                            'dark:text-gray-100': true,
+                            'text-gray-100': route.name === nav.routeName,
+                            'py-2': true,
+                            flex: true,
+                            'justify-between': true
+                        }"
+                        :to="nav.to"
+                        @click="showList = !showList"
+                    >
+                        <span>{{ nav.name }}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em]" viewBox="0 0 16 16" v-show="!showList">
+                            <path
+                                fill="currentColor"
+                                fill-rule="evenodd"
+                                d="M1 8a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13A.5.5 0 0 1 1 8M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10"
+                            />
+                        </svg>
+                    </NuxtLink>
+                </div>
+            </div>
+            <div class="hidden md:block" v-for="nav in activeNavs" :key="nav.routeName" v-show="nav.show">
                 <NuxtLink
                     :class="{
                         'inline-block': true,

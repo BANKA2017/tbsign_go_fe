@@ -216,7 +216,7 @@ onMounted(() => {
                                     任何人都可以访问<span class="break-all font-mono mx-2 bg-gray-800 py-1 px-2 rounded-lg select-all">{{
                                         accountInfo?.system_settings?.ntfy_addr + '/' + (settingsValue.ntfy_topic ? settingsValue.ntfy_topic : '${ntfy_topic}')
                                     }}</span
-                                    >取得历史推送，历史推送无法修改难以删除，所以此值建议设置得尽可能长
+                                    >取得历史推送，所以建议将此值设置得尽可能地长
                                 </li>
                                 <li>
                                     本站使用的端点为 <span class="break-all font-mono mx-2 bg-gray-800 py-1 px-2 rounded-lg select-all">{{ accountInfo?.system_settings?.ntfy_addr }}</span

@@ -250,7 +250,7 @@ const preCheckManager = () => {
         return
     }
     isManagerMessage.value = '检查权限中'
-    fetch(store.basePath + '/plugins/ver4_ban/check/' + taskToAdd.value.pid + '/is_manager/' + taskToAdd.value.fname, {
+    fetch(store.basePath + '/account/check/' + taskToAdd.value.pid + '/is_manager/' + taskToAdd.value.fname, {
         headers: {
             Authorization: store.authorization
         }
