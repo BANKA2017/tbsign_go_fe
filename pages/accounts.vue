@@ -760,8 +760,14 @@ onMounted(() => {
                     <div :class="{ flex: true, 'justify-between': true, 'cursor-pointer': true, sticky: true, 'top-0': true, 'bg-gray-200': true, 'dark:bg-gray-800': true }" @click="accounts[index].more = !accounts[index].more">
                         <div class="flex gap-3">
                             <div :class="{ relative: true, hidden: true, '2xs:block': !(editMode || accounts[index].more), 'xs:block': true }">
-                                <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1 border border-white" />
-                                <div :class="`h-2 w-2 absolute right-1 bottom-1 rounded-full border border-white ` + (account.status === undefined ? 'bg-gray-500' : account.status ? 'bg-green-500' : 'bg-pink-500')"></div>
+                                <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1" />
+                                <div
+                                    :class="`h-2 w-2 absolute right-1 bottom-1 rounded-full border ` + (account.status === undefined ? 'bg-gray-500 border-gray-500' : !account.status ? 'bg-green-500 border-green-500' : 'bg-pink-500 border-pink-500')"
+                                    :style="{
+                                        background: !account.status === false ? 'repeating-linear-gradient(to right bottom,#fff9,#fff9 .05rem,rgb(236 72 153) .05rem,rgb(236 72 153) .11rem)' : '',
+                                        'background-color': !account.status === false ? 'rgb(236 72 153)' : ''
+                                    }"
+                                ></div>
                             </div>
                             <div :class="{ 'max-w-20': accounts[index].more, 'max-w-40': !accounts[index].more, 'xs:max-w-40': true, flex: true, 'flex-col': true }">
                                 <NuxtLink

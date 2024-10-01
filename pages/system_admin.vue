@@ -124,7 +124,16 @@ const settingsGroup = {
     },
     plugin: {
         name: '插件',
-        data: { ver4_ban_limit: '可添加循环封禁帐号上限（循环封禁插件）', ver4_ban_break_check: '跳过吧务权限检查（循环封禁插件）' }
+        data: {
+            ver4_ban_limit: '可添加循环封禁帐号上限（循环封禁）',
+            ver4_ban_break_check: '跳过吧务权限检查（循环封禁）',
+            ver4_ban_action_limit: '每分钟最大执行数（循环封禁）',
+            kd_growth_action_limit: '每分钟最大执行数（用户成长任务）',
+            kd_renew_manager_action_limit: '每分钟最大执行数（吧主考核）',
+            kd_wenku_tasks_action_limit: '每分钟最大执行数（文库任务）',
+            ver4_rank_action_limit: '每分钟最大执行数（贴吧名人堂助攻）',
+            ver4_ref_action_limit: '每分钟最大执行数（自动同步贴吧列表）'
+        }
     }
 }
 
@@ -510,7 +519,7 @@ onMounted(() => {
                     <form autocomplete="off">
                         <div class="p-3" v-for="_set in settingsGroup" :key="_set.name">
                             <hr class="border-gray-400 dark:border-gray-600 mb-3" />
-                            <h3 class="text-lg mb-3">{{ _set.name }}</h3>
+                            <h3 class="text-lg mb-3 py-2 px-2 -mx-2 sticky top-0 bg-gray-100 dark:bg-gray-900">{{ _set.name }}</h3>
                             <template v-for="(name, key) in _set.data" :key="key">
                                 <label :for="'input-' + key" class="block text-sm font-medium mb-1 mt-3">{{ name }}</label>
                                 <textarea
@@ -570,7 +579,22 @@ onMounted(() => {
                                 </select>
                                 <input
                                     :id="'input-' + key"
-                                    v-else-if="['cron_limit', 'retry_max', 'sign_sleep', 'ver4_ban_limit', 'mail_port'].includes(key)"
+                                    v-else-if="
+                                        [
+                                            'cron_limit',
+                                            'retry_max',
+                                            'sign_sleep',
+                                            'mail_port',
+                                            'ver4_ban_limit',
+                                            'ver4_ban_action_limit',
+                                            'kd_growth_action_limit',
+                                            'kd_renew_manager_action_limit',
+                                            'kd_wenku_tasks_action_limit',
+                                            'ver4_ban_break_check',
+                                            'ver4_rank_action_limit',
+                                            'ver4_ref_action_limit'
+                                        ].includes(key)
+                                    "
                                     type="number"
                                     min="0"
                                     class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
@@ -596,9 +620,16 @@ onMounted(() => {
                                 />
                                 <input
                                     :id="'input-' + key"
-                                    v-else-if="key === 'mail_smtppw'"
+                                    v-else-if="key === 'mail_smtppw' && serverSettings[key] !== undefined"
                                     type="password"
                                     class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                    v-model="serverSettings[key]"
+                                />
+                                <input
+                                    :id="'input-' + key"
+                                    v-else-if="key === 'mail_smtpname' && serverSettings[key] !== undefined"
+                                    type="text"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                                     v-model="serverSettings[key]"
                                 />
                                 <div v-else-if="['go_bark_addr', 'go_ntfy_addr'].includes(key)" class="flex w-full">
