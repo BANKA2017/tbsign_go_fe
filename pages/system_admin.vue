@@ -127,6 +127,7 @@ const settingsGroup = ref({
 const initPluginSettingsGroup = () => {
     // String(key || '').endsWith('_action_limit')
     // ver4_ban_break_check: '跳过吧务权限检查（循环封禁）',
+    // ver4_ban_limit: '...'
 
     for (const plugin of Object.values(pluginList.value)) {
         for (const setting_option of plugin?.setting_options || []) settingsGroup.value.plugin.data[setting_option['option_name']] = `${setting_option['option_name_cn']}（${plugin.plugin_name_cn}）`
@@ -561,7 +562,7 @@ onMounted(() => {
                                 </select>
                                 <input
                                     :id="'input-' + key"
-                                    v-else-if="['cron_limit', 'retry_max', 'sign_sleep', 'mail_port'].includes(key) || String(key || '').endsWith('_action_limit')"
+                                    v-else-if="['cron_limit', 'retry_max', 'sign_sleep', 'mail_port', 'ver4_ban_limit'].includes(key) || String(key || '').endsWith('_action_limit')"
                                     type="number"
                                     min="0"
                                     class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
