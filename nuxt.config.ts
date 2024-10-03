@@ -9,6 +9,13 @@ export default defineNuxtConfig({
             hmr: {
                 clientPort: 3000
             }
+        },
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    api: 'modern-compiler' // or "modern"
+                }
+            }
         }
     },
     devServer: {
@@ -58,9 +65,6 @@ export default defineNuxtConfig({
         '/settings': { ssr: false },
         '/accounts': { ssr: false },
         '/user_admin': { ssr: false },
-        '/system_admin': { ssr: false },
-        '/plugin_user_growth_tasks': { ssr: false },
-        '/plugin_loop_ban': { ssr: false },
-        '/plugin_forum_support': { ssr: false }
+        '/system_admin': { ssr: false }
     }
 })

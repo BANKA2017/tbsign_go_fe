@@ -8,31 +8,24 @@ const showList = ref<boolean>(false)
 
 const isAdmin = computed(() => store.admin)
 const authorization = computed(() => store.rawAuthorization)
-const pluginList = computed(() => store._cache?.plugin_list)
+const pluginList = computed(() => store._cache?.plugin_list || {})
 const pageLoginConfig = computed(() => store._cache?.config_page_login)
 
 const route = useRoute()
-
 const state = reactive<{
-    navs: { name: string; to: string; routeName: string; active: boolean; show: boolean }[]
+    navs: { name: string; to: string; routeName: string; active: boolean; show: boolean; plugin_name_backend?: string; sort: number }[]
 }>({
     navs: [
-        { name: '首页', to: '/', routeName: 'index', active: true, show: true },
-        { name: '个人设置', to: '/settings', routeName: 'settings', active: false, show: true },
-        { name: '百度账号管理', to: '/accounts', routeName: 'accounts', active: false, show: true },
-        { name: '循环封禁', to: '/plugin_loop_ban', routeName: 'plugin_loop_ban', active: false, show: true },
-        { name: '名人堂', to: '/plugin_forum_support', routeName: 'plugin_forum_support', active: false, show: true },
-        { name: '成长任务', to: '/plugin_user_growth_tasks', routeName: 'plugin_user_growth_tasks', active: false, show: true },
-        { name: '知道商城', to: '/plugin_knows_lottery', routeName: 'plugin_knows_lottery', active: false, show: true },
-        { name: '文库任务', to: '/plugin_wenku_tasks', routeName: 'plugin_wenku_tasks', active: false, show: true },
-        { name: '吧主考核', to: '/plugin_renew_manager', routeName: 'plugin_renew_manager', active: false, show: true },
-        { name: '用户管理', to: '/user_admin', routeName: 'user_admin', active: false, show: true },
-        { name: '系统管理', to: '/system_admin', routeName: 'system_admin', active: false, show: true },
-        //{ name: '更多工具', to: '/tools', routeName: 'tools', active: false, show: true },
-        { name: '登录', to: '/login', routeName: 'login', active: false, show: true },
-        { name: '注册', to: '/signup', routeName: 'signup', active: false, show: true },
-        { name: '找回密码', to: '/reset_password', routeName: 'reset_password', active: false, show: true },
-        { name: '接口控制', to: '/add_base_path', routeName: 'add_base_path', active: false, show: true }
+        { name: '首页', to: '/', routeName: 'index', active: true, show: true, sort: 0 },
+        { name: '个人设置', to: '/settings', routeName: 'settings', active: false, show: true, sort: 1 },
+        { name: '百度账号管理', to: '/accounts', routeName: 'accounts', active: false, show: true, sort: 2 },
+        { name: '用户管理', to: '/user_admin', routeName: 'user_admin', active: false, show: true, sort: 4 },
+        { name: '系统管理', to: '/system_admin', routeName: 'system_admin', active: false, show: true, sort: 5 },
+        //{ name: '更多工具', to: '/tools', routeName: 'tools', active: false, show: true, sort: 6},
+        { name: '登录', to: '/login', routeName: 'login', active: false, show: true, sort: 7 },
+        { name: '注册', to: '/signup', routeName: 'signup', active: false, show: true, sort: 8 },
+        { name: '找回密码', to: '/reset_password', routeName: 'reset_password', active: false, show: true, sort: 9 },
+        { name: '接口控制', to: '/add_base_path', routeName: 'add_base_path', active: false, show: true, sort: 10 }
     ]
 })
 
@@ -40,6 +33,22 @@ const wholeRouteName = computed(() => state.navs.map((x) => x.routeName))
 const activeNavs = computed(() => state.navs.filter((x) => x.active))
 
 const updateNavStatus = () => {
+    const routeSet = new Set(state.navs.map((n) => n.routeName))
+    const tmpNavs = Object.fromEntries(state.navs.map((nav) => [nav.routeName, nav]))
+    for (const plugin of Object.values(pluginList.value)) {
+        if (plugin.plugin_name_fe && !routeSet.has(plugin.plugin_name_fe)) {
+            tmpNavs[`plugin_${plugin.plugin_name_fe}`] = {
+                name: plugin.plugin_name_cn_short,
+                to: `/plugin_${plugin.plugin_name_fe}`,
+                routeName: `plugin_${plugin.plugin_name_fe}`,
+                plugin_name_backend: plugin.name,
+                active: false,
+                show: true,
+                sort: 3
+            }
+        }
+    }
+    state.navs = Object.values(tmpNavs).sort((a, b) => (a.sort === b.sort ? (a.routeName > b.routeName ? 1 : -1) : a.sort > b.sort ? 1 : -1))
     for (const i in state.navs) {
         switch (state.navs[i].routeName) {
             case 'login':
@@ -58,26 +67,12 @@ const updateNavStatus = () => {
             case 'system_admin':
                 state.navs[i].active = authorization.value !== '' && isAdmin.value
                 break
-            case 'plugin_loop_ban':
-                state.navs[i].active = pluginList.value?.['ver4_ban']?.status || false
-                break
-            case 'plugin_forum_support':
-                state.navs[i].active = pluginList.value?.['ver4_rank']?.status || false
-                break
-            case 'plugin_user_growth_tasks':
-                state.navs[i].active = pluginList.value?.['kd_growth']?.status || false
-                break
-            case 'plugin_knows_lottery':
-                state.navs[i].active = pluginList.value?.['ver4_lottery']?.status || false
-                break
-            case 'plugin_wenku_tasks':
-                state.navs[i].active = pluginList.value?.['kd_wenku_tasks']?.status || false
-                break
-            case 'plugin_renew_manager':
-                state.navs[i].active = pluginList.value?.['kd_renew_manager']?.status || false
-                break
             default:
-                state.navs[i].active = authorization.value !== ''
+                if (state.navs[i].routeName.startsWith('plugin')) {
+                    state.navs[i].active = pluginList.value?.[state.navs[i].plugin_name_backend || '']?.status || false
+                } else {
+                    state.navs[i].active = authorization.value !== ''
+                }
         }
     }
 }

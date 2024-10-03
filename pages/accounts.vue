@@ -29,15 +29,6 @@ const pidNameKV = computed(() => store.pidNameKV)
 
 const editMode = ref<boolean>(false)
 
-const buffer_to_base64 = (buf: ArrayBuffer) => {
-    let binary = ''
-    const bytes = new Uint8Array(buf)
-    for (var i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i])
-    }
-    return globalThis.btoa(binary)
-}
-
 const checkAccountStatus = async () => {
     if (!accounts.value) {
         return
@@ -541,12 +532,18 @@ const submitQRLogin = () => {
             if (res.code === 201) {
                 Notice('已添加 @' + res.data?.name || res.data?.portrait, 'success')
                 accounts.value.push(res.data)
+                if (!(pluginList.value?.['ver4_ref']?.status || false)) {
+                    Notice('注意：当前站点未开启自动同步贴吧列表插件，请手动同步贴吧列表', 'info', 0)
+                }
                 return
             } else if (res.code === 200) {
                 for (const accountIndex in accounts.value) {
                     if (accounts.value[accountIndex].portrait === res.data.portrait) {
                         Notice('更新 BDUSS 信息成功 @' + res.data.name || res.data.portrait, 'success')
                         accounts.value[accountIndex] = res.data
+                        if (!(pluginList.value?.['ver4_ref']?.status || false)) {
+                            Notice('注意：当前站点未开启自动同步贴吧列表插件，请手动同步贴吧列表', 'info', 0)
+                        }
                         //console.log('find', accountIndex)
                         return
                     }

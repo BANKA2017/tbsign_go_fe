@@ -37,7 +37,7 @@
 
 请参考 [BANKA2017/tbsign_go#嵌入式前端](https://github.com/BANKA2017/tbsign_go?tab=readme-ov-file#%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%89%8D%E7%AB%AF)
 
-### 限制
+## 限制
 
 部分功能需要后端支持才会启用
 
@@ -47,6 +47,10 @@
 - 由于几乎没有做任何防呆保护，所以刻意隐藏了一些危险的 API，比如删除账号或者导出帐号信息等
 - 后端会刻意在数据发出前删除掉所有的 `BDUSS` 和 `Stoken` 信息，前端的所有页面都不需要用到这些信息
 - 被封禁的帐号暂时无法查看或导出账号数据
+
+## 插件
+
+[BANKA2017/tbsign_go#插件开发](https://github.com/BANKA2017/tbsign_go?tab=readme-ov-file#%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91)
 
 ## TODO
 

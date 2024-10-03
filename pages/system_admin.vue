@@ -6,6 +6,12 @@ import { Notice } from '~/share/Tools'
 const store = useMainStore()
 const config = useRuntimeConfig()
 const isAdmin = computed(() => store.admin)
+const pluginList = computed({
+    get: () => store._cache?.plugin_list || {},
+    set: (newValue) => {
+        store.updateCache('plugin_list', newValue)
+    }
+})
 
 const serverStatus = ref<
     {
@@ -62,17 +68,7 @@ setInterval(() => {
 }, 1000)
 const uptime = computed(() => Math.round((now.value - (serverStatus.value?.start_time || now.value)) / 1000 / 60))
 
-const pluginList = ref<{ [p in string]: { name: string; status: boolean; ver: string; options: string } }>({})
-
-const pluginGroup: { [p in string]: string } = {
-    kd_growth: '用户成长任务',
-    ver4_ban: '循环封禁',
-    ver4_rank: '贴吧名人堂助攻',
-    ver4_ref: '自动同步贴吧列表',
-    ver4_lottery: '知道商城抽奖',
-    kd_wenku_tasks: '文库任务',
-    kd_renew_manager: '吧主考核'
-}
+const pluginGroup = computed(() => Object.fromEntries(Object.values(pluginList.value).map((plugin) => [plugin.name, plugin.plugin_name_cn])))
 
 const signMode = computed({
     get() {
@@ -94,7 +90,7 @@ const resignStatus = computed(() => {
     return tmpStatus.lastdo + `/${tmpStatus.num}`
 })
 
-const settingsGroup = {
+const settingsGroup = ref({
     system: {
         name: '系统',
         data: { ann: '公告', system_url: '地址' } //, system_name: '网站名称', system_keywords: '关键词', system_description: '简介' }
@@ -103,7 +99,7 @@ const settingsGroup = {
         name: '帐号',
         data: { enable_reg: '开启注册', yr_reg: '邀请码 (留空代表无需邀请码)', cktime: 'JWT 有效期 (设置后签发的 Token 才生效)' }
     },
-    sign: {
+    checkin: {
         name: '签到',
         data: {
             sign_mode: '签到模式 (TODO)',
@@ -124,18 +120,22 @@ const settingsGroup = {
     },
     plugin: {
         name: '插件',
-        data: {
-            ver4_ban_limit: '可添加循环封禁帐号上限（循环封禁）',
-            ver4_ban_break_check: '跳过吧务权限检查（循环封禁）',
-            ver4_ban_action_limit: '每分钟最大执行数（循环封禁）',
-            kd_growth_action_limit: '每分钟最大执行数（用户成长任务）',
-            kd_renew_manager_action_limit: '每分钟最大执行数（吧主考核）',
-            kd_wenku_tasks_action_limit: '每分钟最大执行数（文库任务）',
-            ver4_rank_action_limit: '每分钟最大执行数（贴吧名人堂助攻）',
-            ver4_ref_action_limit: '每分钟最大执行数（自动同步贴吧列表）'
-        }
+        data: {}
+    }
+})
+
+const initPluginSettingsGroup = () => {
+    // String(key || '').endsWith('_action_limit')
+    // ver4_ban_break_check: '跳过吧务权限检查（循环封禁）',
+
+    for (const plugin of Object.values(pluginList.value)) {
+        for (const setting_option of plugin?.setting_options || []) settingsGroup.value.plugin.data[setting_option['option_name']] = `${setting_option['option_name_cn']}（${plugin.plugin_name_cn}）`
     }
 }
+
+watch(pluginList, () => {
+    initPluginSettingsGroup()
+})
 
 const SaveSettings = (e: Event) => {
     e.preventDefault()
@@ -189,9 +189,10 @@ const pluginSwitch = (pluginName = '') => {
                 return
             }
             if (res.data?.exists) {
-                pluginList.value[pluginName].status = res.data?.status || false
-                pluginList.value[pluginName].ver = res.data?.version || -1
-                store.updateCache('plugin_list', pluginList.value)
+                let tmpPluginList = JSON.parse(JSON.stringify(pluginList.value))
+                tmpPluginList[pluginName].status = res.data?.status || false
+                tmpPluginList[pluginName].ver = res.data?.version || -1
+                pluginList.value = tmpPluginList
             }
             //console.log(res)
         })
@@ -221,9 +222,10 @@ const pluginDelete = (pluginName = '') => {
                 return
             }
             if (res.data?.version === -1) {
-                pluginList.value[pluginName].ver = '-1'
-                pluginList.value[pluginName].status = res.data?.status || false
-                store.updateCache('plugin_list', pluginList.value)
+                let tmpPluginList = JSON.parse(JSON.stringify(pluginList.value))
+                tmpPluginList[pluginName].ver = '-1'
+                tmpPluginList[pluginName].status = res.data?.status || false
+                pluginList.value = tmpPluginList
             }
             //console.log(res)
         })
@@ -308,27 +310,6 @@ onMounted(() => {
             serverStatus.value = res.data
             //console.log(res)
         })
-    fetch(store.basePath + '/plugins', {
-        headers: {
-            Authorization: store.authorization
-        }
-    })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            pluginList.value = res.data
-            store.updateCache('plugin_list', res.data)
-            //console.log(res)
-        })
     fetch(store.basePath + '/admin/settings', {
         headers: {
             Authorization: store.authorization
@@ -349,6 +330,7 @@ onMounted(() => {
             serverSettings.value = res.data
             //console.log(res)
         })
+    initPluginSettingsGroup()
 })
 </script>
 
@@ -490,12 +472,12 @@ onMounted(() => {
                         <template v-for="(value, pluginName, index) in pluginList" :key="pluginName">
                             <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-1" />
                             <div class="flex justify-between">
-                                <span class="font-bold">{{ pluginGroup[pluginName] }}</span>
+                                <span class="font-bold">{{ pluginGroup[pluginName] || pluginName }}</span>
                                 <div class="inline-block">
                                     <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true }" @click="pluginSwitch(pluginName)">
                                         {{ value.status ? '已开启' : value.ver === '-1' ? '未安装' : '已关闭' }}
                                     </button>
-                                    <Modal class="inline-block" :title="'确认卸载插件: ' + pluginGroup[pluginName] + '?'" :aria-label="'确认卸载插件: ' + pluginGroup[pluginName] + '?'" v-if="value.ver !== '-1'">
+                                    <Modal class="inline-block" :title="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + '?'" :aria-label="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + '?'" v-if="value.ver !== '-1'">
                                         <template #default>
                                             <button class="px-3 py-1 bg-pink-500 text-gray-100 transition-colors">卸载</button>
                                         </template>
@@ -579,22 +561,7 @@ onMounted(() => {
                                 </select>
                                 <input
                                     :id="'input-' + key"
-                                    v-else-if="
-                                        [
-                                            'cron_limit',
-                                            'retry_max',
-                                            'sign_sleep',
-                                            'mail_port',
-                                            'ver4_ban_limit',
-                                            'ver4_ban_action_limit',
-                                            'kd_growth_action_limit',
-                                            'kd_renew_manager_action_limit',
-                                            'kd_wenku_tasks_action_limit',
-                                            'ver4_ban_break_check',
-                                            'ver4_rank_action_limit',
-                                            'ver4_ref_action_limit'
-                                        ].includes(key)
-                                    "
+                                    v-else-if="['cron_limit', 'retry_max', 'sign_sleep', 'mail_port'].includes(key) || String(key || '').endsWith('_action_limit')"
                                     type="number"
                                     min="0"
                                     class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
