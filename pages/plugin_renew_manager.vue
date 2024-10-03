@@ -329,7 +329,8 @@ onMounted(() => {
 
                             <div class="my-2">
                                 <label for="end-date">帖子 ID</label>
-                                <span class="block text-sm text-gray-200 my-1">填写 https://tieba.baidu.com/p/ 后面的数字</span>
+                                <span v-if="!taskToAdd.tid" class="block text-sm text-gray-200 my-1 underline" target="_blank">https://tieba.baidu.com/p/${tid}</span>
+                                <NuxtLink v-else :to="'https://tieba.baidu.com/p/' + taskToAdd.tid" class="block text-sm text-gray-200 my-1 underline" target="_blank">https://tieba.baidu.com/p/{{ taskToAdd.tid }}</NuxtLink>
                                 <input id="end-date" class="form-input bg-gray-200 dark:bg-gray-900 dark:[color-scheme:dark] w-full rounded-xl" :min="1" type="number" v-model="taskToAdd.tid" placeholder="tid" />
                             </div>
 
