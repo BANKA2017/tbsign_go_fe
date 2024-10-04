@@ -20,6 +20,17 @@ const tasksList = ref<
         uid: number
     }[]
 >([])
+const tasksSignDayKV = computed(() =>
+    Object.fromEntries(
+        tasksList.value.map((task, index) => {
+            let signDay = -1
+            try {
+                signDay = JSON.parse(task.status).find((task) => task.task_id === 1)?.sign_day || 0
+            } catch {}
+            return [index, signDay]
+        })
+    )
+)
 
 const canSelectPIDList = computed(() => Object.fromEntries(Object.entries(pidNameKV.value).filter((x) => !tasksList.value.find((y) => y.pid.toString() === x[0]))))
 
@@ -173,6 +184,10 @@ onMounted(() => {
 <template>
     <NuxtLayout name="tbsign">
         <frame-work>
+            <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5">
+                尚未支持自动领取 VIP，当任务的右上角出现 <span class="inline-block px-2 rounded bg-yellow-500 text-black font-bold">VIP</span> 时，请手动登录对应账号，然后访问
+                <a :href="_atob('aHR0cHM6Ly90YW5iaS5iYWlkdS5jb20vaDVhcHB0b3BpYy9icm93c2UvbG90dGVyeXZpcDIwMjIxMQ')" target="_blank" class="underline underline-offset-2">签到7天抽奖</a> 抽取 VIP
+            </div>
             <div class="px-3 py-2">
                 <h4 class="text-lg mb-4">设置</h4>
 
@@ -181,6 +196,11 @@ onMounted(() => {
                     <select v-model="settings.checkin_only" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
                         <option value="1">仅签到</option>
                         <option value="0">全部任务</option>
+                    </select>
+                    <p class="my-2">构建文库 VIP 帐号组；帐号不足会导致 VIP 无法覆盖每一天，建议至少准备 7 个账号</p>
+                    <select v-model="settings.vip_matrix" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
+                        <option value="1">启用 VIP 帐号组</option>
+                        <option value="0">禁用 VIP 帐号组</option>
                     </select>
                 </div>
 
@@ -199,7 +219,8 @@ onMounted(() => {
                     <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 text-gray-100" @click="addTask">保存</button>
                 </div>
 
-                <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.id">
+                <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3 relative" v-for="(task, index) in tasksList" :key="task.id">
+                    <span v-if="tasksSignDayKV[index] === 7" class="absolute right-4 top-4 px-2 rounded bg-yellow-500 text-black font-bold">VIP</span>
                     <ul class="marker:text-sky-500 list-disc list-inside">
                         <li>
                             <span class="font-bold">序号 : </span><span class="font-mono">{{ task.id }}</span>
@@ -216,7 +237,7 @@ onMounted(() => {
                                 <li class="ml-5 col-span-6 md:col-span-3 lg:col-span-2" v-for="taskStatus in JSON.parse(task.status)" :key="task.pid + '_' + taskStatus.name">
                                     <SvgCheck v-if="taskStatus.task_status === 3" height="1em" width="1em" class="inline-block mr-1" title="完成" />
                                     <SvgCross v-else height="1em" width="1em" class="inline-block mr-1" :title="taskStatus.task_status === 2 ? '完成未领取' : '未完成'" />
-                                    <span class="font-bold">{{ taskStatus.task_name }}</span>
+                                    <span :class="{ 'font-bold': true }">{{ taskStatus.task_name }}{{ taskStatus.sign_day !== undefined ? ` / 第 ${taskStatus.sign_day} 天` : '' }}</span>
                                 </li>
                             </ul>
                             <span v-else class="font-mono">{{ task.status }}</span>
