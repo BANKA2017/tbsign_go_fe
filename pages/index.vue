@@ -15,17 +15,18 @@
                         </svg>
                     </div>
                 </div>
-                <div class="px-3 py-2">
-                    <span class="text-lg">账号信息</span>
-                </div>
                 <div class="p-3 flex flex-col justify-between gap-2">
                     <div class="flex flex-col">
-                        <div class="text-2xl">
-                            {{ accountInfo.name }}
-                            <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2 mx-1">uid: {{ accountInfo.uid }}</span>
-                            <span class="text-sm rounded-full text-gray-100 bg-sky-600 dark:bg-sky-800 px-2 mx-1">role: {{ accountInfo.role }}</span>
+                        <div class="flex flex-col 3xs:flex-row justify-start gap-2">
+                            <div class="flex flex-col">
+                                <span class="text-2xl max-w-[250px] overflow-hidden text-ellipsis">{{ accountInfo.name }}</span>
+                                <span class="text-sm max-w-[250px] overflow-hidden text-ellipsis">{{ accountInfo.email }}</span>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <div class="dark:text-gray-100 border-l-4 border-l-sky-500 dark:border-l-sky-800 px-3 py-0.5 mx-1 uppercase font-bold text-sm">{{ accountInfo.role }}</div>
+                                <div class="text-sm border-l-4 dark:text-gray-100 border-l-green-600 dark:border-l-green-800 px-3 py-0.5 mx-1 uppercase font-bold">uid: {{ accountInfo.uid }}</div>
+                            </div>
                         </div>
-                        <span class="text-sm">{{ accountInfo.email }}</span>
                     </div>
                     <div v-if="tbaccounts.length > 0" class="mt-3 ml-5">
                         <img
