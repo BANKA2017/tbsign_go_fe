@@ -99,12 +99,11 @@ updateNavStatus()
     <div id="side-list" class="select-none" v-show="wholeRouteName.includes(route.name)">
         <client>
             <div class="md:hidden">
-                <div v-for="nav in activeNavs" :key="nav.routeName" v-show="nav.show">
+                <template v-for="nav in activeNavs" :key="nav.routeName">
                     <NuxtLink
-                        v-show="showList || route.name === nav.routeName"
+                        v-if="nav.show"
                         :class="{
                             block: true,
-                            'my-1': true,
                             'px-5': true,
                             'mx-1': true,
                             'md:-mx-5': true,
@@ -116,19 +115,20 @@ updateNavStatus()
                             'hover:text-gray-100': true,
                             'dark:text-gray-100': true,
                             'text-gray-100': route.name === nav.routeName,
-                            'py-2': true,
-                            flex: true,
-                            'justify-between': true
+                            'sidelist-in': showList && route.name !== nav.routeName,
+                            'sidelist-out': !showList && route.name !== nav.routeName
                         }"
                         :to="nav.to"
                         @click="showList = !showList"
                     >
-                        <span>{{ nav.name }}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="bi bi-list w-[1.5em]" viewBox="0 0 16 16" v-show="!showList">
-                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
-                        </svg>
+                        <div class="py-2 my-1 flex justify-between">
+                            <span>{{ nav.name }}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="bi bi-list w-[1.5em]" viewBox="0 0 16 16" v-show="!showList && route.name === nav.routeName">
+                                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+                            </svg>
+                        </div>
                     </NuxtLink>
-                </div>
+                </template>
             </div>
             <div class="hidden md:block" v-for="nav in activeNavs" :key="nav.routeName" v-show="nav.show">
                 <NuxtLink
@@ -157,4 +157,21 @@ updateNavStatus()
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.sidelist-out {
+    max-height: 0;
+    opacity: 0;
+    transition:
+        max-height 0.1s ease-out,
+        opacity 0.1s ease-out;
+    overflow: hidden;
+}
+
+.sidelist-in {
+    max-height: 10vh;
+    opacity: 1;
+    transition:
+        max-height 0.1s ease-in,
+        opacity 0.1s ease-in;
+}
+</style>
