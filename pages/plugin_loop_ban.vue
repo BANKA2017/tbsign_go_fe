@@ -152,7 +152,7 @@ const searchAccount = () => {
         .then((res) => res.json())
         .then((res) => {
             if (res.code !== 200) {
-                Notice('帐号查找:' + res.message, 'error')
+                Notice('账号查找:' + res.message, 'error')
                 return
             }
             visualEditorSearchResponse.value.push({
@@ -268,9 +268,9 @@ const preCheckManager = () => {
                 return
             }
             if (res.data?.is_manager) {
-                isManagerMessage.value = '此帐号在 ' + taskToAdd.value.fname + ' 吧为 ' + (res.data?.role || '未知管理员角色')
+                isManagerMessage.value = '此账号在 ' + taskToAdd.value.fname + ' 吧为 ' + (res.data?.role || '未知管理员角色')
             } else {
-                isManagerMessage.value = '此帐号在 ' + taskToAdd.value.fname + ' 吧没有封禁权限'
+                isManagerMessage.value = '此账号在 ' + taskToAdd.value.fname + ' 吧没有封禁权限'
             }
 
             //console.log(res)
@@ -417,13 +417,13 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
                 <p v-show="tasksList.length >= limit" class="text-sm">注：任务数已达到或超出上限</p>
 
                 <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
-                    <Modal class="col-span-6 sm:col-span-3 lg:col-span-1" title="添加封禁帐号" v-show="tasksList.length < limit">
+                    <Modal class="col-span-6 sm:col-span-3 lg:col-span-1" title="添加封禁账号" v-show="tasksList.length < limit">
                         <template #default>
-                            <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="添加封禁帐号">添加帐号</button>
+                            <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="添加封禁账号">添加账号</button>
                         </template>
                         <template #container>
                             <div class="my-2">
-                                <label for="pid-to-froum-manager">吧务帐号</label>
+                                <label for="pid-to-froum-manager">吧务账号</label>
                                 <select id="pid-to-froum-manager" v-model="taskToAdd.pid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full my-3 rounded-xl">
                                     <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
                                 </select>

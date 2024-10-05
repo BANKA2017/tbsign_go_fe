@@ -103,7 +103,7 @@ const cleanTiebaList = async () => {
                 Notice(res.message, 'error')
                 return
             }
-            Notice('已清空帐号', 'success')
+            Notice('已清空账号', 'success')
             list.value = []
             //console.log(res)
         })
@@ -621,7 +621,7 @@ onMounted(() => {
     <NuxtLayout name="tbsign">
         <frame-work>
             <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5">
-                共有 {{ tbStatus.accountCount }} 个帐号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，忽略
+                共有 {{ tbStatus.accountCount }} 个账号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，忽略
                 <span class="text-gray-600 dark:text-gray-400">{{ tbStatus.ignore }}</span> 个，还有 <span class="text-orange-500">{{ tbStatus.pending }}</span> 个贴吧等待签到
             </div>
             <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
@@ -716,7 +716,7 @@ onMounted(() => {
                         <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="cleanTiebaList">确认清空</button>
                     </template>
                 </Modal>
-                <button @click="checkAccountStatus" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="检查帐号状态" aria-label="检查贴吧帐号状态">
+                <button @click="checkAccountStatus" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="检查账号状态" aria-label="检查贴吧账号状态">
                     检查状态
                 </button>
                 <button
@@ -737,7 +737,7 @@ onMounted(() => {
                         </div>
 
                         <div class="my-2">
-                            <label for="pid-to-add">选择帐号</label>
+                            <label for="pid-to-add">选择账号</label>
                             <select id="pid-to-add" v-model="addForumValue.pid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full my-3 rounded-xl">
                                 <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
                             </select>

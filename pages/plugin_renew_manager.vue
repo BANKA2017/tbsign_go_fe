@@ -134,9 +134,9 @@ const preCheckManager = () => {
                 return
             }
             if (res.data?.is_manager && res.data?.role === '吧主') {
-                isManagerMessage.value = '此帐号是 ' + taskToAdd.value.fname + ' 吧吧主'
+                isManagerMessage.value = '此账号是 ' + taskToAdd.value.fname + ' 吧吧主'
             } else {
-                isManagerMessage.value = '此帐号不是 ' + taskToAdd.value.fname + ' 吧吧主'
+                isManagerMessage.value = '此账号不是 ' + taskToAdd.value.fname + ' 吧吧主'
             }
 
             //console.log(res)
@@ -309,13 +309,13 @@ onMounted(() => {
                 <h4 class="text-lg">任务列表</h4>
 
                 <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
-                    <Modal class="col-span-6 sm:col-span-3 lg:col-span-1" title="添加封禁帐号">
+                    <Modal class="col-span-6 sm:col-span-3 lg:col-span-1" title="添加封禁账号">
                         <template #default>
-                            <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="添加封禁帐号">添加帐号</button>
+                            <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="添加封禁账号">添加账号</button>
                         </template>
                         <template #container>
                             <div class="my-2">
-                                <label for="pid-to-froum-manager">吧主帐号</label>
+                                <label for="pid-to-froum-manager">吧主账号</label>
                                 <select id="pid-to-froum-manager" v-model="taskToAdd.pid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full my-3 rounded-xl">
                                     <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
                                 </select>

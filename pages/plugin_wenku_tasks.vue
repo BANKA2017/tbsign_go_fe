@@ -185,7 +185,7 @@ onMounted(() => {
     <NuxtLayout name="tbsign">
         <frame-work>
             <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5">
-                尚未支持自动领取 VIP，当任务的右上角出现 <span class="inline-block px-2 rounded bg-yellow-500 text-black font-bold">VIP</span> 时，请手动登录对应账号，然后访问
+                不支持自动领取 VIP，当任务的右上角出现 <span class="inline-block px-2 rounded bg-yellow-500 text-black font-bold">VIP</span> 时，请手动登录对应账号，然后访问
                 <a :href="_atob('aHR0cHM6Ly90YW5iaS5iYWlkdS5jb20vaDVhcHB0b3BpYy9icm93c2UvbG90dGVyeXZpcDIwMjIxMQ')" target="_blank" class="underline underline-offset-2">签到7天抽奖</a> 抽取 VIP
             </div>
             <div class="px-3 py-2">
@@ -197,10 +197,10 @@ onMounted(() => {
                         <option value="1">仅签到</option>
                         <option value="0">全部任务</option>
                     </select>
-                    <p class="my-2">构建文库 VIP 帐号组；帐号不足会导致 VIP 无法覆盖每一天，建议至少准备 7 个账号</p>
+                    <p class="my-2">构建文库 VIP 账号组。账号不足会导致 VIP 无法覆盖每一天，建议至少准备 7 个账号（当前账号数量：{{ tasksList.length }}）</p>
                     <select v-model="settings.vip_matrix" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
-                        <option value="1">启用 VIP 帐号组</option>
-                        <option value="0">禁用 VIP 帐号组</option>
+                        <option value="1">启用 VIP 账号组</option>
+                        <option value="0">禁用 VIP 账号组</option>
                     </select>
                 </div>
 

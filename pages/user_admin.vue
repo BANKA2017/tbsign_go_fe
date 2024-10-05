@@ -81,7 +81,7 @@ const saveSettings = (uid = 0) => {
     }
     const accountInfo = list.value.find((account) => account.id === uid)
     if (!accountInfo) {
-        Notice('帐号 uid:' + uid + ' 不存在', 'error')
+        Notice('账号 uid:' + uid + ' 不存在', 'error')
         return
     }
     fetch(store.basePath + '/admin/account/modify/' + uid, {
@@ -220,7 +220,7 @@ onMounted(() => {
     <NuxtLayout name="tbsign">
         <frame-work>
             <div class="p-3 mb-5">
-                <label for="search-account" class="text-lg">搜索帐号</label>
+                <label for="search-account" class="text-lg">搜索账号</label>
                 <div class="flex w-full rounded-xl my-3">
                     <input id="search-account" type="text" class="form-input bg-gray-200 dark:bg-gray-900 grow rounded-l-xl" v-model="query" placeholder="用户名、邮箱" />
                     <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl" @click="getList">搜索</button>
@@ -234,7 +234,7 @@ onMounted(() => {
                     <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-3" />
                     <div class="text-2xl flex gap-2 mb-2">
                         <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">uid: {{ listItem.id }}</span>
-                        <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">帐号: {{ listItem.baidu_account_count }}</span>
+                        <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">账号: {{ listItem.baidu_account_count }}</span>
                         <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">贴吧: {{ listItem.forum_count }}</span>
                     </div>
                     <div class="text-2xl flex gap-2 mb-2">
@@ -268,12 +268,12 @@ onMounted(() => {
                         <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 mr-2 mb-1" @click="saveSettings(listItem.id)">保存</button>
                         <!--<button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors mr-2" @click="deleteAccount(listItem.id)">删除</button>-->
                         <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 mr-2 mb-1" @click="kickDown(listItem.id)">下线</button>
-                        <Modal class="py-1 rounded-lg inline mr-2 mb-1" title="清空帐号绑定">
+                        <Modal class="py-1 rounded-lg inline mr-2 mb-1" title="清空账号绑定">
                             <template #default>
-                                <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100">清空帐号绑定</button>
+                                <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100">清空账号绑定</button>
                             </template>
                             <template #container>
-                                <p class="mb-3">注意：确认后将会清空对应账号的所有本站贴吧帐号绑定！</p>
+                                <p class="mb-3">注意：确认后将会清空对应账号的所有本站贴吧账号绑定！</p>
                                 <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTiebaAccounts(listItem.id)">确认</button>
                             </template>
                         </Modal>
@@ -283,7 +283,7 @@ onMounted(() => {
                             </template>
                             <template #container>
                                 <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside">
-                                    <li>确认后将会清空对应账号的所有本站贴吧帐号绑定今天的签到状态，会导致重签。</li>
+                                    <li>确认后将会清空对应账号的所有本站贴吧账号绑定今天的签到状态，会导致重签。</li>
                                     <li>短时间内频繁签到会导致对应的贴吧账号被封禁，请谨慎使用本功能。</li>
                                 </ul>
                                 <input type="checkbox" class="form-checkbox bg-gray-100 dark:bg-gray-900 dark:checked:bg-blue-500 my-4" v-model="resetFailedOnly" :id="'upgrade-double-check-:' + listItem.id" /><label

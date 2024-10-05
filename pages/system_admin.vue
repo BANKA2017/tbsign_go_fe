@@ -96,7 +96,7 @@ const settingsGroup = ref({
         data: { ann: '公告', system_url: '地址' } //, system_name: '网站名称', system_keywords: '关键词', system_description: '简介' }
     },
     account: {
-        name: '帐号',
+        name: '账号',
         data: { enable_reg: '开启注册', yr_reg: '邀请码 (留空代表无需邀请码)', cktime: 'JWT 有效期 (设置后签发的 Token 才生效)' }
     },
     checkin: {
@@ -104,7 +104,7 @@ const settingsGroup = ref({
         data: {
             sign_mode: '签到模式 (TODO)',
             sign_hour: '下个整点签到 (-1 为 0 时开始签到，以此类推)',
-            cron_limit: '单次单帐号签到贴吧数量 (单次签到行为贴吧数量上限为 此值*3)',
+            cron_limit: '单次单账号签到贴吧数量 (单次签到行为贴吧数量上限为 此值*3)',
             sign_sleep: '签到时间间隔 (ms)',
             retry_max: '最大重签次数',
             go_forum_sync_policy: '贴吧同步策略'
@@ -405,7 +405,7 @@ onMounted(() => {
                         </ul>
                         <ul class="col-span-2 md:col-span-1 marker:text-teal-500 list-disc list-inside">
                             <li>
-                                <span class="font-bold">帐号总数 : </span><span class="font-mono">{{ serverStatus.uid_count }}</span>
+                                <span class="font-bold">账号总数 : </span><span class="font-mono">{{ serverStatus.uid_count }}</span>
                             </li>
                             <li>
                                 <span class="font-bold">绑定总数 : </span><span class="font-mono">{{ serverStatus.pid_count }}</span>

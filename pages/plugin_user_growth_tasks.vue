@@ -181,7 +181,7 @@ onMounted(() => {
                         <option value="1">全部任务</option>
                     </select>
 
-                    <p class="my-2">印记任务开关，完成印记任务可能会导致帐号的 IP 归属地更变为签到服务的服务器所在地</p>
+                    <p class="my-2">印记任务开关，完成印记任务可能会导致账号的 IP 归属地更变为签到服务的服务器所在地</p>
                     <select v-model="settings.break_icon_tasks" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
                         <option value="0">不跳过印记任务</option>
                         <option value="1">跳过印记任务</option>

@@ -12,7 +12,7 @@
                             <NuxtLink to="add_base_path" class="text-sm underline underline-offset-2">添加端点</NuxtLink>
                         </template>
 
-                        <label for="email">帐号</label>
+                        <label for="email">账号</label>
                         <input class="bg-gray-100 dark:bg-gray-900 rounded-xl" id="email" type="text" name="email" placeholder="邮箱/用户名" v-model="account" />
                         <label for="password">密码</label>
                         <input class="bg-gray-100 dark:bg-gray-900 rounded-xl" autocomplete="current-password" id="password" type="password" name="password" placeholder="密码" v-model="password" />
