@@ -759,10 +759,10 @@ onMounted(() => {
                             <div :class="{ relative: true, hidden: true, '2xs:block': !(editMode || accounts[index].more), 'xs:block': true }">
                                 <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1" />
                                 <div
-                                    :class="`h-2 w-2 absolute right-1 bottom-1 rounded-full border ` + (account.status === undefined ? 'bg-gray-500 border-gray-500' : !account.status ? 'bg-green-500 border-green-500' : 'bg-pink-500 border-pink-500')"
+                                    :class="`h-2 w-2 absolute right-1 bottom-1 rounded-full border ` + (account.status === undefined ? 'bg-gray-500 border-gray-500' : account.status ? 'bg-green-500 border-green-500' : 'bg-pink-500 border-pink-500')"
                                     :style="{
-                                        background: !account.status === false ? 'repeating-linear-gradient(to right bottom,#fff9,#fff9 .05rem,rgb(236 72 153) .05rem,rgb(236 72 153) .11rem)' : '',
-                                        'background-color': !account.status === false ? 'rgb(236 72 153)' : ''
+                                        background: account.status === false ? 'repeating-linear-gradient(to right bottom,#fff9,#fff9 .05rem,rgb(236 72 153) .05rem,rgb(236 72 153) .11rem)' : '',
+                                        'background-color': account.status === false ? 'rgb(236 72 153)' : ''
                                     }"
                                 ></div>
                             </div>
