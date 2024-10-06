@@ -20,9 +20,9 @@ export const getPubDate = (date: Date | string = new Date()): string => {
 // Unix, NOT UnixMilli!!!
 export const Eta = (now: number = Date.now() / 1000, end: number = 0) => {
     if (now > end) {
-        return '0'
+        return '0 天 00 小时 00 分钟 00 秒'
     }
-    let diff = end - now
+    let diff = Math.floor(end) - Math.floor(now)
     const seconds = diff % 60
     diff = (diff - seconds) / 60
     const minutes = diff % 60
@@ -30,5 +30,5 @@ export const Eta = (now: number = Date.now() / 1000, end: number = 0) => {
     const hours = diff % 24
     diff = (diff - hours) / 24
     const days = diff
-    return `${days.toString().padStart(2, '0')} 天 ${hours.toString().padStart(2, '0')} 小时 ${minutes.toString().padStart(2, '0')} 分钟 ${Math.ceil(seconds).toString().padStart(2, '0') + ' 秒'}`
+    return `${days.toString()} 天 ${hours.toString().padStart(2, '0')} 小时 ${minutes.toString().padStart(2, '0')} 分钟 ${Math.ceil(seconds).toString().padStart(2, '0') + ' 秒'}`
 }
