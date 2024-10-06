@@ -121,8 +121,8 @@ updateNavStatus()
                         :to="nav.to"
                         @click="showList = !showList"
                     >
-                        <div class="py-2 my-1 flex justify-between">
-                            <span>{{ nav.name }}</span>
+                        <div class="py-2 my-1 flex justify-between gap-2">
+                            <span class="inline-bolck truncate max-w-[60%] 3xs:max-w-[80%]">{{ nav.name }}</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="bi bi-list w-[1.5em]" viewBox="0 0 16 16" v-show="!showList && route.name === nav.routeName">
                                 <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
                             </svg>
@@ -133,6 +133,7 @@ updateNavStatus()
             <div class="hidden md:block" v-for="nav in activeNavs" :key="nav.routeName" v-show="nav.show">
                 <NuxtLink
                     :class="{
+                        'max-w-full': true,
                         'inline-block': true,
                         'my-1': true,
                         'px-5': true,
@@ -150,7 +151,7 @@ updateNavStatus()
                     }"
                     :to="nav.to"
                 >
-                    {{ nav.name }}
+                    <div class="inline-bolck truncate">{{ nav.name }}</div>
                 </NuxtLink>
             </div>
         </client>
@@ -168,10 +169,11 @@ updateNavStatus()
 }
 
 .sidelist-in {
-    max-height: 10vh;
+    max-height: 2.5rem;
     opacity: 1;
     transition:
         max-height 0.1s ease-in,
         opacity 0.1s ease-in;
+    overflow: hidden;
 }
 </style>

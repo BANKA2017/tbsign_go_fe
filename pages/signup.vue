@@ -4,7 +4,7 @@
             <ClientOnly>
                 <div class="flex justify-center">
                     <form class="rounded-2xl p-5 flex grow flex-col gap-2 max-w-[32em]">
-                        <span v-if="runtimeConfig.public.NUXT_BASE_PATH === ''" class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-10">正在注册 {{ basePath }}</span>
+                        <span v-if="runtimeConfig.public.NUXT_BASE_PATH === ''" class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5">正在注册 {{ basePath }}</span>
                         <label for="name">用户名</label>
                         <input class="bg-gray-100 dark:bg-gray-900 rounded-xl" id="name" type="text" placeholder="用户名" v-model="name" />
                         <label for="email">邮箱</label>

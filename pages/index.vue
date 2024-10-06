@@ -19,8 +19,8 @@
                     <div class="flex flex-col">
                         <div class="flex flex-col 3xs:flex-row justify-start gap-2">
                             <div class="flex flex-col">
-                                <span class="text-2xl max-w-[250px] overflow-hidden text-ellipsis">{{ accountInfo.name }}</span>
-                                <span class="text-sm max-w-[250px] overflow-hidden text-ellipsis">{{ accountInfo.email }}</span>
+                                <span class="text-2xl max-w-[250px] overflow-hidden truncate">{{ accountInfo.name }}</span>
+                                <span class="text-sm max-w-[250px] overflow-hidden truncate">{{ accountInfo.email }}</span>
                             </div>
                             <div class="flex flex-col gap-1">
                                 <div class="dark:text-gray-100 border-l-4 border-l-sky-500 dark:border-l-sky-800 px-3 py-0.5 mx-1 uppercase font-bold text-sm">{{ accountInfo.role }}</div>

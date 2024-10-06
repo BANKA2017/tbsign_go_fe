@@ -222,7 +222,7 @@ onMounted(() => {
             <div class="p-3 mb-5">
                 <label for="search-account" class="text-lg">搜索账号</label>
                 <div class="flex w-full rounded-xl my-3">
-                    <input id="search-account" type="text" class="form-input bg-gray-200 dark:bg-gray-900 grow rounded-l-xl" v-model="query" placeholder="用户名、邮箱" />
+                    <input id="search-account" type="text" class="form-input bg-gray-100 dark:bg-gray-900 grow rounded-l-xl" v-model="query" placeholder="用户名、邮箱" />
                     <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl" @click="getList">搜索</button>
                 </div>
             </div>

@@ -183,7 +183,7 @@ onMounted(() => {
                             <ul role="list" class="mb-3 marker:text-sky-500 list-disc list-inside">
                                 <li>Bark 仅支持 <a href="https://apps.apple.com/us/app/bark-customed-notifications/id1403753865" target="_blank" class="underline underline-offset-2">iOS/iPadOS 操作系统</a></li>
                                 <li>
-                                    本站使用的端点为 <span class="break-all font-mono mx-2 bg-gray-800 py-1 px-2 rounded-lg select-all">{{ accountInfo?.system_settings?.bark_addr }}</span
+                                    本站使用的端点为 <span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 py-1 px-2 rounded-lg select-all">{{ accountInfo?.system_settings?.bark_addr }}</span
                                     >{{ accountInfo?.system_settings?.bark_addr === 'https://api.day.app' ? '(官服)' : '' }}
                                 </li>
                             </ul>
@@ -213,13 +213,13 @@ onMounted(() => {
                             <ul role="list" class="mb-3 marker:text-sky-500 list-disc list-inside">
                                 <li><a href="https://ntfy.sh" target="_blank" class="underline underline-offset-2">Ntfy.sh</a> 支持 Android/iOS/iPadOS/网页推送</li>
                                 <li>
-                                    任何人都可以访问<span class="break-all font-mono mx-2 bg-gray-800 py-1 px-2 rounded-lg select-all">{{
+                                    任何人都可以访问<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 py-1 px-2 rounded-lg select-all">{{
                                         accountInfo?.system_settings?.ntfy_addr + '/' + (settingsValue.ntfy_topic ? settingsValue.ntfy_topic : '${ntfy_topic}')
                                     }}</span
                                     >取得历史推送，所以建议将此值设置得尽可能地长
                                 </li>
                                 <li>
-                                    本站使用的端点为 <span class="break-all font-mono mx-2 bg-gray-800 py-1 px-2 rounded-lg select-all">{{ accountInfo?.system_settings?.ntfy_addr }}</span
+                                    本站使用的端点为 <span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 py-1 px-2 rounded-lg select-all">{{ accountInfo?.system_settings?.ntfy_addr }}</span
                                     >{{ accountInfo?.system_settings?.ntfy_addr === 'https://ntfy.sh' ? '(官服)' : '' }}
                                 </li>
                             </ul>
@@ -240,7 +240,7 @@ onMounted(() => {
                 </select>
 
                 <input v-if="settingsValue.password !== ''" type="submit" role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl transition-colors" @click="saveSettings" value="保存" />
-                <button v-else role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-500 text-xl transition-colors" disabled>填写当前密码后保存</button>
+                <button v-else role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-400 dark:bg-gray-500 text-xl transition-colors" disabled>填写当前密码后保存</button>
             </form>
         </frame-work>
     </NuxtLayout>

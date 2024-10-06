@@ -609,7 +609,7 @@ onMounted(() => {
                                     />
                                     <button
                                         type="button"
-                                        class="inline-block px-3 py-1 rounded-r-xl border hover:bg-[#e5e7eb] hover:text-black transition-colors"
+                                        class="inline-block px-3 py-1 rounded-r-xl border border-slate-500 hover:bg-gray-300 hover:text-black transition-colors"
                                         @click="
                                             (e) => {
                                                 e.preventDefault()
@@ -631,7 +631,7 @@ onMounted(() => {
                             <button
                                 type="button"
                                 v-if="_set.name === '邮件'"
-                                class="px-3 py-1 mt-3 rounded-lg border-2 hover:bg-[#e5e7eb] hover:text-black transition-colors"
+                                class="px-3 py-1 mt-3 rounded-lg border-2 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors"
                                 @click="
                                     (e) => {
                                         e.preventDefault()
