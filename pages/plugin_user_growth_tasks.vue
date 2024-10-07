@@ -21,9 +21,12 @@ const tasksList = ref<
     }[]
 >([])
 
+const tasksStatus = <{ [p in string]: any }>ref({})
+
 const canSelectPIDList = computed(() => Object.fromEntries(Object.entries(pidNameKV.value).filter((x) => !tasksList.value.find((y) => y.pid.toString() === x[0]))))
 
 const saveSettings = () => {
+    store.updateValue('loading', true)
     fetch(store.basePath + '/plugins/kd_growth/settings', {
         headers: {
             Authorization: store.authorization,
@@ -45,14 +48,16 @@ const saveSettings = () => {
                 return
             }
             Notice('设置已保存', 'success')
+            store.updateValue('loading', false)
             //console.log(res)
         })
 }
 
 const deleteTask = (id = 0) => {
-    if (id <= 0) {
+    if (id <= 0 || !tasksList.value.find((x) => x.id === id)) {
         return
     }
+    store.updateValue('loading', true)
     fetch(store.basePath + '/plugins/kd_growth/list/' + id, {
         headers: {
             Authorization: store.authorization
@@ -77,6 +82,35 @@ const deleteTask = (id = 0) => {
             } else {
                 Notice(res.message, 'error')
             }
+            store.updateValue('loading', false)
+            //console.log(res)
+        })
+}
+
+const getStatus = (id = 0) => {
+    if (id <= 0 || !pidNameKV.value[id]) {
+        return
+    }
+    store.updateValue('loading', true)
+    fetch(store.basePath + '/plugins/kd_growth/status/' + id, {
+        headers: {
+            Authorization: store.authorization
+        }
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('/login')
+                return
+            }
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            tasksStatus.value[id] = (res.data?.level_info || []).find((levelInfo) => levelInfo.is_current === 1)
+            store.updateValue('loading', false)
             //console.log(res)
         })
 }
@@ -85,6 +119,7 @@ const addTask = () => {
     if (selectedPID.value <= 0) {
         return
     }
+    store.updateValue('loading', true)
     fetch(store.basePath + '/plugins/kd_growth/list', {
         headers: {
             Authorization: store.authorization,
@@ -108,6 +143,7 @@ const addTask = () => {
             Notice('已添加 pid:' + selectedPID.value, 'success')
             tasksList.value.push(res.data)
             selectedPID.value = 0
+            store.updateValue('loading', false)
             //console.log(res)
         })
 }
@@ -203,7 +239,11 @@ onMounted(() => {
                     <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 text-gray-100" @click="addTask">保存</button>
                 </div>
 
-                <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.id">
+                <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3 relative" v-for="task in tasksList" :key="task.id">
+                    <div v-if="tasksStatus[task.pid]?.level" class="absolute right-4 top-4 group">
+                        <span class="px-2 rounded group-hover:rounded-r-none border-2 border-yellow-500 bg-yellow-500 text-black font-bold">LV{{ tasksStatus[task.pid]?.level }}</span>
+                        <span class="px-2 rounded-r border-2 hidden group-hover:inline border-yellow-500 text-black dark:text-gray-100">{{ tasksStatus[task.pid]?.growth_value }}/{{ tasksStatus[task.pid]?.next_level_value }}</span>
+                    </div>
                     <ul class="marker:text-sky-500 list-disc list-inside">
                         <li>
                             <span class="font-bold">序号 : </span><span class="font-mono">{{ task.id }}</span>
@@ -234,7 +274,8 @@ onMounted(() => {
                         </ul>
                     </details>
                     <hr class="border-gray-400 dark:border-gray-600 my-3" />
-                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors" @click="deleteTask(task.id)">删除</button>
+                    <button class="border-2 border-pink-500 bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors mr-1" @click="deleteTask(task.id)">删除</button>
+                    <button class="border-2 border-sky-500 hover:bg-sky-500 rounded-lg px-3 py-1 dark:text-gray-100 hover:text-gray-100 transition-colors" @click="getStatus(task.pid)">状态</button>
                 </div>
             </div>
             <div
