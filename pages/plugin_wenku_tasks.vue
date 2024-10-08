@@ -154,6 +154,36 @@ const getTasksList = () => {
         })
 }
 
+const claimVIP = (pid: number = 0) => {
+    fetch(store.basePath + '/plugins/kd_wenku_tasks/claim/' + pid, {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'POST'
+    })
+        .then((res) => res.json())
+        .then((res) => {
+            if (res.code === 401) {
+                Notice(res.message, 'error')
+                store.logout()
+                navigateTo('/login')
+                return
+            }
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            if (!res.data?.data?.prize?.name) {
+                Notice('未知错误', 'error')
+                console.log(res.data)
+            } else {
+                Notice('@' + pidNameKV.value[pid] + '已领取' + res.data.data.prize.name, 'success', 0)
+            }
+
+            //console.log(res)
+        })
+}
+
 const _atob = (s: string = '') => atob(s)
 
 onMounted(() => {
@@ -251,7 +281,8 @@ onMounted(() => {
                         </ul>
                     </details>
                     <hr class="border-gray-400 dark:border-gray-600 my-3" />
-                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors" @click="deleteTask(task.id)">删除</button>
+                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors mr-1" @click="deleteTask(task.id)">删除</button>
+                    <button v-if="tasksSignDayKV[index] === 7" class="border-2 border-sky-500 hover:bg-sky-500 rounded-lg px-3 py-1 dark:text-gray-100 hover:text-gray-100 transition-colors" @click="claimVIP(task.pid)">领取 VIP</button>
                 </div>
                 <hr class="my-10 border-gray-400 dark:border-gray-600" />
                 <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
