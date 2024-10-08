@@ -106,6 +106,7 @@ const saveSettings = () => {
                 Notice(res.message, 'error')
                 return
             }
+            Notice('设置已保存','success')
             //console.log(res)
         })
 }
