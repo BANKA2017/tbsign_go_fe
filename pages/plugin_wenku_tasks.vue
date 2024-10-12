@@ -214,6 +214,7 @@ onMounted(() => {
 <template>
     <NuxtLayout name="tbsign">
         <frame-work>
+            <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2">使用此插件可能会导致文库签到功能被封禁，封禁理由为：<span class="font-bold">您的账号因涉嫌刷分作弊而被封禁，不能进行此项操作</span></div>
             <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5">
                 不支持自动领取 VIP，当任务的右上角出现 <span class="inline-block px-2 rounded bg-yellow-500 text-black font-bold">VIP</span> 时，请手动登录对应账号，然后访问
                 <a :href="_atob('aHR0cHM6Ly90YW5iaS5iYWlkdS5jb20vaDVhcHB0b3BpYy9icm93c2UvbG90dGVyeXZpcDIwMjIxMQ')" target="_blank" class="underline underline-offset-2">签到7天抽奖</a> 抽取 VIP
