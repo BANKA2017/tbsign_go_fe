@@ -331,8 +331,8 @@ onMounted(() => {
                                 <label for="end-date">帖子 ID</label>
                                 <p class="text-sm my-1">
                                     通过对
-                                    <span v-if="!taskToAdd.tid" class="inline-block text-gray-200 my-1 underline break-all" target="_blank">https://tieba.baidu.com/p/${tid}</span>
-                                    <NuxtLink v-else :to="'https://tieba.baidu.com/p/' + taskToAdd.tid" class="inline-block text-gray-200 my-1 underline break-all" target="_blank">https://tieba.baidu.com/p/{{ taskToAdd.tid }}</NuxtLink>
+                                    <span v-if="!taskToAdd.tid" class="inline-block my-1 underline break-all" target="_blank">https://tieba.baidu.com/p/${tid}</span>
+                                    <NuxtLink v-else :to="'https://tieba.baidu.com/p/' + taskToAdd.tid" class="inline-block my-1 underline break-all" target="_blank">https://tieba.baidu.com/p/{{ taskToAdd.tid }}</NuxtLink>
                                     进行吧务操作重置倒计时，请选择可靠可信的帖子
                                 </p>
 
