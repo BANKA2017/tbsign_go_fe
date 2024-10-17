@@ -51,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+import { Request } from '~/share/Tools'
 import FrameWork from '../components/FrameWork.vue'
 
 const store = useMainStore()
@@ -62,24 +63,17 @@ const notifications = ref<string>('')
 onMounted(async () => {
     // get account info
     if (store.rawAuthorization !== '') {
-        fetch(store.basePath + '/notifications', {
+        Request(store.basePath + '/notifications', {
             headers: {
                 Authorization: store.authorization
             }
+        }).then((res) => {
+            if (res.code !== 200) {
+                return
+            }
+            notifications.value = res.data || '没有公告'
+            //console.log(res)
         })
-            .then((res) => res.json())
-            .then((res) => {
-                if (res.code === 401) {
-                    store.logout()
-                    navigateTo('/login')
-                    return
-                }
-                if (res.code !== 200) {
-                    return
-                }
-                notifications.value = res.data || '没有公告'
-                //console.log(res)
-            })
     }
 })
 
@@ -103,7 +97,7 @@ const logout = () => {
 
 // so, should I add this?
 const exportAccount = (password = '') => {
-    fetch(store.basePath + '/passport/export', {
+    Request(store.basePath + '/passport/export', {
         headers: {
             Authorization: store.authorization
         },
@@ -111,18 +105,12 @@ const exportAccount = (password = '') => {
         body: new URLSearchParams({
             password
         })
-    })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                store.logout()
-                navigateTo('/login')
-            }
-            if (res.code !== 200) {
-                return
-            }
+    }).then((res) => {
+        if (res.code !== 200) {
+            return
+        }
 
-            //console.log(res)
-        })
+        //console.log(res)
+    })
 }
 </script>

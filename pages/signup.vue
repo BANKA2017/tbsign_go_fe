@@ -22,7 +22,7 @@
 </template>
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const basePath = computed(() => store._basePath)
@@ -41,9 +41,7 @@ const inviteCode = ref<string>('')
 
 const signup = (e: Event) => {
     e.preventDefault()
-    store.updateValue('loading', true)
     if (!(name.value && email.value && password.value.length > 0)) {
-        store.updateValue('loading', false)
         return
     }
 
@@ -57,13 +55,11 @@ const signup = (e: Event) => {
         tmpBody['invite_code'] = inviteCode.value
     }
 
-    fetch(store.basePath + '/passport/signup', {
+    Request(store.basePath + '/passport/signup', {
         method: 'POST',
         body: new URLSearchParams(tmpBody)
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -74,7 +70,6 @@ const signup = (e: Event) => {
             navigateTo('/login')
         })
         .catch((e) => {
-            store.updateValue('loading', false)
             console.error(e)
         })
 }

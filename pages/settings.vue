@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 
@@ -38,7 +38,7 @@ const saveSettings = (e: Event) => {
     e.preventDefault()
     if (settingsValue.value.username || settingsValue.value.email) {
         // change email
-        fetch(store.basePath + '/passport/update/info', {
+        Request(store.basePath + '/passport/update/info', {
             headers: {
                 Authorization: store.authorization,
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -52,58 +52,42 @@ const saveSettings = (e: Event) => {
                 push_type: settingsValue.value.push_type,
                 password: settingsValue.value.password
             }).toString()
-        })
-            .then((res) => res.json())
-            .then((res) => {
-                if (res.code === 401) {
-                    Notice(res.message, 'error')
-                    store.logout()
-                    navigateTo('/login')
-                    return
-                }
-                if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
-                    Notice(res.message, 'error')
-                    return
-                }
-                Notice('信息修改成功', 'success')
-                const newAccountInfo = JSON.parse(JSON.stringify(accountInfo.value))
-                newAccountInfo.email = res.data.email
-                newAccountInfo.name = res.data.name
-                newAccountInfo.avatar = res.data.avatar
+        }).then((res) => {
+            if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
+                Notice(res.message, 'error')
+                return
+            }
+            Notice('信息修改成功', 'success')
+            const newAccountInfo = JSON.parse(JSON.stringify(accountInfo.value))
+            newAccountInfo.email = res.data.email
+            newAccountInfo.name = res.data.name
+            newAccountInfo.avatar = res.data.avatar
 
-                newAccountInfo.ntfy_topic = res.data.ntfy_topic
-                newAccountInfo.bark_key = res.data.bark_key
-                newAccountInfo.push_type = res.data.push_type
-                store.updateCache('accountInfo', newAccountInfo)
-                //console.log(res)
-            })
+            newAccountInfo.ntfy_topic = res.data.ntfy_topic
+            newAccountInfo.bark_key = res.data.bark_key
+            newAccountInfo.push_type = res.data.push_type
+            store.updateCache('accountInfo', newAccountInfo)
+            //console.log(res)
+        })
     }
     if (settingsValue.value.password.length > 0 && settingsValue.value.new_password.length > 0 && settingsValue.value.password !== settingsValue.value.new_password) {
         // change pwd
-        fetch(store.basePath + '/passport/update/password', {
+        Request(store.basePath + '/passport/update/password', {
             headers: {
                 Authorization: store.authorization,
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
             method: 'PUT',
             body: new URLSearchParams({ old_password: settingsValue.value.password, new_password: settingsValue.value.new_password }).toString()
+        }).then((res) => {
+            if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
+                Notice(res.message, 'error')
+                return
+            }
+            Notice('密码修改成功', 'success')
+            store.updateAuthorization(res.data.token)
+            //console.log(res)
         })
-            .then((res) => res.json())
-            .then((res) => {
-                if (res.code === 401) {
-                    Notice(res.message, 'error')
-                    store.logout()
-                    navigateTo('/login')
-                    return
-                }
-                if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
-                    Notice(res.message, 'error')
-                    return
-                }
-                Notice('密码修改成功', 'success')
-                store.updateAuthorization(res.data.token)
-                //console.log(res)
-            })
     } else if (settingsValue.value.password === settingsValue.value.new_password) {
         //console.log('same password!')
     }

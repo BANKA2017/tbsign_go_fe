@@ -25,7 +25,7 @@
 </template>
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const endpointList = computed(() => Object.keys(store.config))
@@ -46,11 +46,8 @@ const basePath = computed({
 
 watch(basePath, () => {
     store.updateCache('config_page_login', undefined)
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/config/page/login')
-        .then((res) => res.json())
+    Request(store.basePath + '/config/page/login')
         .then((res) => {
-            store.updateValue('loading', false)
             if (res.code !== 200) {
                 return
             }
@@ -58,7 +55,6 @@ watch(basePath, () => {
             //console.log(res)
         })
         .catch((e) => {
-            store.updateValue('loading', false)
             Notice(e.toString(), 'error')
             console.error(e)
         })
@@ -66,21 +62,17 @@ watch(basePath, () => {
 
 const sendLogin = (e: Event) => {
     e.preventDefault()
-    store.updateValue('loading', true)
     if (!(account.value && password.value)) {
-        store.updateValue('loading', false)
         return
     }
-    fetch(store.basePath + '/passport/login', {
+    Request(store.basePath + '/passport/login', {
         method: 'POST',
         body: new URLSearchParams({
             account: account.value,
             password: password.value
         })
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -92,7 +84,6 @@ const sendLogin = (e: Event) => {
             }
         })
         .catch((e) => {
-            store.updateValue('loading', false)
             Notice(e.toString(), 'error')
             console.error(e)
         })

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
 import { getPubDate } from '~/share/Time'
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const pidNameKV = computed(() => store.pidNameKV)
@@ -26,145 +26,95 @@ const tasksStatus = <{ [p in string]: any }>ref({})
 const canSelectPIDList = computed(() => Object.fromEntries(Object.entries(pidNameKV.value).filter((x) => !tasksList.value.find((y) => y.pid.toString() === x[0]))))
 
 const saveSettings = () => {
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/plugins/kd_growth/settings', {
+    Request(store.basePath + '/plugins/kd_growth/settings', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         method: 'PUT',
         body: new URLSearchParams(settings.value).toString()
+    }).then((res) => {
+        if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
+            Notice(res.message, 'error')
+            return
+        }
+        Notice('设置已保存', 'success')
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
-                Notice(res.message, 'error')
-                return
-            }
-            Notice('设置已保存', 'success')
-            store.updateValue('loading', false)
-            //console.log(res)
-        })
 }
 
 const deleteTask = (id = 0) => {
     if (id <= 0 || !tasksList.value.find((x) => x.id === id)) {
         return
     }
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/plugins/kd_growth/list/' + id, {
+    Request(store.basePath + '/plugins/kd_growth/list/' + id, {
         headers: {
             Authorization: store.authorization
         },
         method: 'DELETE'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        if (res.data.success) {
+            Notice('已删除任务 ' + id, 'success')
+            tasksList.value = tasksList.value.filter((x) => x.id.toString() !== res.data.id)
+        } else {
+            Notice(res.message, 'error')
+        }
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            if (res.data.success) {
-                Notice('已删除任务 ' + id, 'success')
-                tasksList.value = tasksList.value.filter((x) => x.id.toString() !== res.data.id)
-            } else {
-                Notice(res.message, 'error')
-            }
-            store.updateValue('loading', false)
-            //console.log(res)
-        })
 }
 
 const getStatus = (id = 0) => {
     if (id <= 0 || !pidNameKV.value[id]) {
         return
     }
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/plugins/kd_growth/status/' + id, {
+    Request(store.basePath + '/plugins/kd_growth/status/' + id, {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksStatus.value[id] = (res.data?.level_info || []).find((levelInfo) => levelInfo.is_current === 1)
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            tasksStatus.value[id] = (res.data?.level_info || []).find((levelInfo) => levelInfo.is_current === 1)
-            store.updateValue('loading', false)
-            //console.log(res)
-        })
 }
 
 const addTask = () => {
     if (selectedPID.value <= 0) {
         return
     }
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/plugins/kd_growth/list', {
+    Request(store.basePath + '/plugins/kd_growth/list', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         method: 'PATCH',
         body: new URLSearchParams({ pid: selectedPID.value.toString() }).toString()
+    }).then((res) => {
+        if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
+            Notice(res.message, 'error')
+            return
+        }
+        Notice('已添加 pid:' + selectedPID.value, 'success')
+        tasksList.value.push(res.data)
+        selectedPID.value = 0
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
-                Notice(res.message, 'error')
-                return
-            }
-            Notice('已添加 pid:' + selectedPID.value, 'success')
-            tasksList.value.push(res.data)
-            selectedPID.value = 0
-            store.updateValue('loading', false)
-            //console.log(res)
-        })
 }
 
 const getTasksList = () => {
-    store.updateValue('loading', true)
-
-    fetch(store.basePath + '/plugins/kd_growth/list', {
+    Request(store.basePath + '/plugins/kd_growth/list', {
         headers: {
             Authorization: store.authorization
         }
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -175,32 +125,23 @@ const getTasksList = () => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
-            store.updateValue('loading', false)
         })
 }
 
 onMounted(() => {
     getTasksList()
-    fetch(store.basePath + '/plugins/kd_growth/settings', {
+    Request(store.basePath + '/plugins/kd_growth/settings', {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        settings.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            settings.value = res.data
-            //console.log(res)
-        })
 })
 </script>
 

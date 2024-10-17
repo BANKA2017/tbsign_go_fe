@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
 import { getPubDate } from '~/share/Time'
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const pidNameKV = computed(() => store.pidNameKV)
@@ -86,29 +86,21 @@ const getTaskLog = (_log = ''): string[] => {
 }
 
 const saveSettings = () => {
-    fetch(store.basePath + '/plugins/ver4_ban/reason', {
+    Request(store.basePath + '/plugins/ver4_ban/reason', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         method: 'PUT',
         body: new URLSearchParams(settings.value).toString()
+    }).then((res) => {
+        if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
+            Notice(res.message, 'error')
+            return
+        }
+        Notice('设置已保存', 'success')
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
-                Notice(res.message, 'error')
-                return
-            }
-            Notice('设置已保存', 'success')
-            //console.log(res)
-        })
 }
 
 const searchAccount = () => {
@@ -126,44 +118,39 @@ const searchAccount = () => {
     const isNumberFormValue = /^\d+$/g.test(visualEditorSearchForm.value)
 
     if (isNumberFormValue) {
-        fetch(store.basePath + '/tools/userinfo/tieba_uid/' + visualEditorSearchForm.value, {
+        Request(store.basePath + '/tools/userinfo/tieba_uid/' + visualEditorSearchForm.value, {
             headers: {
                 Authorization: store.authorization
             }
-        })
-            .then((res) => res.json())
-            .then((res) => {
-                if (res.code !== 200) {
-                    Notice('贴吧ID:' + res.message, 'error')
-                    return
-                }
-                visualEditorSearchResponse.value.push({
-                    name: res.data.user.name,
-                    name_show: res.data.user.name_show,
-                    portrait: res.data.user.portrait.replace(/\?t=\d+$/, '')
-                })
-                //console.log(res)
-            })
-    }
-    fetch(store.basePath + '/tools/userinfo/panel/username/' + visualEditorSearchForm.value, {
-        headers: {
-            Authorization: store.authorization
-        }
-    })
-        .then((res) => res.json())
-        .then((res) => {
+        }).then((res) => {
             if (res.code !== 200) {
-                Notice('账号查找:' + res.message, 'error')
+                Notice('贴吧ID:' + res.message, 'error')
                 return
             }
             visualEditorSearchResponse.value.push({
-                name: res.data.data.name,
-                name_show: res.data.data.name_show,
-                portrait: res.data.data.portrait.replace(/\?t=\d+$/, '')
+                name: res.data.user.name,
+                name_show: res.data.user.name_show,
+                portrait: res.data.user.portrait.replace(/\?t=\d+$/, '')
             })
             //console.log(res)
         })
-
+    }
+    Request(store.basePath + '/tools/userinfo/panel/username/' + visualEditorSearchForm.value, {
+        headers: {
+            Authorization: store.authorization
+        }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice('账号查找:' + res.message, 'error')
+            return
+        }
+        visualEditorSearchResponse.value.push({
+            name: res.data.data.name,
+            name_show: res.data.data.name_show,
+            portrait: res.data.data.portrait.replace(/\?t=\d+$/, '')
+        })
+        //console.log(res)
+    })
     //visualEditorSearchResponse
 }
 
@@ -171,39 +158,31 @@ const deleteTask = (id = 0) => {
     if (id <= 0) {
         return
     }
-    fetch(store.basePath + '/plugins/ver4_ban/list/' + id, {
+    Request(store.basePath + '/plugins/ver4_ban/list/' + id, {
         headers: {
             Authorization: store.authorization
         },
         method: 'DELETE'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        if (res.data.success) {
+            Notice('已删除 任务:' + id, 'success')
+            tasksList.value = tasksList.value.filter((x) => x.id.toString() !== res.data.id)
+        } else {
+            Notice('未能删除 任务:' + id, 'error')
+        }
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            if (res.data.success) {
-                Notice('已删除 任务:' + id, 'success')
-                tasksList.value = tasksList.value.filter((x) => x.id.toString() !== res.data.id)
-            } else {
-                Notice('未能删除 任务:' + id, 'error')
-            }
-            //console.log(res)
-        })
 }
 
 const addTask = () => {
     if (!Object.keys(pidNameKV.value).includes(taskToAdd.value.pid.toString())) {
         return
     }
-    fetch(store.basePath + '/plugins/ver4_ban/list', {
+    Request(store.basePath + '/plugins/ver4_ban/list', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -216,23 +195,15 @@ const addTask = () => {
             fname: taskToAdd.value.fname,
             portrait: taskToAdd.value.ban_list.trim()
         }).toString()
+    }).then((res) => {
+        if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
+            Notice(res.message, 'error')
+            return
+        }
+        Notice(res.message, 'success')
+        tasksList.value.push(...res.data.filter((x) => x.success))
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
-                Notice(res.message, 'error')
-                return
-            }
-            Notice(res.message, 'success')
-            tasksList.value.push(...res.data.filter((x) => x.success))
-            //console.log(res)
-        })
 }
 
 const taskToAddPID = computed(() => taskToAdd.value.pid)
@@ -251,31 +222,22 @@ const preCheckManager = () => {
         return
     }
     isManagerMessage.value = '检查权限中'
-    fetch(store.basePath + '/account/check/' + taskToAdd.value.pid + '/is_manager/' + taskToAdd.value.fname, {
+    Request(store.basePath + '/account/check/' + taskToAdd.value.pid + '/is_manager/' + taskToAdd.value.fname, {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        if (res.data?.is_manager) {
+            isManagerMessage.value = '此账号在 ' + taskToAdd.value.fname + ' 吧为 ' + (res.data?.role || '未知管理员角色')
+        } else {
+            isManagerMessage.value = '此账号在 ' + taskToAdd.value.fname + ' 吧没有封禁权限'
+        }
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            if (res.data?.is_manager) {
-                isManagerMessage.value = '此账号在 ' + taskToAdd.value.fname + ' 吧为 ' + (res.data?.role || '未知管理员角色')
-            } else {
-                isManagerMessage.value = '此账号在 ' + taskToAdd.value.fname + ' 吧没有封禁权限'
-            }
-
-            //console.log(res)
-        })
 }
 
 watch([taskToAddPID, taskToAddFname], () => {
@@ -290,45 +252,28 @@ onBeforeUnmount(() => {
 const tasksSwitch = ref<boolean>(false)
 
 const updateTasksSwitch = () => {
-    fetch(store.basePath + '/plugins/ver4_ban/switch', {
+    Request(store.basePath + '/plugins/ver4_ban/switch', {
         headers: {
             Authorization: store.authorization
         },
         method: 'POST'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksSwitch.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            tasksSwitch.value = res.data
-            //console.log(res)
-        })
 }
 
 const getLoopBanList = () => {
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/plugins/ver4_ban/list', {
+    Request(store.basePath + '/plugins/ver4_ban/list', {
         headers: {
             Authorization: store.authorization
         }
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -343,52 +288,35 @@ const getLoopBanList = () => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
-            store.updateValue('loading', false)
         })
 }
 
 onMounted(() => {
     getLoopBanList()
-    fetch(store.basePath + '/plugins/ver4_ban/reason', {
+    Request(store.basePath + '/plugins/ver4_ban/reason', {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        settings.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            settings.value = res.data
-            //console.log(res)
-        })
-    fetch(store.basePath + '/plugins/ver4_ban/switch', {
+    Request(store.basePath + '/plugins/ver4_ban/switch', {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksSwitch.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            tasksSwitch.value = res.data
-            //console.log(res)
-        })
 })
 
 const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一行一个，Portrait 仅支持新版 portrait 的格式，即 tb.1.xxx.xxxxx，粘贴个人页链接会自动处理，用户名 和 贴吧 uid 请使用可视化编辑器添加'

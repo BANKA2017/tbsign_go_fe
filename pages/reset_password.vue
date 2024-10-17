@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const runtimeConfig = useRuntimeConfig()
@@ -22,20 +22,10 @@ const canSendEmail = ref<boolean>(false)
 
 const sendRequest = (e: Event) => {
     e.preventDefault()
-    store.updateValue('loading', true)
-    if (step.value >= 2) {
-        store.updateValue('loading', false)
+    if (step.value >= 2 || !email.value || (code.value && !password.value)) {
         return
     }
-    if (!email.value) {
-        store.updateValue('loading', false)
-        return
-    }
-    if (code.value && !password.value) {
-        store.updateValue('loading', false)
-        return
-    }
-    fetch(store.basePath + '/passport/reset/password', {
+    Request(store.basePath + '/passport/reset/password', {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
@@ -46,9 +36,7 @@ const sendRequest = (e: Event) => {
             code: step.value > 0 ? code.value : ''
         })
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -62,7 +50,6 @@ const sendRequest = (e: Event) => {
             //console.log(res)
         })
         .catch((e) => {
-            store.updateValue('loading', false)
             Notice(e.toString(), 'error')
             console.error(e)
         })

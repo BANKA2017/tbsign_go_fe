@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
 import { Eta, getPubDate } from '~/share/Time'
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const pidNameKV = computed(() => store.pidNameKV)
@@ -38,39 +38,31 @@ const deleteTask = (id = 0) => {
     if (id <= 0) {
         return
     }
-    fetch(store.basePath + '/plugins/kd_renew_manager/list/' + id, {
+    Request(store.basePath + '/plugins/kd_renew_manager/list/' + id, {
         headers: {
             Authorization: store.authorization
         },
         method: 'DELETE'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        if (res.data.success) {
+            Notice('已删除 任务:' + id, 'success')
+            tasksList.value = tasksList.value.filter((x) => x.id.toString() !== res.data.id)
+        } else {
+            Notice('未能删除 任务:' + id, 'error')
+        }
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            if (res.data.success) {
-                Notice('已删除 任务:' + id, 'success')
-                tasksList.value = tasksList.value.filter((x) => x.id.toString() !== res.data.id)
-            } else {
-                Notice('未能删除 任务:' + id, 'error')
-            }
-            //console.log(res)
-        })
 }
 
 const addTask = () => {
     if (!Object.keys(pidNameKV.value).includes(taskToAdd.value.pid.toString())) {
         return
     }
-    fetch(store.basePath + '/plugins/kd_renew_manager/list', {
+    Request(store.basePath + '/plugins/kd_renew_manager/list', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -81,23 +73,15 @@ const addTask = () => {
             fname: taskToAdd.value.fname,
             tid: taskToAdd.value.tid
         }).toString()
+    }).then((res) => {
+        if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
+            Notice(res.message, 'error')
+            return
+        }
+        Notice(res.message, 'success')
+        tasksList.value.push(res.data)
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
-                Notice(res.message, 'error')
-                return
-            }
-            Notice(res.message, 'success')
-            tasksList.value.push(res.data)
-            //console.log(res)
-        })
 }
 
 const taskToAddPID = computed(() => taskToAdd.value.pid)
@@ -116,31 +100,23 @@ const preCheckManager = () => {
         return
     }
     isManagerMessage.value = '检查权限中'
-    fetch(store.basePath + '/account/check/' + taskToAdd.value.pid + '/is_manager/' + taskToAdd.value.fname, {
+    Request(store.basePath + '/account/check/' + taskToAdd.value.pid + '/is_manager/' + taskToAdd.value.fname, {
         headers: {
             Authorization: store.authorization
         }
-    })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            if (res.data?.is_manager && res.data?.role === '吧主') {
-                isManagerMessage.value = '此账号是 ' + taskToAdd.value.fname + ' 吧吧主'
-            } else {
-                isManagerMessage.value = '此账号不是 ' + taskToAdd.value.fname + ' 吧吧主'
-            }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        if (res.data?.is_manager && res.data?.role === '吧主') {
+            isManagerMessage.value = '此账号是 ' + taskToAdd.value.fname + ' 吧吧主'
+        } else {
+            isManagerMessage.value = '此账号不是 ' + taskToAdd.value.fname + ' 吧吧主'
+        }
 
-            //console.log(res)
-        })
+        //console.log(res)
+    })
 }
 
 watch([taskToAddPID, taskToAddFname], () => {
@@ -158,71 +134,46 @@ onBeforeUnmount(() => {
 const tasksSwitch = ref<boolean>(false)
 
 const updateTasksSwitch = () => {
-    fetch(store.basePath + '/plugins/kd_renew_manager/switch', {
+    Request(store.basePath + '/plugins/kd_renew_manager/switch', {
         headers: {
             Authorization: store.authorization
         },
         method: 'POST'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksSwitch.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            tasksSwitch.value = res.data
-            //console.log(res)
-        })
 }
 
 const tasksAlertSwitch = ref<boolean>(false)
 
 const updateAlertTasksSwitch = () => {
-    fetch(store.basePath + '/plugins/kd_renew_manager/alert/switch', {
+    Request(store.basePath + '/plugins/kd_renew_manager/alert/switch', {
         headers: {
             Authorization: store.authorization
         },
         method: 'POST'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksAlertSwitch.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            tasksAlertSwitch.value = res.data
-            //console.log(res)
-        })
 }
 
 const getRenewTasksList = () => {
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/plugins/kd_renew_manager/list', {
+    Request(store.basePath + '/plugins/kd_renew_manager/list', {
         headers: {
             Authorization: store.authorization
         }
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -233,54 +184,37 @@ const getRenewTasksList = () => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
-            store.updateValue('loading', false)
         })
 }
 
 onMounted(() => {
     getRenewTasksList()
 
-    fetch(store.basePath + '/plugins/kd_renew_manager/switch', {
+    Request(store.basePath + '/plugins/kd_renew_manager/switch', {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksSwitch.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            tasksSwitch.value = res.data
-            //console.log(res)
-        })
 
-    fetch(store.basePath + '/plugins/kd_renew_manager/alert/switch', {
+    Request(store.basePath + '/plugins/kd_renew_manager/alert/switch', {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksAlertSwitch.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            tasksAlertSwitch.value = res.data
-            //console.log(res)
-        })
     nowIntervalHandle = setInterval(() => {
         now.value = Date.now() / 1000
     }, 500)

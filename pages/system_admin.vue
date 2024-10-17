@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
 import UpdateSystemItem from '~/components/UpdateSystemItem.vue'
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const config = useRuntimeConfig()
@@ -140,30 +140,22 @@ watch(pluginList, () => {
 
 const SaveSettings = (e: Event) => {
     e.preventDefault()
-    fetch(store.basePath + '/admin/settings', {
+    Request(store.basePath + '/admin/settings', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         method: 'POST',
         body: new URLSearchParams(serverSettings.value).toString()
-    })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                //console.log(res)
-                return
-            }
-            Notice('设置已保存', 'success')
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
             //console.log(res)
-        })
+            return
+        }
+        Notice('设置已保存', 'success')
+        //console.log(res)
+    })
 }
 
 const pluginSwitch = (pluginName = '') => {
@@ -171,32 +163,24 @@ const pluginSwitch = (pluginName = '') => {
     if (!pluginNameList.includes(pluginName)) {
         return
     }
-    fetch(store.basePath + '/admin/plugin/' + pluginName + '/switch', {
+    Request(store.basePath + '/admin/plugin/' + pluginName + '/switch', {
         headers: {
             Authorization: store.authorization
         },
         method: 'POST'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        if (res.data?.exists) {
+            let tmpPluginList = JSON.parse(JSON.stringify(pluginList.value))
+            tmpPluginList[pluginName].status = res.data?.status || false
+            tmpPluginList[pluginName].ver = res.data?.version || -1
+            pluginList.value = tmpPluginList
+        }
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            if (res.data?.exists) {
-                let tmpPluginList = JSON.parse(JSON.stringify(pluginList.value))
-                tmpPluginList[pluginName].status = res.data?.status || false
-                tmpPluginList[pluginName].ver = res.data?.version || -1
-                pluginList.value = tmpPluginList
-            }
-            //console.log(res)
-        })
 }
 
 const pluginDelete = (pluginName = '') => {
@@ -204,51 +188,34 @@ const pluginDelete = (pluginName = '') => {
     if (!pluginNameList.includes(pluginName)) {
         return
     }
-    fetch(store.basePath + '/admin/plugin/' + pluginName, {
+    Request(store.basePath + '/admin/plugin/' + pluginName, {
         headers: {
             Authorization: store.authorization
         },
         method: 'DELETE'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        if (res.data?.version === -1) {
+            let tmpPluginList = JSON.parse(JSON.stringify(pluginList.value))
+            tmpPluginList[pluginName].ver = '-1'
+            tmpPluginList[pluginName].status = res.data?.status || false
+            pluginList.value = tmpPluginList
+        }
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            if (res.data?.version === -1) {
-                let tmpPluginList = JSON.parse(JSON.stringify(pluginList.value))
-                tmpPluginList[pluginName].ver = '-1'
-                tmpPluginList[pluginName].status = res.data?.status || false
-                pluginList.value = tmpPluginList
-            }
-            //console.log(res)
-        })
 }
 
 const sendTestMail = (_type: string = 'email') => {
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/admin/service/push/mail/test?type=' + _type, {
+    Request(store.basePath + '/admin/service/push/mail/test?type=' + _type, {
         headers: {
             Authorization: store.authorization
         },
         method: 'POST'
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -257,7 +224,6 @@ const sendTestMail = (_type: string = 'email') => {
             //console.log(res)
         })
         .catch((e) => {
-            store.updateValue('loading', false)
             Notice(e.toString(), 'error')
             console.error(e)
         })
@@ -267,12 +233,8 @@ const releaseList = ref<any[]>([])
 const tenMinutesDelay = ref<boolean>(true)
 
 const getReleasesList = () => {
-    store.updateValue('loading', true)
-    fetch('https://api.github.com/repos/banka2017/tbsign_go/releases?per_page=6')
-        .then((res) => res.json())
+    Request('https://api.github.com/repos/banka2017/tbsign_go/releases?per_page=6')
         .then((res) => {
-            store.updateValue('loading', false)
-
             releaseList.value = res.sort((a, b) => (a.published_at < b.published_at ? 1 : -1)).filter((x) => x.tag_name.startsWith('tbsign_go.'))
             const currentIndex = releaseList.value.map((x) => x.tag_name.replace('tbsign_go.', '')).indexOf(fullVersion.value)
             if (currentIndex > -1) {
@@ -284,53 +246,36 @@ const getReleasesList = () => {
             }
         })
         .catch((e) => {
-            store.updateValue('loading', false)
             Notice(e.toString(), 'error')
             console.error(e)
         })
 }
 
 onMounted(() => {
-    fetch(store.basePath + '/admin/server/status', {
+    Request(store.basePath + '/admin/server/status', {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        serverStatus.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            serverStatus.value = res.data
-            //console.log(res)
-        })
-    fetch(store.basePath + '/admin/settings', {
+    Request(store.basePath + '/admin/settings', {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        serverSettings.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            serverSettings.value = res.data
-            //console.log(res)
-        })
     initPluginSettingsGroup()
 })
 </script>

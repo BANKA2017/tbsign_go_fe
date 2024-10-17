@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
 import Modal from '~/components/Modal.vue'
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const loading = computed(() => store.loading)
@@ -34,79 +34,55 @@ const checkAccountStatus = async () => {
         return
     }
     for (const accountIndex in accounts.value) {
-        fetch(store.basePath + '/account/' + accounts.value[accountIndex].id + '/status', {
+        Request(store.basePath + '/account/' + accounts.value[accountIndex].id + '/status', {
             headers: {
                 Authorization: store.authorization
             }
+        }).then((res) => {
+            if (res.code !== 200) {
+                return
+            }
+            accounts.value[accountIndex].status = res.data
+            //console.log(res)
         })
-            .then((res) => res.json())
-            .then((res) => {
-                if (res.code === 401) {
-                    Notice(res.message, 'error')
-                    store.logout()
-                    navigateTo('/login')
-                    return
-                }
-                if (res.code !== 200) {
-                    return
-                }
-                accounts.value[accountIndex].status = res.data
-                //console.log(res)
-            })
     }
 }
 
 const deleteAccount = async (id: string) => {
-    fetch(store.basePath + '/account/' + id, {
+    Request(store.basePath + '/account/' + id, {
         headers: {
             Authorization: store.authorization
         },
         method: 'DELETE'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        Notice('已删除 pid:' + id, 'success')
+        store.updateCache(
+            'accounts',
+            accounts.value.filter((item) => item.id !== res.data.pid)
+        )
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            Notice('已删除 pid:' + id, 'success')
-            store.updateCache(
-                'accounts',
-                accounts.value.filter((item) => item.id !== res.data.pid)
-            )
-            //console.log(res)
-        })
 }
 
 const cleanTiebaList = async () => {
-    fetch(store.basePath + '/list', {
+    Request(store.basePath + '/list', {
         headers: {
             Authorization: store.authorization
         },
         method: 'DELETE'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        Notice('已清空账号', 'success')
+        list.value = []
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            Notice('已清空账号', 'success')
-            list.value = []
-            //console.log(res)
-        })
 }
 
 const tbList = computed(() => {
@@ -163,24 +139,15 @@ const syncTiebaList = async () => {
         Notice('已有一个进行中的同步任务', 'error')
         return
     }
-    store.updateValue('loading', true)
     syncList.value = true
-    fetch(store.basePath + '/list/sync', {
+    Request(store.basePath + '/list/sync', {
         headers: {
             Authorization: store.authorization
         },
         method: 'POST'
     })
-        .then((res) => res.json())
         .then((res) => {
             syncList.value = false
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -193,7 +160,6 @@ const syncTiebaList = async () => {
             console.error(e)
             Notice(e.toString(), 'error')
             syncList.value = false
-            store.updateValue('loading', false)
         })
 }
 
@@ -209,22 +175,13 @@ const updateIgnoreForum = (pid = 0, fid = 0) => {
         return
     }
     const forumInfo = list.value[forumIndex]
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/list/' + forumInfo.pid + '/' + forumInfo.fid + '/ignore', {
+    Request(store.basePath + '/list/' + forumInfo.pid + '/' + forumInfo.fid + '/ignore', {
         headers: {
             Authorization: store.authorization
         },
         method: forumInfo?.no ? 'DELETE' : 'PATCH'
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 return
             }
@@ -235,26 +192,16 @@ const updateIgnoreForum = (pid = 0, fid = 0) => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
-            store.updateValue('loading', false)
         })
 }
 
 const getForumList = () => {
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/list', {
+    Request(store.basePath + '/list', {
         headers: {
             Authorization: store.authorization
         }
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 return
             }
@@ -264,7 +211,6 @@ const getForumList = () => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
-            store.updateValue('loading', false)
         })
 }
 
@@ -280,22 +226,13 @@ const deleteForum = (pid = 0, fid = 0) => {
         return
     }
     const forumInfo = list.value[forumIndex]
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/list/' + forumInfo.pid + '/' + forumInfo.fid, {
+    Request(store.basePath + '/list/' + forumInfo.pid + '/' + forumInfo.fid, {
         headers: {
             Authorization: store.authorization
         },
         method: 'DELETE'
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -307,7 +244,6 @@ const deleteForum = (pid = 0, fid = 0) => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
-            store.updateValue('loading', false)
         })
 }
 
@@ -323,22 +259,13 @@ const resetForum = (pid = 0, fid = 0) => {
         return
     }
     const forumInfo = list.value[forumIndex]
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/list/' + forumInfo.pid + '/' + forumInfo.fid + '/reset', {
+    Request(store.basePath + '/list/' + forumInfo.pid + '/' + forumInfo.fid + '/reset', {
         headers: {
             Authorization: store.authorization
         },
         method: 'POST'
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -350,7 +277,6 @@ const resetForum = (pid = 0, fid = 0) => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
-            store.updateValue('loading', false)
         })
 }
 
@@ -373,8 +299,7 @@ const addForum = () => {
         Notice('pid:' + addForumValue.pid + '/fid:' + addForumValue.fname + ' 已存在')
         return
     }
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/list', {
+    Request(store.basePath + '/list', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -385,15 +310,7 @@ const addForum = () => {
         }).toString(),
         method: 'PATCH'
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -405,7 +322,6 @@ const addForum = () => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
-            store.updateValue('loading', false)
         })
 }
 
@@ -422,7 +338,7 @@ const addAccount = (bduss = '', stoken = '') => {
         Notice('BDUSS 或 Stoken 不可为空!', 'error')
         return
     }
-    fetch(store.basePath + '/account', {
+    Request(store.basePath + '/account', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -432,34 +348,26 @@ const addAccount = (bduss = '', stoken = '') => {
             bduss,
             stoken
         })
-    })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            //console.log(res)
-            router.replace({ query: {} })
-            if (res.code === 201) {
-                Notice('已添加 @' + res.data?.name || res.data?.portrait, 'success')
-                accounts.value.push(res.data)
-                return
-            } else if (res.code === 200) {
-                for (const accountIndex in accounts.value) {
-                    if (accounts.value[accountIndex].portrait === res.data.portrait) {
-                        Notice('更新 BDUSS 信息成功 @' + res.data.name || res.data.portrait, 'success')
-                        accounts.value[accountIndex] = res.data
-                        //console.log('find', accountIndex)
-                        return
-                    }
+    }).then((res) => {
+        //console.log(res)
+        router.replace({ query: {} })
+        if (res.code === 201) {
+            Notice('已添加 @' + res.data?.name || res.data?.portrait, 'success')
+            accounts.value.push(res.data)
+            return
+        } else if (res.code === 200) {
+            for (const accountIndex in accounts.value) {
+                if (accounts.value[accountIndex].portrait === res.data.portrait) {
+                    Notice('更新 BDUSS 信息成功 @' + res.data.name || res.data.portrait, 'success')
+                    accounts.value[accountIndex] = res.data
+                    //console.log('find', accountIndex)
+                    return
                 }
-            } else {
-                Notice(res.message, 'error')
             }
-        })
+        } else {
+            Notice(res.message, 'error')
+        }
+    })
 }
 
 const qrLoginData = reactive<{
@@ -476,21 +384,12 @@ const getQRCode = () => {
     qrLoginData.sign = ''
     qrLoginData.imgurl = ''
     qrLoginData.done = false
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/account/qrcode', {
+    Request(store.basePath + '/account/qrcode', {
         headers: {
             Authorization: store.authorization
         }
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 qrLoginData.done = true
@@ -502,13 +401,11 @@ const getQRCode = () => {
         })
         .catch((e) => {
             qrLoginData.done = true
-            store.updateValue('loading', false)
         })
 }
 
 const submitQRLogin = () => {
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/account/qrlogin', {
+    Request(store.basePath + '/account/qrlogin', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -518,16 +415,8 @@ const submitQRLogin = () => {
             sign: qrLoginData.sign
         })
     })
-        .then((res) => res.json())
         .then((res) => {
             qrLoginData.done = true
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             //console.log(res)
             if (res.code === 201) {
                 Notice('已添加 @' + res.data?.name || res.data?.portrait, 'success')
@@ -554,7 +443,6 @@ const submitQRLogin = () => {
         })
         .catch((e) => {
             qrLoginData.done = true
-            store.updateValue('loading', false)
         })
 }
 

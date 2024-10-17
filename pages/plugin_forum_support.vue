@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
 import { getPubDate } from '~/share/Time'
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const accounts = computed(() => store._cache?.accounts)
@@ -52,31 +52,23 @@ watch([accounts, tasksList, list], () => {
 const tasksSwitch = ref<boolean>(false)
 
 const updateTasksSwitch = () => {
-    fetch(store.basePath + '/plugins/ver4_rank/switch', {
+    Request(store.basePath + '/plugins/ver4_rank/switch', {
         headers: {
             Authorization: store.authorization
         },
         method: 'POST'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksSwitch.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            tasksSwitch.value = res.data
-            //console.log(res)
-        })
 }
 
 const saveSettings = () => {
-    fetch(store.basePath + '/plugins/ver4_rank/settings', {
+    Request(store.basePath + '/plugins/ver4_rank/settings', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -88,45 +80,28 @@ const saveSettings = () => {
                 .filter((x) => x[1])
                 .map((x) => 'nid[]=' + x[0])
                 .join('&')
-    })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
-                Notice(res.message, 'error')
-                return
-            }
-            Notice('设置已保存', 'success')
-            const addList = Array.isArray(res.data.add) ? res.data.add : []
-            const delList = Array.isArray(res.data.del) ? res.data.del.map((x) => x.id).filter((x) => x) : []
+    }).then((res) => {
+        if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
+            Notice(res.message, 'error')
+            return
+        }
+        Notice('设置已保存', 'success')
+        const addList = Array.isArray(res.data.add) ? res.data.add : []
+        const delList = Array.isArray(res.data.del) ? res.data.del.map((x) => x.id).filter((x) => x) : []
 
-            tasksList.value = tasksList.value.filter((x) => !delList.includes(x.id))
-            tasksList.value.push(...addList)
-            //console.log(res)
-        })
+        tasksList.value = tasksList.value.filter((x) => !delList.includes(x.id))
+        tasksList.value.push(...addList)
+        //console.log(res)
+    })
 }
 
 const getForumSupportList = () => {
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/plugins/ver4_rank/settings', {
+    Request(store.basePath + '/plugins/ver4_rank/settings', {
         headers: {
             Authorization: store.authorization
         }
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -137,73 +112,48 @@ const getForumSupportList = () => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
-            store.updateValue('loading', false)
         })
 }
 
 onMounted(() => {
     getForumSupportList()
-    fetch(store.basePath + '/plugins/ver4_rank/settings', {
+    Request(store.basePath + '/plugins/ver4_rank/settings', {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksList.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            tasksList.value = res.data
-            //console.log(res)
-        })
-    fetch(store.basePath + '/plugins/ver4_rank/switch', {
+    Request(store.basePath + '/plugins/ver4_rank/switch', {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksSwitch.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            tasksSwitch.value = res.data
-            //console.log(res)
-        })
 
-    fetch(store.basePath + '/plugins/ver4_rank/list', {
+    Request(store.basePath + '/plugins/ver4_rank/list', {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        list.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            list.value = res.data
-            //console.log(res)
-        })
 })
 </script>
 

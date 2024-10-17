@@ -1,6 +1,8 @@
 // try to fix an unknown bug
 // maybe a loop cause the blank page
 
+import { Request } from '~/share/Tools'
+
 export default defineNuxtRouteMiddleware((to, from) => {
     if (import.meta.server) return
 
@@ -90,93 +92,61 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
     if (!authorization.startsWith('Bearer ') || authorization === 'Bearer ') {
         if (!store._cache?.config_page_login) {
-            fetch(store.basePath + '/config/page/login')
-                .then((res) => res.json())
-                .then((res) => {
-                    if (res.code !== 200) {
-                        return
-                    }
-                    store.updateCache('config_page_login', res.data)
-                    //console.log(res)
-                })
+            Request(store.basePath + '/config/page/login').then((res) => {
+                if (res.code !== 200) {
+                    return
+                }
+                store.updateCache('config_page_login', res.data)
+                //console.log(res)
+            })
         }
     } else {
         if (!store._cache?.accountInfo) {
-            fetch(store.basePath + '/passport', {
+            Request(store.basePath + '/passport', {
                 headers: {
                     Authorization: authorization
                 }
-            })
-                .then((res) => res.json())
-                .then((res) => {
-                    if (res.code === 401) {
-                        store.logout()
-                        if (['login', 'signup', 'reset_password', 'add_base_path'].includes(to.name as string)) {
-                            return navigateTo(to.name as string)
-                        } else {
-                            return navigateTo('/login')
-                        }
-                    }
-                    store.updateCache('accountInfo', res.data)
-                    store.updateAdminStatus()
-                    //console.log(res)
+            }).then((res) => {
+                store.updateCache('accountInfo', res.data)
+                store.updateAdminStatus()
+                //console.log(res)
 
-                    if (!store._cache?.accounts) {
-                        fetch(store.basePath + '/account', {
-                            headers: {
-                                Authorization: authorization
-                            }
-                        })
-                            .then((res) => res.json())
-                            .then((res) => {
-                                if (res.code === 401) {
-                                    store.logout()
-                                    if (['login', 'signup', 'reset_password', 'add_base_path'].includes(to.name as string)) {
-                                        return navigateTo(to.name as string)
-                                    } else {
-                                        return navigateTo('/login')
-                                    }
-                                }
-                                if (res.code !== 200) {
-                                    return
-                                }
-                                store.updateCache(
-                                    'accounts',
-                                    (res.data || []).map((account) => {
-                                        account.page = 0
-                                        account.more = false
-                                        account.filter = 'all'
-                                        account.search = ''
-                                        return account
-                                    })
-                                )
-                                //console.log(res)
+                if (!store._cache?.accounts) {
+                    Request(store.basePath + '/account', {
+                        headers: {
+                            Authorization: authorization
+                        }
+                    }).then((res) => {
+                        if (res.code !== 200) {
+                            return
+                        }
+                        store.updateCache(
+                            'accounts',
+                            (res.data || []).map((account) => {
+                                account.page = 0
+                                account.more = false
+                                account.filter = 'all'
+                                account.search = ''
+                                return account
                             })
-                    }
-                    if (!store._cache?.plugin_list) {
-                        fetch(store.basePath + '/plugins', {
-                            headers: {
-                                Authorization: store.authorization
-                            }
-                        })
-                            .then((res) => res.json())
-                            .then((res) => {
-                                if (res.code === 401) {
-                                    store.logout()
-                                    if (['login', 'signup', 'reset_password', 'add_base_path'].includes(to.name as string)) {
-                                        return navigateTo(to.name as string)
-                                    } else {
-                                        return navigateTo('/login')
-                                    }
-                                }
-                                if (res.code !== 200) {
-                                    return
-                                }
-                                store.updateCache('plugin_list', res.data)
-                                //console.log(res)
-                            })
-                    }
-                })
+                        )
+                        //console.log(res)
+                    })
+                }
+                if (!store._cache?.plugin_list) {
+                    Request(store.basePath + '/plugins', {
+                        headers: {
+                            Authorization: store.authorization
+                        }
+                    }).then((res) => {
+                        if (res.code !== 200) {
+                            return
+                        }
+                        store.updateCache('plugin_list', res.data)
+                        //console.log(res)
+                    })
+                }
+            })
         }
     }
 })

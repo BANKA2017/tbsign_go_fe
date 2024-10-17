@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
 import { getPubDate } from '~/share/Time'
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const pidNameKV = computed(() => store.pidNameKV)
@@ -35,111 +35,77 @@ const tasksSignDayKV = computed(() =>
 const canSelectPIDList = computed(() => Object.fromEntries(Object.entries(pidNameKV.value).filter((x) => !tasksList.value.find((y) => y.pid.toString() === x[0]))))
 
 const saveSettings = () => {
-    fetch(store.basePath + '/plugins/kd_wenku_tasks/settings', {
+    Request(store.basePath + '/plugins/kd_wenku_tasks/settings', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         method: 'PUT',
         body: new URLSearchParams(settings.value).toString()
+    }).then((res) => {
+        if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
+            Notice(res.message, 'error')
+            return
+        }
+        Notice('设置已保存', 'success')
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
-                Notice(res.message, 'error')
-                return
-            }
-            Notice('设置已保存', 'success')
-            //console.log(res)
-        })
 }
 
 const deleteTask = (id = 0) => {
     if (id <= 0) {
         return
     }
-    fetch(store.basePath + '/plugins/kd_wenku_tasks/list/' + id, {
+    Request(store.basePath + '/plugins/kd_wenku_tasks/list/' + id, {
         headers: {
             Authorization: store.authorization
         },
         method: 'DELETE'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        if (res.data.success) {
+            Notice('已删除任务 ' + id, 'success')
+            tasksList.value = tasksList.value.filter((x) => x.id.toString() !== res.data.id)
+        } else {
+            Notice(res.message, 'error')
+        }
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            if (res.data.success) {
-                Notice('已删除任务 ' + id, 'success')
-                tasksList.value = tasksList.value.filter((x) => x.id.toString() !== res.data.id)
-            } else {
-                Notice(res.message, 'error')
-            }
-            //console.log(res)
-        })
 }
 
 const addTask = () => {
     if (selectedPID.value <= 0) {
         return
     }
-    fetch(store.basePath + '/plugins/kd_wenku_tasks/list', {
+    Request(store.basePath + '/plugins/kd_wenku_tasks/list', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         method: 'PATCH',
         body: new URLSearchParams({ pid: selectedPID.value.toString() }).toString()
+    }).then((res) => {
+        if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
+            Notice(res.message, 'error')
+            return
+        }
+        Notice('已添加 pid:' + selectedPID.value, 'success')
+        tasksList.value.push(res.data)
+        selectedPID.value = 0
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
-                Notice(res.message, 'error')
-                return
-            }
-            Notice('已添加 pid:' + selectedPID.value, 'success')
-            tasksList.value.push(res.data)
-            selectedPID.value = 0
-            //console.log(res)
-        })
 }
 
 const getTasksList = () => {
-    store.updateValue('loading', true)
-
-    fetch(store.basePath + '/plugins/kd_wenku_tasks/list', {
+    Request(store.basePath + '/plugins/kd_wenku_tasks/list', {
         headers: {
             Authorization: store.authorization
         }
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -150,64 +116,47 @@ const getTasksList = () => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
-            store.updateValue('loading', false)
         })
 }
 
 const claimVIP = (pid: number = 0) => {
-    fetch(store.basePath + '/plugins/kd_wenku_tasks/claim/' + pid, {
+    Request(store.basePath + '/plugins/kd_wenku_tasks/claim/' + pid, {
         headers: {
             Authorization: store.authorization
         },
         method: 'POST'
-    })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            if (!res.data?.data?.prize?.name) {
-                Notice('未知错误', 'error')
-                console.log(res.data)
-            } else {
-                Notice('@' + pidNameKV.value[pid] + '已领取' + res.data.data.prize.name, 'success', 0)
-            }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        if (!res.data?.data?.prize?.name) {
+            Notice('未知错误', 'error')
+            console.log(res.data)
+        } else {
+            Notice('@' + pidNameKV.value[pid] + '已领取' + res.data.data.prize.name, 'success', 0)
+        }
 
-            //console.log(res)
-        })
+        //console.log(res)
+    })
 }
 
 const _atob = (s: string = '') => atob(s)
 
 onMounted(() => {
     getTasksList()
-    fetch(store.basePath + '/plugins/kd_wenku_tasks/settings', {
+    Request(store.basePath + '/plugins/kd_wenku_tasks/settings', {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        settings.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            settings.value = res.data
-            //console.log(res)
-        })
 })
 </script>
 

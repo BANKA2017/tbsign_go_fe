@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
 import { getPubDate } from '~/share/Time'
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const accounts = computed(() => store._cache?.accounts)
@@ -24,50 +24,34 @@ const activeLogs = computed(() => {
 })
 
 const updateTasksSwitch = () => {
-    fetch(store.basePath + '/plugins/ver4_lottery/switch', {
+    Request(store.basePath + '/plugins/ver4_lottery/switch', {
         headers: {
             Authorization: store.authorization
         },
         method: 'POST'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        lotterySwitch.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            lotterySwitch.value = res.data
-            //console.log(res)
-        })
 }
 
 const getLogs = () => {
-    fetch(store.basePath + '/plugins/ver4_lottery/log', {
+    Request(store.basePath + '/plugins/ver4_lottery/log', {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        lotteryLogs.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            lotteryLogs.value = res.data
-            //console.log(res)
-        })
 }
 
 onMounted(() => {
@@ -75,26 +59,18 @@ onMounted(() => {
         activePID.value = accounts.value[0].id
     }
     getLogs()
-    fetch(store.basePath + '/plugins/ver4_lottery/switch', {
+    Request(store.basePath + '/plugins/ver4_lottery/switch', {
         headers: {
             Authorization: store.authorization
         }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        lotterySwitch.value = res.data
+        //console.log(res)
     })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            lotterySwitch.value = res.data
-            //console.log(res)
-        })
 })
 </script>
 

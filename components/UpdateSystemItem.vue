@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 import Modal from './Modal.vue'
 import { getPubDate } from '~/share/Time'
 
@@ -20,8 +20,7 @@ const flowStep = ref<number>(0)
 const doubleCheck = ref<boolean>(false)
 
 const upgradeToVersion = (version: string = '') => {
-    store.updateValue('loading', true)
-    fetch(store.basePath + '/admin/server/upgrade', {
+    Request(store.basePath + '/admin/server/upgrade', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -29,15 +28,7 @@ const upgradeToVersion = (version: string = '') => {
         body: 'version=' + version,
         method: 'POST'
     })
-        .then((res) => res.json())
         .then((res) => {
-            store.updateValue('loading', false)
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -47,27 +38,19 @@ const upgradeToVersion = (version: string = '') => {
             //console.log(res)
         })
         .catch((e) => {
-            store.updateValue('loading', false)
             Notice(e.toString(), 'error')
             console.error(e)
         })
 }
 
 const restartSystem = () => {
-    fetch(store.basePath + '/admin/server/shutdown', {
+    Request(store.basePath + '/admin/server/shutdown', {
         headers: {
             Authorization: store.authorization
         },
         method: 'POST'
     })
-        .then((res) => res.json())
         .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return

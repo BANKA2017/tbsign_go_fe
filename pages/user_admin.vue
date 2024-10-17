@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FrameWork from '~/components/FrameWork.vue'
 import Modal from '~/components/Modal.vue'
-import { Notice } from '~/share/Tools'
+import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const loading = computed(() => store.loading)
@@ -42,7 +42,7 @@ const list = ref<
 >([])
 
 const getList = () => {
-    fetch(
+    Request(
         store.basePath +
             '/admin/account?' +
             new URLSearchParams({
@@ -55,24 +55,16 @@ const getList = () => {
                 Authorization: store.authorization
             }
         }
-    )
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                //console.log(res)
-                return
-            }
-            total.value = res.data.total
-            list.value = res.data.list
+    ).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
             //console.log(res)
-        })
+            return
+        }
+        total.value = res.data.total
+        list.value = res.data.list
+        //console.log(res)
+    })
 }
 
 const saveSettings = (uid = 0) => {
@@ -84,7 +76,7 @@ const saveSettings = (uid = 0) => {
         Notice('账号 uid:' + uid + ' 不存在', 'error')
         return
     }
-    fetch(store.basePath + '/admin/account/modify/' + uid, {
+    Request(store.basePath + '/admin/account/modify/' + uid, {
         headers: {
             Authorization: store.authorization
         },
@@ -94,86 +86,62 @@ const saveSettings = (uid = 0) => {
             email: accountInfo.email,
             role: accountInfo.role
         })
-    })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
-                Notice(res.message, 'error')
-                //console.log(res)
-                return
-            }
-            Notice('已修改 uid:' + uid + ' 的信息', 'success')
+    }).then((res) => {
+        if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
+            Notice(res.message, 'error')
             //console.log(res)
-        })
+            return
+        }
+        Notice('已修改 uid:' + uid + ' 的信息', 'success')
+        //console.log(res)
+    })
 }
 
 const kickDown = (uid = 0) => {
     if (uid < 1) {
         return
     }
-    fetch(store.basePath + '/admin/account/token/' + uid, {
+    Request(store.basePath + '/admin/account/token/' + uid, {
         headers: {
             Authorization: store.authorization
         },
         method: 'DELETE'
-    })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                //console.log(res)
-                return
-            }
-            Notice('已下线 uid:' + uid, 'success')
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
             //console.log(res)
-        })
+            return
+        }
+        Notice('已下线 uid:' + uid, 'success')
+        //console.log(res)
+    })
 }
 
 const deleteTiebaAccounts = (uid = 0) => {
     if (uid < 1) {
         return
     }
-    fetch(store.basePath + '/admin/account/list/' + uid, {
+    Request(store.basePath + '/admin/account/list/' + uid, {
         headers: {
             Authorization: store.authorization
         },
         method: 'DELETE'
-    })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                //console.log(res)
-                return
-            }
-            Notice('已清空 uid:' + uid + ' 绑定的百度账号', 'success')
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
             //console.log(res)
-        })
+            return
+        }
+        Notice('已清空 uid:' + uid + ' 绑定的百度账号', 'success')
+        //console.log(res)
+    })
 }
 
 const resetCheckinStatus = (uid = 0, failed_only = false) => {
     if (uid < 1) {
         return
     }
-    fetch(store.basePath + '/admin/account/list/' + uid + '/reset', {
+    Request(store.basePath + '/admin/account/list/' + uid + '/reset', {
         headers: {
             Authorization: store.authorization
         },
@@ -181,33 +149,25 @@ const resetCheckinStatus = (uid = 0, failed_only = false) => {
         body: new URLSearchParams({
             failed_only: Number(failed_only).toString()
         })
-    })
-        .then((res) => res.json())
-        .then((res) => {
-            if (res.code === 401) {
-                Notice(res.message, 'error')
-                store.logout()
-                navigateTo('/login')
-                return
-            }
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                //console.log(res)
-                return
-            }
-
-            const accountIndex = list.value.map((x) => x.id).indexOf(uid)
-            if (failed_only) {
-                list.value[accountIndex].checkin_waiting += list.value[accountIndex].checkin_failed
-                list.value[accountIndex].checkin_failed = 0
-            } else {
-                list.value[accountIndex].checkin_waiting += list.value[accountIndex].checkin_success + list.value[accountIndex].checkin_failed
-                list.value[accountIndex].checkin_success = 0
-                list.value[accountIndex].checkin_failed = 0
-            }
-            Notice('已重置 uid:' + uid + ' 的贴吧签到状态', 'success')
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
             //console.log(res)
-        })
+            return
+        }
+
+        const accountIndex = list.value.map((x) => x.id).indexOf(uid)
+        if (failed_only) {
+            list.value[accountIndex].checkin_waiting += list.value[accountIndex].checkin_failed
+            list.value[accountIndex].checkin_failed = 0
+        } else {
+            list.value[accountIndex].checkin_waiting += list.value[accountIndex].checkin_success + list.value[accountIndex].checkin_failed
+            list.value[accountIndex].checkin_success = 0
+            list.value[accountIndex].checkin_failed = 0
+        }
+        Notice('已重置 uid:' + uid + ' 的贴吧签到状态', 'success')
+        //console.log(res)
+    })
 }
 
 onMounted(() => {
