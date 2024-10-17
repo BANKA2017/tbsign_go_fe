@@ -19,12 +19,7 @@ export const Request = async (input: string | URL | globalThis.Request, init?: R
     return fetch(input, init)
         .then((res) => {
             store.updateValue('loading', false)
-            try {
-                return res.json()
-            } catch (e) {
-                Notice(`statusCode:${res.status}#${e}`, 'error')
-                throw e
-            }
+            return res.json()
         })
         .then((res) => {
             if (init?.headers?.Authorization !== '' && res.code === 401) {
