@@ -418,7 +418,9 @@ onMounted(() => {
                         <template v-for="(value, pluginName, index) in pluginList" :key="pluginName">
                             <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-1" />
                             <div class="flex justify-between">
-                                <span class="font-bold">{{ pluginGroup[pluginName] || pluginName }}</span>
+                                <div>
+                                    <span class="font-bold mr-1">{{ pluginGroup[pluginName] || pluginName }}</span> <span class="px-1.5 rounded bg-sky-500 dark:bg-sky-700 text-sm text-gray-100" v-if="value?.ver">v{{ value.ver }}</span>
+                                </div>
                                 <div class="inline-block">
                                     <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true }" @click="pluginSwitch(pluginName)">
                                         {{ value.status ? '已开启' : value.ver === '-1' ? '未安装' : '已关闭' }}
