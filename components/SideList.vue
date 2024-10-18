@@ -97,7 +97,7 @@ updateNavStatus()
 
 <template>
     <div id="side-list" class="select-none" v-show="wholeRouteName.includes(route.name)">
-        <client>
+        <ClientOnly>
             <div class="md:hidden">
                 <template v-for="nav in activeNavs" :key="nav.routeName">
                     <NuxtLink
@@ -154,7 +154,7 @@ updateNavStatus()
                     <div class="inline-bolck truncate">{{ nav.name }}</div>
                 </NuxtLink>
             </div>
-        </client>
+        </ClientOnly>
     </div>
 </template>
 
