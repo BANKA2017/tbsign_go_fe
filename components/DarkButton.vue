@@ -26,7 +26,7 @@ import type { darkModeType } from '~/share/DarkMode'
 
 const darkMode = ref<darkModeType>('0')
 
-if (!inject('darkMode')) {
+if (!inject('darkMode', false)) {
     const { vueApp } = useNuxtApp()
     vueApp.provide('darkMode', readonly(darkMode))
 }
