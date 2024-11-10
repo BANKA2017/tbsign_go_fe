@@ -1,11 +1,7 @@
-<script setup lang="ts">
-import FrameWork from '~/components/FrameWork.vue'
-</script>
+<script setup lang="ts"></script>
 
 <template>
-    <NuxtLayout name="tbsign">
-        <frame-work> </frame-work>
-    </NuxtLayout>
+    <NuxtLayout name="tbsign"> </NuxtLayout>
 </template>
 
 <style scoped></style>
