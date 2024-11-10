@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     devtools: { enabled: true },
+
     // https://github.com/nuxt/nuxt/discussions/27779#discussioncomment-9952440
     // to fix the weird websocket errors
     // `client:732 GET http://localhost:24678/_nuxt/ net::ERR_CONNECTION_REFUSED`
@@ -18,15 +19,18 @@ export default defineNuxtConfig({
             }
         }
     },
+
     devServer: {
         host: ''
     },
+
     runtimeConfig: {
         public: {
             NUXT_BASE_PATH: process.env.NUXT_BASE_PATH,
             NUXT_COMMIT_HASH: process.env.NUXT_COMMIT_HASH
         }
     },
+
     modules: [
         'nuxt-lodash',
         '@vueuse/nuxt',
@@ -41,13 +45,16 @@ export default defineNuxtConfig({
             }
         ]
     ],
+
     imports: {
         dirs: ['./stores']
     },
+
     experimental: {
         appManifest: false,
         payloadExtraction: false
     },
+
     tailwindcss: {
         cssPath: ['~/assets/css/tailwind.css', { injectPosition: 'first' }],
         configPath: 'tailwind.config',
@@ -55,6 +62,7 @@ export default defineNuxtConfig({
         config: {},
         viewer: true
     },
+
     routeRules: {
         '/login': { ssr: true },
         '/reset_password': { ssr: true },
@@ -66,5 +74,7 @@ export default defineNuxtConfig({
         '/accounts': { ssr: false },
         '/user_admin': { ssr: false },
         '/system_admin': { ssr: false }
-    }
+    },
+
+    compatibilityDate: '2024-11-10'
 })
