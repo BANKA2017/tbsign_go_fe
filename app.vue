@@ -21,9 +21,10 @@ const store = useMainStore()
 onMounted(() => {
     store.updateSize()
     window.addEventListener('resize', store.updateSize)
-    onBeforeRouteLeave(() => {
-        window.removeEventListener('resize', store.updateSize)
-    })
+})
+
+onUnmounted(() => {
+    window.removeEventListener('resize', store.updateSize)
 })
 </script>
 
