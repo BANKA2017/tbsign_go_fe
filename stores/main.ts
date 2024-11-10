@@ -5,6 +5,10 @@ interface MainStoreState {
     _basePath: string
     admin: boolean
     _cache: { [p in string]: any } & {}
+    size: {
+        innerHeight: number
+        innerWidth: number
+    }
 }
 
 export const useMainStore = defineStore('main', {
@@ -14,7 +18,11 @@ export const useMainStore = defineStore('main', {
         config: {},
         _basePath: '',
         admin: false,
-        _cache: {}
+        _cache: {},
+        size: {
+            innerHeight: 0,
+            innerWidth: 0
+        }
     }),
     getters: {
         rawAuthorization(): string {
@@ -64,6 +72,13 @@ export const useMainStore = defineStore('main', {
 
             this.admin = false
             this._cache = {}
+        },
+        updateSize() {
+            if (typeof window === 'undefined') {
+                return
+            }
+            this.size.innerHeight = window.innerHeight
+            this.size.innerWidth = window.innerWidth
         }
     }
 })

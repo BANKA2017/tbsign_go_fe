@@ -3,6 +3,9 @@ defineProps({
     title: String
 })
 
+const store = useMainStore()
+const size = computed(() => store.size)
+
 const firstModalSwitch = ref<boolean>(false)
 const activeModal = ref<boolean>(false)
 
@@ -28,7 +31,7 @@ const modalSwitch = (value: Event | boolean) => {
                 (firstModalSwitch ? (activeModal ? 'modal-in' : 'modal-out') : 'hidden')
             "
         >
-            <div ref="modal_dom" class="rounded-2xl pt-5 pb-12 px-5 overflow-x-auto max-h-[100vh]">
+            <div ref="modal_dom" class="rounded-2xl pt-5 pb-12 px-5 overflow-x-auto" :style="{ 'max-height': size.innerHeight ? size.innerHeight + 'px' : '100vh' }">
                 <h5 class="mb-5 dark:text-gray-100 flex justify-between w-full">
                     <span class="font-bold">{{ title }}</span>
                     <button

@@ -85,7 +85,7 @@ useHead({
     title: computed(() => {
         const tmpIndex = wholeRouteName.value.indexOf(route.name)
         if (tmpIndex < 0) {
-            return '404'
+            return route.name || '404'
         } else {
             return state.navs[tmpIndex].name
         }
