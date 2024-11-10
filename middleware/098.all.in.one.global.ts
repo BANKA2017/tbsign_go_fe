@@ -92,7 +92,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
     if (!authorization.startsWith('Bearer ') || authorization === 'Bearer ') {
         if (!store._cache?.config_page_login) {
-            Request(store.basePath + '/config/page/login').then((res) => {
+            Request(store.basePath + '/config/page/login', {}, to.name?.toString() || null).then((res) => {
                 if (res.code !== 200) {
                     return
                 }
@@ -102,21 +102,29 @@ export default defineNuxtRouteMiddleware((to, from) => {
         }
     } else {
         if (!store._cache?.accountInfo) {
-            Request(store.basePath + '/passport', {
-                headers: {
-                    Authorization: authorization
-                }
-            }).then((res) => {
+            Request(
+                store.basePath + '/passport',
+                {
+                    headers: {
+                        Authorization: authorization
+                    }
+                },
+                to.name?.toString() || null
+            ).then((res) => {
                 store.updateCache('accountInfo', res.data)
                 store.updateAdminStatus()
                 //console.log(res)
 
                 if (!store._cache?.accounts) {
-                    Request(store.basePath + '/account', {
-                        headers: {
-                            Authorization: authorization
-                        }
-                    }).then((res) => {
+                    Request(
+                        store.basePath + '/account',
+                        {
+                            headers: {
+                                Authorization: authorization
+                            }
+                        },
+                        to.name?.toString() || null
+                    ).then((res) => {
                         if (res.code !== 200) {
                             return
                         }
@@ -134,11 +142,15 @@ export default defineNuxtRouteMiddleware((to, from) => {
                     })
                 }
                 if (!store._cache?.plugin_list) {
-                    Request(store.basePath + '/plugins', {
-                        headers: {
-                            Authorization: store.authorization
-                        }
-                    }).then((res) => {
+                    Request(
+                        store.basePath + '/plugins',
+                        {
+                            headers: {
+                                Authorization: store.authorization
+                            }
+                        },
+                        to.name?.toString() || null
+                    ).then((res) => {
                         if (res.code !== 200) {
                             return
                         }

@@ -12,9 +12,12 @@ export const Notice = (text: string = '', type: Noty.Type = 'success', timeout: 
     }).show()
 }
 
-export const Request = async (input: string | URL | globalThis.Request, init?: RequestInit): Promise<any> => {
+export const Request = async (input: string | URL | globalThis.Request, init?: RequestInit, routeName?: string | null): Promise<any> => {
     const store = useMainStore()
-    const route = useRoute()
+    if (routeName === undefined) {
+        const route = useRoute()
+        routeName = route.name?.toString()
+    }
     store.updateValue('loading', true)
     return fetch(input, init)
         .then((res) => {
@@ -25,8 +28,8 @@ export const Request = async (input: string | URL | globalThis.Request, init?: R
             if (init?.headers?.Authorization !== '' && res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                if (['login', 'signup', 'reset_password', 'add_base_path'].includes(route.name as string)) {
-                    navigateTo(route.name as string)
+                if (['login', 'signup', 'reset_password', 'add_base_path'].includes(routeName || '')) {
+                    navigateTo(routeName)
                 } else {
                     navigateTo('/login')
                 }

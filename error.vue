@@ -1,15 +1,11 @@
 <template>
     <NuxtLayout name="tbsign">
-        <frame-work>
-            <h1 class="text-6xl mb-5 mt-3">{{ error.statusCode }}</h1>
-            <p class="text-xl">🈚 {{ errorMessage[error.statusCode] ? errorMessage[error.statusCode] : '什么问题？' }}，回<NuxtLink to="/" class="mx-1 underline underline-offset-4">首页</NuxtLink>看看吧</p>
-        </frame-work>
+        <h1 class="text-6xl mb-5 mt-3">{{ code }}</h1>
+        <p class="text-xl">🈚 {{ errorMessage[code] ? errorMessage[code] : '什么问题？' }}，回<NuxtLink to="/" class="mx-1 underline underline-offset-4">首页</NuxtLink>看看吧</p>
     </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-import FrameWork from '~/components/FrameWork.vue'
-import { reactive } from 'vue'
 import type { PropType } from 'vue'
 import type { NuxtError } from '@nuxt/types'
 const props = defineProps({
@@ -19,12 +15,7 @@ const props = defineProps({
     }
 })
 
-const state = reactive<{
-    code: number
-}>({
-    code: 404
-})
-state.code = props.error.statusCode || 500
+const code = ref<number>(props.error.statusCode || 500)
 
 useHead({
     script: [
