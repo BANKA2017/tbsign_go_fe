@@ -1,13 +1,20 @@
 <script setup lang="ts">
-defineProps({
-    title: String
+const props = defineProps({
+    title: String,
+    active: Boolean
 })
 
 const store = useMainStore()
 const size = computed(() => store.size)
 
+const emit = defineEmits(['activeCallback'])
+
 const firstModalSwitch = ref<boolean>(false)
 const activeModal = ref<boolean>(false)
+const propsActive = computed(() => props.active)
+watch(propsActive, () => {
+    activeModal.value = propsActive.value
+})
 
 const modalSwitch = (value: Event | boolean) => {
     firstModalSwitch.value = true
@@ -16,6 +23,7 @@ const modalSwitch = (value: Event | boolean) => {
     } else {
         activeModal.value = value
     }
+    emit('activeCallback', activeModal.value)
 }
 </script>
 
