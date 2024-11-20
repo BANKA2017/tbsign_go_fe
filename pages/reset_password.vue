@@ -3,8 +3,8 @@ import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const runtimeConfig = useRuntimeConfig()
-const basePath = computed(() => store._basePath)
-const pageLoginConfig = computed(() => store._cache?.config_page_login)
+const basePath = computed(() => store.basePath)
+const pageLoginConfig = computed(() => store.cache?.config_page_login)
 watch(pageLoginConfig, () => {
     canSendEmail.value = !!pageLoginConfig.value?.enabled_email
 })

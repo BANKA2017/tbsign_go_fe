@@ -3,7 +3,6 @@ interface MainStoreState {
     dark: boolean
     config: { [p in string]: any & { base_path: string; authorization: string } }
     _basePath: string
-    admin: boolean
     _cache: { [p in string]: any } & {}
     size: {
         innerHeight: number
@@ -17,7 +16,6 @@ export const useMainStore = defineStore('main', {
         dark: false,
         config: {},
         _basePath: '',
-        admin: false,
         _cache: {},
         size: {
             innerHeight: 0,
@@ -42,6 +40,9 @@ export const useMainStore = defineStore('main', {
         },
         configLength(): number {
             return Object.keys(this.config).length
+        },
+        admin(): boolean {
+            return this._cache.accountInfo?.role === 'admin'
         }
     },
     actions: {
@@ -64,13 +65,8 @@ export const useMainStore = defineStore('main', {
         updateCache(k: string, v: any) {
             this.$state._cache[k] = v
         },
-        updateAdminStatus() {
-            this.admin = this._cache.accountInfo?.role === 'admin'
-        },
         logout() {
             this.updateAuthorization('')
-
-            this.admin = false
             this._cache = {}
         },
         updateSize() {

@@ -33,7 +33,7 @@ const password = ref<string>('')
 
 const basePath = computed({
     get() {
-        return store._basePath
+        return store.basePath
     },
     set(value: string) {
         localStorage.setItem('tc_base_path', value)

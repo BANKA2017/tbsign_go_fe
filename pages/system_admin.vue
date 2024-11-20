@@ -6,7 +6,7 @@ const store = useMainStore()
 const config = useRuntimeConfig()
 const isAdmin = computed(() => store.admin)
 const pluginList = computed({
-    get: () => store._cache?.plugin_list || {},
+    get: () => store.cache?.plugin_list || {},
     set: (newValue) => {
         store.updateCache('plugin_list', newValue)
     }

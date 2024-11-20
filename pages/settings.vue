@@ -3,7 +3,7 @@ import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 
-const accountInfo = computed(() => store._cache?.accountInfo)
+const accountInfo = computed(() => store.cache?.accountInfo)
 
 watch(accountInfo, () => {
     settingsValue.value.email = accountInfo.value?.email || ''

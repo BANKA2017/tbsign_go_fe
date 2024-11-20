@@ -3,7 +3,7 @@ import { getPubDate } from '~/share/Time'
 import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
-const accounts = computed(() => store._cache?.accounts)
+const accounts = computed(() => store.cache?.accounts)
 const loading = computed(() => store.loading)
 
 const pidNameKV = computed(() => store.pidNameKV)

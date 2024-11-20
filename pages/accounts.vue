@@ -4,8 +4,8 @@ import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const loading = computed(() => store.loading)
-const accountInfo = computed(() => store._cache?.accountInfo)
-const pluginList = computed(() => store._cache?.plugin_list)
+const accountInfo = computed(() => store.cache?.accountInfo)
+const pluginList = computed(() => store.cache?.plugin_list)
 
 const route = useRoute()
 const router = useRouter()
@@ -23,7 +23,7 @@ const list = ref<
         uid: number
     }[]
 >([])
-const accounts = computed(() => store._cache?.accounts)
+const accounts = computed(() => store.cache?.accounts)
 const pidNameKV = computed(() => store.pidNameKV)
 
 const editMode = ref<boolean>(false)

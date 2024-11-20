@@ -22,8 +22,8 @@
 import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
-const basePath = computed(() => store._basePath)
-const pageLoginConfig = computed(() => store._cache?.config_page_login)
+const basePath = computed(() => store.basePath)
+const pageLoginConfig = computed(() => store.cache?.config_page_login)
 const runtimeConfig = useRuntimeConfig()
 watch(pageLoginConfig, () => {
     if (!pageLoginConfig.value?.enabled_signup) {

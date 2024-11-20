@@ -8,8 +8,8 @@ const showList = ref<boolean>(false)
 
 const isAdmin = computed(() => store.admin)
 const authorization = computed(() => store.rawAuthorization)
-const pluginList = computed(() => store._cache?.plugin_list || {})
-const pageLoginConfig = computed(() => store._cache?.config_page_login)
+const pluginList = computed(() => store.cache?.plugin_list || {})
+const pageLoginConfig = computed(() => store.cache?.config_page_login)
 
 const route = useRoute()
 const state = reactive<{

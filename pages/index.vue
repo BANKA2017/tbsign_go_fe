@@ -53,8 +53,8 @@ import { Request } from '~/share/Tools'
 
 const store = useMainStore()
 
-const accountInfo = computed(() => store._cache?.accountInfo)
-const tbaccounts = computed(() => store._cache?.accounts || [])
+const accountInfo = computed(() => store.cache?.accountInfo)
+const tbaccounts = computed(() => store.cache?.accounts || [])
 const notifications = ref<string>('')
 
 onMounted(async () => {
