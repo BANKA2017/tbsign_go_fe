@@ -17,7 +17,7 @@ const state = reactive<{
 }>({
     navs: [
         { name: '首页', to: '/', routeName: 'index', active: true, show: true, sort: 0 },
-        { name: '个人设置', to: '/settings', routeName: 'settings', active: false, show: true, sort: 1 },
+        // { name: '个人设置', to: '/settings', routeName: 'settings', active: false, show: true, sort: 1 },
         { name: '百度账号管理', to: '/accounts', routeName: 'accounts', active: false, show: true, sort: 2 },
         { name: '用户管理', to: '/user_admin', routeName: 'user_admin', active: false, show: true, sort: 4 },
         { name: '系统管理', to: '/system_admin', routeName: 'system_admin', active: false, show: true, sort: 5 },
