@@ -28,10 +28,10 @@ export const Request = async (input: string | URL | globalThis.Request, init?: R
             if (init?.headers?.Authorization !== '' && res.code === 401) {
                 Notice(res.message, 'error')
                 store.logout()
-                if (['login', 'signup', 'reset_password', 'add_base_path'].includes(routeName || '')) {
+                if (['signin', 'signup', 'reset_password', 'add_base_path'].includes(routeName || '')) {
                     navigateTo(routeName)
                 } else {
-                    navigateTo('/login')
+                    navigateTo('/signin')
                 }
             }
             return res

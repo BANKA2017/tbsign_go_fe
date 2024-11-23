@@ -22,7 +22,7 @@ const state = reactive<{
         { name: '用户管理', to: '/user_admin', routeName: 'user_admin', active: false, show: true, sort: 4 },
         { name: '系统管理', to: '/system_admin', routeName: 'system_admin', active: false, show: true, sort: 5 },
         //{ name: '更多工具', to: '/tools', routeName: 'tools', active: false, show: true, sort: 6},
-        { name: '登录', to: '/login', routeName: 'login', active: false, show: true, sort: 7 },
+        { name: '登录', to: '/signin', routeName: 'signin', active: false, show: true, sort: 7 },
         { name: '注册', to: '/signup', routeName: 'signup', active: false, show: true, sort: 8 },
         { name: '找回密码', to: '/reset_password', routeName: 'reset_password', active: false, show: true, sort: 9 },
         { name: '接口控制', to: '/add_base_path', routeName: 'add_base_path', active: false, show: true, sort: 10 }
@@ -51,7 +51,7 @@ const updateNavStatus = () => {
     state.navs = Object.values(tmpNavs).sort((a, b) => (a.sort === b.sort ? (a.routeName > b.routeName ? 1 : -1) : a.sort > b.sort ? 1 : -1))
     for (const i in state.navs) {
         switch (state.navs[i].routeName) {
-            case 'login':
+            case 'signin':
                 state.navs[i].active = authorization.value === ''
                 break
             case 'add_base_path':

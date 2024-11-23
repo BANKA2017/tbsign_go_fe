@@ -27,7 +27,7 @@ const pageLoginConfig = computed(() => store.cache?.config_page_login)
 const runtimeConfig = useRuntimeConfig()
 watch(pageLoginConfig, () => {
     if (!pageLoginConfig.value?.enabled_signup) {
-        navigateTo('/login')
+        navigateTo('/signin')
     }
 })
 
@@ -64,7 +64,7 @@ const signup = (e: Event) => {
             // success
             Notice(res.data.msg, 'success')
             //console.log(res.data.msg)
-            navigateTo('/login')
+            navigateTo('/signin')
         })
         .catch((e) => {
             console.error(e)

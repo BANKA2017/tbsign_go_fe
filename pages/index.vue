@@ -145,7 +145,7 @@
                         </form>
                     </template>
                 </Modal>
-                <NuxtLink role="button" class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-pink-600 dark:hover:bg-pink-400 bg-pink-500 text-gray-100 py-2" to="/login" @click="logout"> 登出 </NuxtLink>
+                <NuxtLink role="button" class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-pink-600 dark:hover:bg-pink-400 bg-pink-500 text-gray-100 py-2" to="/signin" @click="logout"> 登出 </NuxtLink>
                 <!--<button class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-sky-400 bg-sky-500 text-gray-100 py-2" @click="exportAccount"> 导出 </button>-->
             </div>
         </div>
@@ -285,7 +285,7 @@ const logout = () => {
             }
             store.logout()
             //console.log(res)
-            navigateTo('/login')
+            navigateTo('/signin')
         })
 }
 
