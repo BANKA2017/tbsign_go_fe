@@ -145,15 +145,116 @@
                         </form>
                     </template>
                 </Modal>
+                <Modal
+                    v-if="accountInfo.system_settings.allow_export_personal_data === '1'"
+                    class="inline-block"
+                    title="备份数据"
+                    @active-callback="
+                        () => {
+                            settingsValue.password = ''
+                            backupFileData = {}
+                        }
+                    "
+                >
+                    <template #default>
+                        <button class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-sky-400 bg-sky-500 text-gray-100 py-2">备份</button>
+                    </template>
+                    <template #container>
+                        <div v-if="accountInfo">
+                            <div class="my-1">
+                                <button :class="'mr-1 rounded px-2 ' + (backupStatus === 'export' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'export'">导出</button>
+                                <button :class="'mr-1 rounded px-2 ' + (backupStatus === 'import' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'import'">导入</button>
+                            </div>
+                            <form v-if="backupStatus === 'export'" class="flex flex-col gap-2">
+                                <label class="block">密码</label>
+                                <input
+                                    type="password"
+                                    placeholder="当前密码"
+                                    autocomplete="current-password"
+                                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                    v-model="settingsValue.password"
+                                />
+                                <input
+                                    v-if="settingsValue.password !== ''"
+                                    type="submit"
+                                    role="button"
+                                    class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl transition-colors"
+                                    @click="
+                                        (e) => {
+                                            e.preventDefault()
+                                            exportAccount(settingsValue.password)
+                                        }
+                                    "
+                                    value="确认导出"
+                                />
+                                <button v-else role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-400 dark:bg-gray-500 text-xl transition-colors" disabled>填写当前密码后导出</button>
+                            </form>
+
+                            <form v-else-if="backupStatus === 'import'" class="flex flex-col gap-2" v-if="accountInfo">
+                                <ul role="list" class="my-1 marker:text-pink-500 list-disc list-inside">
+                                    <li>批量导入数据时不会检查百度账号有效性，请自行提前检查</li>
+                                    <li>目前只支持导入百度账号和贴吧列表</li>
+                                    <li>如果百度账号已经存在，程序只会以<span class="font-bold">仅新增</span>的模式合并贴吧列表</li>
+                                    <li>导入的顺序可能会改变</li>
+                                </ul>
+                                <label class="block">密码</label>
+                                <input
+                                    type="password"
+                                    placeholder="当前密码"
+                                    autocomplete="current-password"
+                                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                    v-model="settingsValue.password"
+                                />
+                                <label class="block">备份文件</label>
+                                <input
+                                    type="file"
+                                    class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-300 file:text-gray-700 hover:file:bg-gray-400 dark:file:bg-gray-600 dark:file:text-gray-100 dark:hover:file:bg-gray-500"
+                                    id="upload-backup-data"
+                                    lang="zh"
+                                    @change="
+                                        async (e) => {
+                                            e.preventDefault()
+                                            loadingBackupData()
+                                        }
+                                    "
+                                    accept="application/json"
+                                />
+                                <div v-if="Object.keys(backupFileData).length > 0">
+                                    <label>已读取备份</label>
+                                    <ul role="list" class="my-1 marker:text-sky-500 list-disc list-inside">
+                                        <li v-for="(backupData, backupTableName) in backupFileData" :key="backupTableName">
+                                            <span class="font-bold">{{ backupTableName }}: </span><span class="font-mono">{{ (backupData || []).length }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <input
+                                    v-if="settingsValue.password !== ''"
+                                    type="submit"
+                                    role="button"
+                                    class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl transition-colors"
+                                    @click="
+                                        (e) => {
+                                            e.preventDefault()
+                                            importAccount(settingsValue.password)
+                                        }
+                                    "
+                                    value="确认导入"
+                                />
+                                <button v-else-if="Object.keys(backupFileData).length > 0" role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-400 dark:bg-gray-500 text-xl transition-colors" disabled>填写当前密码后导入</button>
+                                <button v-else role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-400 dark:bg-gray-500 text-xl transition-colors" disabled>备份数据无效</button>
+                            </form>
+                        </div>
+                    </template>
+                </Modal>
                 <NuxtLink role="button" class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-pink-600 dark:hover:bg-pink-400 bg-pink-500 text-gray-100 py-2" to="/signin" @click="logout"> 登出 </NuxtLink>
-                <!--<button class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-sky-400 bg-sky-500 text-gray-100 py-2" @click="exportAccount"> 导出 </button>-->
             </div>
         </div>
     </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-import { Notice, Request } from '~/share/Tools'
+import { Notice, Request, DownloadFile, ReadFileData } from '~/share/Tools'
 
 const store = useMainStore()
 
@@ -289,7 +390,48 @@ const logout = () => {
         })
 }
 
-// so, should I add this?
+const backupStatus = ref<string>('export') // import
+const backupFileData = ref<{ [p in string]: any }>({})
+
+const loadingBackupData = () => {
+    backupFileData.value = {}
+    ReadFileData('upload-backup-data')
+        .then((res) => {
+            for (const table in res) {
+                if (table.startsWith('tc_')) {
+                    switch (table) {
+                        case 'tc_baiduid':
+                            if (!res[table].some((t) => !(t.portrait && t.stoken && t.bduss && t.id && t.id > 0))) {
+                                backupFileData.value.tc_baiduid = res.tc_baiduid.map((t) => ({
+                                    portrait: String(t.portrait),
+                                    stoken: String(t.stoken),
+                                    bduss: String(t.bduss),
+                                    name: String(t.name || ''),
+                                    label: Number(t.id)
+                                }))
+                            }
+                            break
+                        case 'tc_tieba':
+                            if (!res[table].some((t) => !(t.tieba && t.fid && backupFileData.value.tc_baiduid.find((bdid) => bdid.label === t.pid)))) {
+                                backupFileData.value.tc_tieba = res.tc_tieba.map((t) => ({
+                                    tieba: String(t.tieba),
+                                    fid: Number(t.fid || 0),
+                                    label: Number(t.pid || 0),
+                                    no: !!(t.no || false),
+                                    latest: Number(t.latest || 0),
+                                    status: Number(t.status || 0),
+                                    last_error: String(t.last_error || '')
+                                }))
+                            }
+                            break
+                    }
+                }
+            }
+            document.getElementById('upload-backup-data').value = ''
+        })
+        .catch((err) => {})
+}
+
 const exportAccount = (password = '') => {
     Request(store.basePath + '/passport/export', {
         headers: {
@@ -299,12 +441,40 @@ const exportAccount = (password = '') => {
         body: new URLSearchParams({
             password
         })
-    }).then((res) => {
-        if (res.code !== 200) {
-            return
-        }
-
-        //console.log(res)
     })
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice('导出失败: ' + res.message, 'error')
+                return
+            }
+            Notice('导出成功', 'success')
+            DownloadFile(`tbsign_go-export-${accountInfo.value.uid}.json`, JSON.stringify(res.data, null, 4))
+        })
+        .catch((e) => {
+            Notice('导出失败: ' + e, 'error')
+        })
+}
+
+const importAccount = (password = '') => {
+    Request(store.basePath + '/passport/import', {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'POST',
+        body: new URLSearchParams({
+            password,
+            data: JSON.stringify(backupFileData.value)
+        })
+    })
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice('导入失败: ' + res.message, 'error')
+                return
+            }
+            Notice(`导入完成，本次导入百度账号 ${res.data.tc_baiduid} 个，贴吧 ${res.data.tc_tieba} 个，请刷新网页`, 'success')
+        })
+        .catch((e) => {
+            Notice('导出失败: ' + e, 'error')
+        })
 }
 </script>

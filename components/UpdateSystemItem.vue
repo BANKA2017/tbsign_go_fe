@@ -58,7 +58,7 @@ const restartSystem = () => {
             //console.log(res)
         })
         .catch((e) => {
-            Notice('已关闭系统，请刷新本页', 'success')
+            Notice('软件已停止运行，请刷新本页', 'success')
             flowStep.value = 2
             console.error(e)
         })
@@ -94,9 +94,9 @@ const refreshPage = () => {
         </ul>
 
         <div class="flex justify-start gap-2">
-            <Modal class="col-span-3 md:col-span-1" title="更新系统" aria-label="更新系统" v-if="!isCurrent">
+            <Modal class="col-span-3 md:col-span-1" title="软件更新" aria-label="软件更新" v-if="!isCurrent">
                 <template #default>
-                    <button class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg px-3 py-1 hover:text-gray-100 transition-colors" title="更新系统" aria-label="更新系统">更新系统</button>
+                    <button class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg px-3 py-1 hover:text-gray-100 transition-colors" title="软件更新" aria-label="软件更新">软件更新</button>
                 </template>
                 <template #container>
                     <div v-if="flowStep === 0">

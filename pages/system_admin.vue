@@ -96,7 +96,7 @@ const settingsGroup = ref({
     },
     account: {
         name: '账号',
-        data: { enable_reg: '开启注册', yr_reg: '邀请码 (留空代表无需邀请码)', cktime: 'JWT 有效期 (设置后签发的 Token 才生效)' }
+        data: { enable_reg: '开启注册', yr_reg: '邀请码 (留空代表无需邀请码)', cktime: 'JWT 有效期 (设置后签发的 Token 才生效)', go_export_personal_data: '允许备份个人数据' }
     },
     checkin: {
         name: '签到',
@@ -373,7 +373,7 @@ onMounted(() => {
 
             <div class="my-2 rounded-2xl" v-if="isSupportVersion(serverGoStatus.os, serverGoStatus.arch)">
                 <div class="px-3 py-2">
-                    <span class="text-lg">系统更新 (beta)</span>
+                    <span class="text-lg">软件更新</span>
                 </div>
                 <div v-if="serverStatus.build.runtime === 'Dev'">
                     <p class="px-3">
@@ -470,7 +470,7 @@ onMounted(() => {
                             </select>
                             <select
                                 :id="'input-' + key"
-                                v-else-if="['enable_reg', 'ver4_ban_break_check'].includes(key)"
+                                v-else-if="['enable_reg', 'ver4_ban_break_check', 'go_export_personal_data'].includes(key)"
                                 class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                                 v-model="serverSettings[key]"
                             >
