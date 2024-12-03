@@ -146,9 +146,9 @@
                     </template>
                 </Modal>
                 <Modal
-                    v-if="accountInfo.system_settings.allow_export_personal_data === '1'"
+                    v-if="accountInfo.system_settings.allow_export_personal_data === '1' || accountInfo.system_settings.allow_import_personal_data === '1'"
                     class="inline-block"
-                    title="备份数据"
+                    title="备份"
                     @active-callback="
                         () => {
                             settingsValue.password = ''
@@ -162,8 +162,8 @@
                     <template #container>
                         <div v-if="accountInfo">
                             <div class="my-1">
-                                <button :class="'mr-1 rounded px-2 ' + (backupStatus === 'export' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'export'">导出</button>
-                                <button :class="'mr-1 rounded px-2 ' + (backupStatus === 'import' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'import'">导入</button>
+                                <button v-if="accountInfo.system_settings.allow_export_personal_data === '1'" :class="'mr-1 rounded px-2 ' + (backupStatus === 'export' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'export'">导出</button>
+                                <button v-if="accountInfo.system_settings.allow_import_personal_data === '1'" :class="'mr-1 rounded px-2 ' + (backupStatus === 'import' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'import'">导入</button>
                             </div>
                             <form v-if="backupStatus === 'export'" class="flex flex-col gap-2">
                                 <label class="block">密码</label>
@@ -244,6 +244,7 @@
                                 <button v-else-if="Object.keys(backupFileData).length > 0" role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-400 dark:bg-gray-500 text-xl transition-colors" disabled>填写当前密码后导入</button>
                                 <button v-else role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-400 dark:bg-gray-500 text-xl transition-colors" disabled>备份数据无效</button>
                             </form>
+                            <div v-else>本网站不支持备份</div>
                         </div>
                     </template>
                 </Modal>
@@ -310,6 +311,12 @@ onMounted(async () => {
         settingsValue.bark_key = accountInfo.value?.bark_key || ''
         settingsValue.ntfy_topic = accountInfo.value?.ntfy_topic || ''
         settingsValue.push_type = accountInfo.value?.push_type || ''
+
+        if (accountInfo.value.system_settings.allow_export_personal_data !== '1' && accountInfo.value.system_settings.allow_import_personal_data === '1') {
+            backupStatus.value = 'import'
+        } else if (accountInfo.value.system_settings.allow_export_personal_data !== '1' && accountInfo.value.system_settings.allow_import_personal_data !== '1') {
+            backupStatus.value = 'none'
+        }
     }
 })
 

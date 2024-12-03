@@ -96,7 +96,11 @@ const settingsGroup = ref({
     },
     account: {
         name: '账号',
-        data: { enable_reg: '开启注册', yr_reg: '邀请码 (留空代表无需邀请码)', cktime: 'JWT 有效期 (设置后签发的 Token 才生效)', go_export_personal_data: '允许备份个人数据' }
+        data: { enable_reg: '开启注册', yr_reg: '邀请码 (留空代表无需邀请码)', cktime: 'JWT 有效期 (设置后签发的 Token 才生效)' }
+    },
+    backup: {
+        name: '备份',
+        data: { go_export_personal_data: '允许导出个人数据', go_import_personal_data: '允许导入个人数据' }
     },
     checkin: {
         name: '签到',
@@ -470,7 +474,7 @@ onMounted(() => {
                             </select>
                             <select
                                 :id="'input-' + key"
-                                v-else-if="['enable_reg', 'ver4_ban_break_check', 'go_export_personal_data'].includes(key)"
+                                v-else-if="['enable_reg', 'ver4_ban_break_check', 'go_export_personal_data', 'go_import_personal_data'].includes(key)"
                                 class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                                 v-model="serverSettings[key]"
                             >
