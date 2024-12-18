@@ -146,7 +146,7 @@
                     </template>
                 </Modal>
                 <Modal
-                    v-if="accountInfo.system_settings.allow_export_personal_data === '1' || accountInfo.system_settings.allow_import_personal_data === '1'"
+                    v-if="accountInfo.system_settings?.allow_export_personal_data === '1' || accountInfo.system_settings?.allow_import_personal_data === '1'"
                     class="inline-block"
                     title="备份"
                     @active-callback="
@@ -162,8 +162,12 @@
                     <template #container>
                         <div v-if="accountInfo">
                             <div class="my-1">
-                                <button v-if="accountInfo.system_settings.allow_export_personal_data === '1'" :class="'mr-1 rounded px-2 ' + (backupStatus === 'export' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'export'">导出</button>
-                                <button v-if="accountInfo.system_settings.allow_import_personal_data === '1'" :class="'mr-1 rounded px-2 ' + (backupStatus === 'import' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'import'">导入</button>
+                                <button v-if="accountInfo.system_settings?.allow_export_personal_data === '1'" :class="'mr-1 rounded px-2 ' + (backupStatus === 'export' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'export'">
+                                    导出
+                                </button>
+                                <button v-if="accountInfo.system_settings?.allow_import_personal_data === '1'" :class="'mr-1 rounded px-2 ' + (backupStatus === 'import' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'import'">
+                                    导入
+                                </button>
                             </div>
                             <form v-if="backupStatus === 'export'" class="flex flex-col gap-2">
                                 <label class="block">密码</label>
@@ -312,9 +316,9 @@ onMounted(async () => {
         settingsValue.ntfy_topic = accountInfo.value?.ntfy_topic || ''
         settingsValue.push_type = accountInfo.value?.push_type || ''
 
-        if (accountInfo.value.system_settings.allow_export_personal_data !== '1' && accountInfo.value.system_settings.allow_import_personal_data === '1') {
+        if (accountInfo.value.system_settings?.allow_export_personal_data !== '1' && accountInfo.value.system_settings?.allow_import_personal_data === '1') {
             backupStatus.value = 'import'
-        } else if (accountInfo.value.system_settings.allow_export_personal_data !== '1' && accountInfo.value.system_settings.allow_import_personal_data !== '1') {
+        } else if (accountInfo.value.system_settings?.allow_export_personal_data !== '1' && accountInfo.value.system_settings?.allow_import_personal_data !== '1') {
             backupStatus.value = 'none'
         }
     }

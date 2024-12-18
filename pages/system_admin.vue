@@ -302,7 +302,8 @@ onMounted(() => {
                             <span class="font-bold">运行时长 : </span><span class="font-mono">{{ uptime }} {{ uptime === 1 ? 'min' : 'mins' }}</span>
                         </li>
                         <li>
-                            <span class="font-bold">数据库模式 : </span><span class="font-mono">{{ serverStatus.variables?.dbmode }}</span>
+                            <span class="font-bold">数据库模式 : </span
+                            ><span class="font-mono">{{ serverStatus.variables?.dbmode + (serverStatus.variables?.tlsdb && (serverStatus.variables?.dbmode || '').toString().toLowerCase() === 'mysql' ? ' (tls)' : '') }}</span>
                         </li>
                         <li>
                             <span class="font-bold">测试模式 : </span><span class="font-mono">{{ serverStatus.variables?.testmode }}</span>
