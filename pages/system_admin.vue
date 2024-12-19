@@ -306,6 +306,10 @@ onMounted(() => {
                             ><span class="font-mono">{{ serverStatus.variables?.dbmode + (serverStatus.variables?.tlsdb && (serverStatus.variables?.dbmode || '').toString().toLowerCase() === 'mysql' ? ' (tls)' : '') }}</span>
                         </li>
                         <li>
+                            <span class="font-bold">数据库版本 : </span
+                            ><span class="font-mono">{{ serverStatus.variables?.dbversion }}</span>
+                        </li>
+                        <li>
                             <span class="font-bold">测试模式 : </span><span class="font-mono">{{ serverStatus.variables?.testmode }}</span>
                         </li>
                         <li>
@@ -422,7 +426,7 @@ onMounted(() => {
                         <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-1" />
                         <div class="flex justify-between">
                             <div>
-                                <span class="font-bold mr-1">{{ pluginGroup[pluginName] || pluginName }}</span> <span class="px-1.5 rounded bg-sky-500 dark:bg-sky-700 text-sm text-gray-100" v-if="value?.ver">v{{ value.ver }}</span>
+                                <span class="font-bold mr-1">{{ pluginGroup[pluginName] || pluginName }}</span> <span class="px-1.5 rounded bg-sky-500 dark:bg-sky-700 text-sm text-gray-100" v-if="value?.ver && value?.ver!=='-1'">v{{ value.ver }}</span>
                             </div>
                             <div class="inline-block">
                                 <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true }" @click="pluginSwitch(pluginName)">
