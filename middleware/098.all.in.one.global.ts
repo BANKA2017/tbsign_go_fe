@@ -110,54 +110,60 @@ export default defineNuxtRouteMiddleware((to, from) => {
                     }
                 },
                 to.name?.toString() || null
-            ).then((res) => {
-                store.updateCache('accountInfo', res.data)
-                //console.log(res)
+            )
+                .then((res) => {
+                    store.updateCache('accountInfo', res.data)
+                    //console.log(res)
 
-                if (!store.cache?.accounts) {
-                    Request(
-                        store.basePath + '/account',
-                        {
-                            headers: {
-                                Authorization: authorization
+                    if (!store.cache?.accounts) {
+                        Request(
+                            store.basePath + '/account',
+                            {
+                                headers: {
+                                    Authorization: authorization
+                                }
+                            },
+                            to.name?.toString() || null
+                        ).then((res) => {
+                            if (res.code !== 200) {
+                                return
                             }
-                        },
-                        to.name?.toString() || null
-                    ).then((res) => {
-                        if (res.code !== 200) {
-                            return
-                        }
-                        store.updateCache(
-                            'accounts',
-                            (res.data || []).map((account) => {
-                                account.page = 0
-                                account.more = false
-                                account.filter = 'all'
-                                account.search = ''
-                                return account
-                            })
-                        )
-                        //console.log(res)
-                    })
-                }
-                if (!store.cache?.plugin_list) {
-                    Request(
-                        store.basePath + '/plugins',
-                        {
-                            headers: {
-                                Authorization: store.authorization
+                            store.updateCache(
+                                'accounts',
+                                (res.data || []).map((account) => {
+                                    account.page = 0
+                                    account.more = false
+                                    account.filter = 'all'
+                                    account.search = ''
+                                    return account
+                                })
+                            )
+                            //console.log(res)
+                        })
+                    }
+                    if (!store.cache?.plugin_list) {
+                        Request(
+                            store.basePath + '/plugins',
+                            {
+                                headers: {
+                                    Authorization: store.authorization
+                                }
+                            },
+                            to.name?.toString() || null
+                        ).then((res) => {
+                            if (res.code !== 200) {
+                                return
                             }
-                        },
-                        to.name?.toString() || null
-                    ).then((res) => {
-                        if (res.code !== 200) {
-                            return
-                        }
-                        store.updateCache('plugin_list', res.data)
-                        //console.log(res)
-                    })
-                }
-            })
+                            store.updateCache('plugin_list', res.data)
+                            //console.log(res)
+                        })
+                    }
+                })
+                .catch((e) => {
+                    store.logout()
+                    navigateTo('/signin')
+                    throw e
+                })
         }
     }
 })

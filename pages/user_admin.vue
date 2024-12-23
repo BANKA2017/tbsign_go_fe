@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Modal from '~/components/Modal.vue'
+import { getPubDate } from '~/share/Time'
 import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
@@ -169,6 +170,46 @@ const resetCheckinStatus = (uid = 0, failed_only = false) => {
     })
 }
 
+const resetPasswordCodeStruct = reactive<{
+    verify_code: string
+    expire: number
+    value: string
+    time: number
+}>({
+    verify_code: '',
+    expire: 0,
+    value: '',
+    time: 0
+})
+
+const resetPasswordCode = (uid = 0) => {
+    if (uid < 1) {
+        return
+    }
+    Request(store.basePath + '/admin/account/password/' + uid + '/reset', {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'POST'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            //console.log(res)
+            return
+        }
+
+        if (res.data?.value) {
+            resetPasswordCodeStruct.value = res.data.value
+            resetPasswordCodeStruct.verify_code = res.data.verify_code
+            resetPasswordCodeStruct.expire = res.data.expire
+            resetPasswordCodeStruct.time = res.data.time
+        }
+
+        Notice('获取 uid:' + uid + ' 的密码重置验证码成功', 'success')
+        //console.log(res)
+    })
+}
+
 onMounted(() => {
     page.value = Number(route.query?.page || 1) || 1
     getList()
@@ -250,6 +291,38 @@ onMounted(() => {
                                 >仅重置签到失败的贴吧</label
                             >
                             <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="resetCheckinStatus(listItem.id, resetFailedOnly)">确认</button>
+                        </template>
+                    </Modal>
+                    <Modal
+                        class="py-1 rounded-lg inline mr-2 mb-1"
+                        title="重置密码验证码"
+                        @active-callback="
+                            () => {
+                                resetPasswordCodeStruct.value = ''
+                            }
+                        "
+                    >
+                        <template #default>
+                            <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100">获取验证码</button>
+                        </template>
+                        <template #container>
+                            <ul class="mb-3 col-span-2 md:col-span-1 marker:text-pink-500 list-disc list-inside">
+                                <li>请管理员协助用户获取验证码前先确认申请者身份</li>
+                            </ul>
+                            <div v-if="resetPasswordCodeStruct.value">
+                                <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside">
+                                    <li>
+                                        验证码：<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ resetPasswordCodeStruct.value }}</span>
+                                    </li>
+                                    <li>
+                                        有效期至：<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ getPubDate(new Date(resetPasswordCodeStruct.expire * 1000)) }}</span>
+                                    </li>
+                                    <li>
+                                        重置次数：<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ resetPasswordCodeStruct.time }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="resetPasswordCode(listItem.id)">确认</button>
                         </template>
                     </Modal>
                 </div>
