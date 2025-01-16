@@ -60,7 +60,7 @@ export const useMainStore = defineStore('main', {
             return this.config[this._basePath]?.authorization || ''
         },
         authorization(): string {
-            return 'Bearer ' + this.config[this._basePath]?.authorization || ''
+            return this.config[this._basePath]?.authorization || ''
         },
         cache(): any {
             return this._cache

@@ -96,7 +96,7 @@ const settingsGroup = ref({
     },
     account: {
         name: '账号',
-        data: { enable_reg: '开启注册', yr_reg: '邀请码 (留空代表无需邀请码)', cktime: 'JWT 有效期 (设置后签发的 Token 才生效)' }
+        data: { enable_reg: '开启注册', yr_reg: '邀请码 (留空代表无需邀请码)', cktime: 'Session 有效期 (设置后签发的 Token 才生效)' }
     },
     backup: {
         name: '备份',

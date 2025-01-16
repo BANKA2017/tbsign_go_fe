@@ -63,7 +63,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
     let authorization = store.authorization
 
-    if (!authorization.startsWith('Bearer ') || authorization === 'Bearer ') {
+    if ((authorization || '').split(':').length !== 2) {
         if (!['signin', 'signup', 'reset_password', 'add_base_path'].includes(to.name as string)) {
             return navigateTo('/signin')
         }
@@ -90,7 +90,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
         return navigateTo('/add_base_path')
     }
 
-    if (!authorization.startsWith('Bearer ') || authorization === 'Bearer ') {
+    if ((authorization || '').split(':').length !== 2) {
         if (!store.cache?.config_page_login) {
             Request(store.basePath + '/config/page/login', {}, to.name?.toString() || null).then((res) => {
                 if (res.code !== 200) {
@@ -146,7 +146,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
                             store.basePath + '/plugins',
                             {
                                 headers: {
-                                    Authorization: store.authorization
+                                    Authorization: authorization
                                 }
                             },
                             to.name?.toString() || null
