@@ -353,6 +353,9 @@ onMounted(() => {
                             }}</NuxtLink>
                             <span v-else class="font-mono">Dev</span>
                         </li>
+                        <li>
+                            <span class="font-bold">libc : </span><span class="font-mono">{{ serverStatus.build.libc }}</span>
+                        </li>
                     </ul>
                     <ul class="col-span-2 md:col-span-1 marker:text-teal-500 list-disc list-inside">
                         <li>
@@ -387,6 +390,12 @@ onMounted(() => {
                     <p class="px-3">
                         <SvgCross height="1.2em" width="1.2em" class="inline-block mx-0.5" /> 不支持的版本 (开发版)，请参考
                         <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 自行编译运行
+                    </p>
+                </div>
+                <div v-else-if="!(serverStatus.build.libc || '').toLowerCase().includes('glibc')">
+                    <p class="px-3">
+                        <SvgCross height="1.2em" width="1.2em" class="inline-block mx-0.5" /> 不支持的版本 (Docker 版)，请前往
+                        <a href="https://github.com/BANKA2017/tbsign_go/pkgs/container/tbsign_go" target="_blank" class="underline"><code>tbsign_go/pkgs</code></a> 更新 Image
                     </p>
                 </div>
                 <div v-else-if="releaseList.length == 0">
