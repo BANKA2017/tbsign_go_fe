@@ -354,7 +354,7 @@ onMounted(() => {
                             <span v-else class="font-mono">Dev</span>
                         </li>
                         <li>
-                            <span class="font-bold">libc : </span><span class="font-mono">{{ serverStatus.build.libc }}</span>
+                            <span class="font-bold">发布类型 : </span><span class="font-mono">{{ serverStatus.build.publish_type }}</span>
                         </li>
                     </ul>
                     <ul class="col-span-2 md:col-span-1 marker:text-teal-500 list-disc list-inside">
@@ -392,7 +392,7 @@ onMounted(() => {
                         <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 自行编译运行
                     </p>
                 </div>
-                <div v-else-if="(serverStatus.build.libc || '').toLowerCase().includes('musl')">
+                <div v-else-if="(serverStatus.build.publish_type || '').toLowerCase() === 'docker'">
                     <p class="px-3">
                         <SvgCross height="1.2em" width="1.2em" class="inline-block mx-0.5" /> 请直接前往
                         <a href="https://github.com/BANKA2017/tbsign_go/pkgs/container/tbsign_go" target="_blank" class="underline"><code>tbsign_go/pkgs</code></a> 检查更新
