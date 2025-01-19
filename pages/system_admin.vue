@@ -392,10 +392,10 @@ onMounted(() => {
                         <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 自行编译运行
                     </p>
                 </div>
-                <div v-else-if="!(serverStatus.build.libc || '').toLowerCase().includes('glibc')">
+                <div v-else-if="(serverStatus.build.libc || '').toLowerCase().includes('musl')">
                     <p class="px-3">
-                        <SvgCross height="1.2em" width="1.2em" class="inline-block mx-0.5" /> 不支持的版本 (Docker 版)，请前往
-                        <a href="https://github.com/BANKA2017/tbsign_go/pkgs/container/tbsign_go" target="_blank" class="underline"><code>tbsign_go/pkgs</code></a> 更新 Image
+                        <SvgCross height="1.2em" width="1.2em" class="inline-block mx-0.5" /> 请直接前往
+                        <a href="https://github.com/BANKA2017/tbsign_go/pkgs/container/tbsign_go" target="_blank" class="underline"><code>tbsign_go/pkgs</code></a> 检查更新
                     </p>
                 </div>
                 <div v-else-if="releaseList.length == 0">
