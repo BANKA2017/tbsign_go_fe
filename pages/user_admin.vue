@@ -217,145 +217,143 @@ onMounted(() => {
 </script>
 
 <template>
-    <NuxtLayout name="tbsign">
-        <div class="p-3 mb-5">
-            <label for="search-account" class="text-lg">搜索账号</label>
-            <div class="flex w-full rounded-xl my-3">
-                <input id="search-account" type="text" class="form-input bg-gray-100 dark:bg-gray-900 grow rounded-l-xl" v-model="query" placeholder="用户名、邮箱" />
-                <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl" @click="getList">搜索</button>
-            </div>
+    <div class="p-3 mb-5">
+        <label for="search-account" class="text-lg">搜索账号</label>
+        <div class="flex w-full rounded-xl my-3">
+            <input id="search-account" type="text" class="form-input bg-gray-100 dark:bg-gray-900 grow rounded-l-xl" v-model="query" placeholder="用户名、邮箱" />
+            <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl" @click="getList">搜索</button>
         </div>
-        <div class="w-full">
-            <select id="page" v-model="page" class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select block w-24 my-2 mx-3">
-                <option v-for="(_, i) in new Array(Math.ceil(total / count))" :key="'page-' + i" :value="i + 1">{{ i + 1 }} 页</option>
+    </div>
+    <div class="w-full">
+        <select id="page" v-model="page" class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select block w-24 my-2 mx-3">
+            <option v-for="(_, i) in new Array(Math.ceil(total / count))" :key="'page-' + i" :value="i + 1">{{ i + 1 }} 页</option>
+        </select>
+        <div v-for="(listItem, index) in list" :key="listItem.id" class="p-3 rounded-xl mb-5">
+            <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-3" />
+            <div class="text-2xl flex gap-2 mb-2">
+                <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">uid: {{ listItem.id }}</span>
+                <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">账号: {{ listItem.baidu_account_count }}</span>
+                <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">贴吧: {{ listItem.forum_count }}</span>
+            </div>
+            <div class="text-2xl flex gap-2 mb-2">
+                <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">成功: {{ listItem.checkin_success }}</span>
+                <span class="text-sm rounded-full text-gray-100 bg-pink-600 dark:bg-pink-800 px-2">失败: {{ listItem.checkin_failed }}</span>
+                <span class="text-sm rounded-full text-gray-100 bg-orange-600 dark:bg-orange-800 px-2">待签: {{ listItem.checkin_waiting }}</span>
+                <span class="text-sm rounded-full text-gray-100 bg-gray-600 dark:bg-gray-800 px-2">忽略: {{ listItem.checkin_ignore }}</span>
+            </div>
+            <label :for="'username-' + listItem.id">用户名</label>
+            <input
+                :id="'username-' + listItem.id"
+                autocomplete="username"
+                type="text"
+                class="my-2 rounded-xl placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100"
+                v-model="list[index].name"
+            />
+            <label :for="'user-email-' + listItem.id">邮箱</label>
+            <input
+                :id="'user-email-' + listItem.id"
+                autocomplete="email"
+                type="email"
+                class="my-2 rounded-xl placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100"
+                v-model="list[index].email"
+            />
+            <label :for="'user-group-' + listItem.id">用户组</label>
+            <select :id="'user-group-' + listItem.id" v-model="list[index].role" class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select block w-full my-2">
+                <option v-for="name in userGroupList" :key="name" :value="name">{{ name }}</option>
             </select>
-            <div v-for="(listItem, index) in list" :key="listItem.id" class="p-3 rounded-xl mb-5">
-                <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-3" />
-                <div class="text-2xl flex gap-2 mb-2">
-                    <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">uid: {{ listItem.id }}</span>
-                    <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">账号: {{ listItem.baidu_account_count }}</span>
-                    <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">贴吧: {{ listItem.forum_count }}</span>
-                </div>
-                <div class="text-2xl flex gap-2 mb-2">
-                    <span class="text-sm rounded-full text-gray-100 bg-green-600 dark:bg-green-800 px-2">成功: {{ listItem.checkin_success }}</span>
-                    <span class="text-sm rounded-full text-gray-100 bg-pink-600 dark:bg-pink-800 px-2">失败: {{ listItem.checkin_failed }}</span>
-                    <span class="text-sm rounded-full text-gray-100 bg-orange-600 dark:bg-orange-800 px-2">待签: {{ listItem.checkin_waiting }}</span>
-                    <span class="text-sm rounded-full text-gray-100 bg-gray-600 dark:bg-gray-800 px-2">忽略: {{ listItem.checkin_ignore }}</span>
-                </div>
-                <label :for="'username-' + listItem.id">用户名</label>
-                <input
-                    :id="'username-' + listItem.id"
-                    autocomplete="username"
-                    type="text"
-                    class="my-2 rounded-xl placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100"
-                    v-model="list[index].name"
-                />
-                <label :for="'user-email-' + listItem.id">邮箱</label>
-                <input
-                    :id="'user-email-' + listItem.id"
-                    autocomplete="email"
-                    type="email"
-                    class="my-2 rounded-xl placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100"
-                    v-model="list[index].email"
-                />
-                <label :for="'user-group-' + listItem.id">用户组</label>
-                <select :id="'user-group-' + listItem.id" v-model="list[index].role" class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select block w-full my-2">
-                    <option v-for="name in userGroupList" :key="name" :value="name">{{ name }}</option>
-                </select>
 
-                <div class="mt-5">
-                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 mr-2 mb-1" @click="saveSettings(listItem.id)">保存</button>
-                    <!--<button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors mr-2" @click="deleteAccount(listItem.id)">删除</button>-->
-                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 mr-2 mb-1" @click="kickDown(listItem.id)">下线</button>
-                    <Modal class="py-1 rounded-lg inline mr-2 mb-1" title="清空账号绑定">
-                        <template #default>
-                            <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100">清空账号绑定</button>
-                        </template>
-                        <template #container>
-                            <p class="mb-3">注意：确认后将会清空对应账号的所有本站贴吧账号绑定！</p>
-                            <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTiebaAccounts(listItem.id)">确认</button>
-                        </template>
-                    </Modal>
-                    <Modal class="py-1 rounded-lg inline mr-2 mb-1" title="重置本日签到状态">
-                        <template #default>
-                            <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100">重置签到状态</button>
-                        </template>
-                        <template #container>
+            <div class="mt-5">
+                <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 mr-2 mb-1" @click="saveSettings(listItem.id)">保存</button>
+                <!--<button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors mr-2" @click="deleteAccount(listItem.id)">删除</button>-->
+                <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 mr-2 mb-1" @click="kickDown(listItem.id)">下线</button>
+                <Modal class="py-1 rounded-lg inline mr-2 mb-1" title="清空账号绑定">
+                    <template #default>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100">清空账号绑定</button>
+                    </template>
+                    <template #container>
+                        <p class="mb-3">注意：确认后将会清空对应账号的所有本站贴吧账号绑定！</p>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTiebaAccounts(listItem.id)">确认</button>
+                    </template>
+                </Modal>
+                <Modal class="py-1 rounded-lg inline mr-2 mb-1" title="重置本日签到状态">
+                    <template #default>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100">重置签到状态</button>
+                    </template>
+                    <template #container>
+                        <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside">
+                            <li>确认后将会清空对应账号的所有本站贴吧账号绑定今天的签到状态，会导致重签。</li>
+                            <li>短时间内频繁签到会导致对应的贴吧账号被封禁，请谨慎使用本功能。</li>
+                        </ul>
+                        <input type="checkbox" class="form-checkbox bg-gray-100 dark:bg-gray-900 dark:checked:bg-blue-500 my-4" v-model="resetFailedOnly" :id="'upgrade-double-check-:' + listItem.id" /><label
+                            class="ml-2"
+                            :for="'upgrade-double-check-:' + listItem.id"
+                            >仅重置签到失败的贴吧</label
+                        >
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="resetCheckinStatus(listItem.id, resetFailedOnly)">确认</button>
+                    </template>
+                </Modal>
+                <Modal
+                    class="py-1 rounded-lg inline mr-2 mb-1"
+                    title="重置密码验证码"
+                    @active-callback="
+                        () => {
+                            resetPasswordCodeStruct.value = ''
+                        }
+                    "
+                >
+                    <template #default>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100">获取验证码</button>
+                    </template>
+                    <template #container>
+                        <ul class="mb-3 col-span-2 md:col-span-1 marker:text-pink-500 list-disc list-inside">
+                            <li>请管理员协助用户获取验证码前先确认申请者身份</li>
+                        </ul>
+                        <div v-if="resetPasswordCodeStruct.value">
                             <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside">
-                                <li>确认后将会清空对应账号的所有本站贴吧账号绑定今天的签到状态，会导致重签。</li>
-                                <li>短时间内频繁签到会导致对应的贴吧账号被封禁，请谨慎使用本功能。</li>
+                                <li>
+                                    验证码：<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ resetPasswordCodeStruct.value }}</span>
+                                </li>
+                                <li>
+                                    有效期至：<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ getPubDate(new Date(resetPasswordCodeStruct.expire * 1000)) }}</span>
+                                </li>
+                                <li>
+                                    重置次数：<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ resetPasswordCodeStruct.time }}</span>
+                                </li>
                             </ul>
-                            <input type="checkbox" class="form-checkbox bg-gray-100 dark:bg-gray-900 dark:checked:bg-blue-500 my-4" v-model="resetFailedOnly" :id="'upgrade-double-check-:' + listItem.id" /><label
-                                class="ml-2"
-                                :for="'upgrade-double-check-:' + listItem.id"
-                                >仅重置签到失败的贴吧</label
-                            >
-                            <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="resetCheckinStatus(listItem.id, resetFailedOnly)">确认</button>
-                        </template>
-                    </Modal>
-                    <Modal
-                        class="py-1 rounded-lg inline mr-2 mb-1"
-                        title="重置密码验证码"
-                        @active-callback="
-                            () => {
-                                resetPasswordCodeStruct.value = ''
-                            }
-                        "
-                    >
-                        <template #default>
-                            <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100">获取验证码</button>
-                        </template>
-                        <template #container>
-                            <ul class="mb-3 col-span-2 md:col-span-1 marker:text-pink-500 list-disc list-inside">
-                                <li>请管理员协助用户获取验证码前先确认申请者身份</li>
-                            </ul>
-                            <div v-if="resetPasswordCodeStruct.value">
-                                <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside">
-                                    <li>
-                                        验证码：<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ resetPasswordCodeStruct.value }}</span>
-                                    </li>
-                                    <li>
-                                        有效期至：<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ getPubDate(new Date(resetPasswordCodeStruct.expire * 1000)) }}</span>
-                                    </li>
-                                    <li>
-                                        重置次数：<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ resetPasswordCodeStruct.time }}</span>
-                                    </li>
-                                </ul>
-                            </div>
-                            <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="resetPasswordCode(listItem.id)">确认</button>
-                        </template>
-                    </Modal>
-                </div>
+                        </div>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="resetPasswordCode(listItem.id)">确认</button>
+                    </template>
+                </Modal>
             </div>
         </div>
-        <div
-            :class="{
-                fixed: true,
-                'right-5': true,
-                'bottom-32': true,
-                'px-3': true,
-                'py-2': true,
-                'cursor-pointer': true,
-                'transition-colors': true,
-                'duration-150': true,
-                'select-none': true,
-                'text-gray-100': true,
-                'bg-sky-500': true,
-                'hover:bg-sky-600': true,
-                'dark:hover:bg-sky-400': true,
-                'rounded-md': true
-            }"
-            style="z-index: 9999"
-            @click="getList"
-        >
-            <svg :class="{ 'animate-spin': loading }" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
-                <g fill="currentColor">
-                    <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
-                    <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182a.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
-                </g>
-            </svg>
-        </div>
-    </NuxtLayout>
+    </div>
+    <div
+        :class="{
+            fixed: true,
+            'right-5': true,
+            'bottom-32': true,
+            'px-3': true,
+            'py-2': true,
+            'cursor-pointer': true,
+            'transition-colors': true,
+            'duration-150': true,
+            'select-none': true,
+            'text-gray-100': true,
+            'bg-sky-500': true,
+            'hover:bg-sky-600': true,
+            'dark:hover:bg-sky-400': true,
+            'rounded-md': true
+        }"
+        style="z-index: 9999"
+        @click="getList"
+    >
+        <svg :class="{ 'animate-spin': loading }" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
+            <g fill="currentColor">
+                <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
+                <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182a.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
+            </g>
+        </svg>
+    </div>
 </template>
 
 <style scoped></style>

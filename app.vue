@@ -1,5 +1,5 @@
 <template>
-    <NuxtLayout>
+    <NuxtLayout name="tbsign">
         <NuxtPage />
     </NuxtLayout>
 </template>

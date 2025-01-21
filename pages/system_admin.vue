@@ -284,332 +284,331 @@ onMounted(() => {
 </script>
 
 <template>
-    <NuxtLayout name="tbsign">
-        <div v-if="isAdmin">
-            <div class="my-2 rounded-2xl">
-                <div class="px-3 py-2">
-                    <span class="text-lg">服务器状态</span>
-                </div>
-                <div class="p-3 grid grid-cols-2 gap-2">
-                    <ul class="col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside">
-                        <li>
-                            <span class="font-bold">Goroutines : </span><span class="font-mono">{{ serverStatus.goroutine }}</span>
-                        </li>
-                        <li>
-                            <span class="font-bold">Go 版本 : </span><span class="font-mono">{{ serverStatus.goversion }}</span>
-                        </li>
-                        <li>
-                            <span class="font-bold">运行时长 : </span><span class="font-mono">{{ uptime }} {{ uptime === 1 ? 'min' : 'mins' }}</span>
-                        </li>
-                        <li>
-                            <span class="font-bold">数据库模式 : </span
-                            ><span class="font-mono">{{ serverStatus.variables?.dbmode + (serverStatus.variables?.tlsdb && (serverStatus.variables?.dbmode || '').toString().toLowerCase() === 'mysql' ? ' (tls)' : '') }}</span>
-                        </li>
-                        <li>
-                            <span class="font-bold">数据库版本 : </span><span class="font-mono">{{ serverStatus.variables?.dbversion }}</span>
-                        </li>
-                        <li>
-                            <span class="font-bold">测试模式 : </span><span class="font-mono">{{ serverStatus.variables?.testmode }}</span>
-                        </li>
-                        <li>
-                            <span class="font-bold">兼容版本 : </span><span class="font-mono">{{ serverStatus.compat }}</span>
-                        </li>
-                        <li>
-                            <span class="font-bold">运行模式 : </span><span class="font-mono">{{ serverStatus.pure_go ? 'pure' : 'compat' }}</span>
-                        </li>
-                    </ul>
-                    <ul class="col-span-2 md:col-span-1 marker:text-indigo-500 list-disc list-inside">
-                        <li>
-                            <span class="font-bold">构建时间 : </span><span class="font-mono">{{ serverStatus.build.date }}</span>
-                        </li>
-                        <li>
-                            <span class="font-bold">构建系统 : </span><span class="font-mono">{{ serverStatus.build.runtime }}</span>
-                        </li>
-                        <li>
-                            <span class="font-bold">后端版本 : </span>
-                            <p class="inline-block font-mono" v-if="serverStatus?.build?.date">
-                                <span>{{ serverStatus.build.date.slice(0, 10).replaceAll('-', '') }}.</span>
-                                <NuxtLink
-                                    v-if="serverStatus?.build?.commit_hash && serverStatus.build.commit_hash !== 'N/A'"
-                                    :to="'https://github.com/BANKA2017/tbsign_go/commit/' + serverStatus.build.commit_hash"
-                                    class="text-gray-100 bg-gray-500 px-2 rounded-xl"
-                                    >{{ (serverStatus.build.commit_hash || '').slice(0, 7) }}</NuxtLink
-                                >
-                                <span v-else>_</span>
-                                <span>.</span>
-                                <NuxtLink
-                                    v-if="serverStatus?.build?.embedded_frontend_commit_hash && serverStatus.build.embedded_frontend_commit_hash !== 'N/A'"
-                                    :to="'https://github.com/BANKA2017/tbsign_go_fe/commit/' + serverStatus.build.embedded_frontend_commit_hash"
-                                    class="text-gray-100 bg-gray-500 px-2 rounded-xl"
-                                    >{{ (serverStatus.build.embedded_frontend_commit_hash || '').slice(0, 7) }}</NuxtLink
-                                >
-                                <span v-else>_</span>
-                            </p>
-                        </li>
-                        <li>
-                            <span class="font-bold">前端版本 : </span>
-                            <NuxtLink v-if="config.public.NUXT_COMMIT_HASH" :to="'https://github.com/BANKA2017/tbsign_go_fe/commit/' + config.public.NUXT_COMMIT_HASH" class="font-mono text-gray-100 bg-gray-500 px-2 rounded-xl">{{
-                                (config.public.NUXT_COMMIT_HASH || '').slice(0, 7)
-                            }}</NuxtLink>
-                            <span v-else class="font-mono">Dev</span>
-                        </li>
-                        <li>
-                            <span class="font-bold">发布类型 : </span><span class="font-mono">{{ serverStatus.build.publish_type }}</span>
-                        </li>
-                    </ul>
-                    <ul class="col-span-2 md:col-span-1 marker:text-teal-500 list-disc list-inside">
-                        <li>
-                            <span class="font-bold">账号总数 : </span><span class="font-mono">{{ serverStatus.uid_count }}</span>
-                        </li>
-                        <li>
-                            <span class="font-bold">绑定总数 : </span><span class="font-mono">{{ serverStatus.pid_count }}</span>
-                        </li>
-                        <li>
-                            <span class="font-bold">贴吧总数 : </span><span class="font-mono">{{ serverStatus.forum_count }}</span>
-                        </li>
-                        <li>
-                            <span class="font-bold">签到情况 : </span>
-                            <ul class="col-span-2 md:col-span-1 marker:text-teal-500 list-disc list-inside ml-5">
-                                <li v-for="(v, k) in serverStatus.checkin_status || []" :key="k">
-                                    <span class="font-bold">{{ k }} : </span><span class="font-mono">{{ v }}</span>
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-                            <span class="font-bold">最后执行/重签次数 : </span><span class="font-mono">{{ resignStatus }}</span>
-                        </li>
-                    </ul>
-                </div>
+    <div v-if="isAdmin">
+        <div class="my-2 rounded-2xl">
+            <div class="px-3 py-2">
+                <span class="text-lg">服务器状态</span>
             </div>
-
-            <div class="my-2 rounded-2xl" v-if="isSupportVersion(serverGoStatus.os, serverGoStatus.arch)">
-                <div class="px-3 py-2">
-                    <span class="text-lg">软件更新</span>
-                </div>
-                <div v-if="serverStatus.build.runtime === 'Dev'">
-                    <p class="px-3">
-                        <SvgCross height="1.2em" width="1.2em" class="inline-block mx-0.5" /> 不支持的版本 (开发版)，请参考
-                        <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 自行编译运行
-                    </p>
-                </div>
-                <div v-else-if="(serverStatus.build.publish_type || '').toLowerCase() === 'docker'">
-                    <p class="px-3">
-                        <SvgCross height="1.2em" width="1.2em" class="inline-block mx-0.5" /> 请直接前往
-                        <a href="https://github.com/BANKA2017/tbsign_go/pkgs/container/tbsign_go" target="_blank" class="underline"><code>tbsign_go/pkgs</code></a> 检查更新
-                    </p>
-                </div>
-                <div v-else-if="releaseList.length == 0">
-                    <button class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg ml-3 px-3 py-1 hover:text-gray-100 transition-colors" title="检查更新" aria-label="检查更新" @click="getReleasesList">检查更新</button>
-                </div>
-                <div v-if="releaseList.length > 0">
-                    <ul role="list" class="px-3 my-2 marker:text-sky-500 list-disc list-inside">
-                        <li>
-                            如果下面列表中没有一项的右上角有<SvgCheck height="1.2em" width="1.2em" class="inline-block mx-0.5" />，说明当前版本过于老旧，或者属于拥有严重 BUG 被撤回的版本，请前往
-                            <a href="https://github.com/BANKA2017/tbsign_go/releases" target="_blank" class="underline"><code>Releases</code></a> 下载文件替换更新
-                        </li>
-                        <li @click="tenMinutesDelay = false" role="button">最后更新会有 10 分钟的延迟</li>
-                        <li>不支持自动降级</li>
-                    </ul>
-
-                    <div class="p-3 grid grid-cols-2 gap-2">
-                        <div class="col-span-2 md:col-span-1" v-for="(release, i) in releaseList.filter((x) => !tenMinutesDelay || Number(new Date(x.published_at)) + 1000 * 60 * 10 < Date.now())" :key="release.tag_name">
-                            <UpdateSystemItem
-                                :item="release.assets.find((x) => x.name.endsWith(Object.values(serverGoStatus).join('-') + (serverGoStatus.os === 'windows' ? '.exe' : '')))"
-                                :url="release.html_url"
-                                :current="fullVersion"
-                                :os="serverGoStatus.os"
-                                :arch="serverGoStatus.arch"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="my-2 rounded-2xl">
-                <div class="px-3 py-2">
-                    <span class="text-lg">插件总开关</span>
-                </div>
-                <div class="p-3">
-                    <template v-for="(value, pluginName, index) in pluginList" :key="pluginName">
-                        <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-1" />
-                        <div class="flex justify-between">
-                            <div>
-                                <span class="font-bold mr-1">{{ pluginGroup[pluginName] || pluginName }}</span>
-                                <span class="px-1.5 rounded bg-sky-500 dark:bg-sky-700 text-sm text-gray-100" v-if="value?.ver && value?.ver !== '-1'">v{{ value.ver }}</span>
-                            </div>
-                            <div class="inline-block">
-                                <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true }" @click="pluginSwitch(pluginName)">
-                                    {{ value.status ? '已开启' : value.ver === '-1' ? '未安装' : '已关闭' }}
-                                </button>
-                                <Modal class="inline-block" :title="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + '?'" :aria-label="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + '?'" v-if="value.ver !== '-1'">
-                                    <template #default>
-                                        <button class="px-3 py-1 bg-pink-500 text-gray-100 transition-colors">卸载</button>
-                                    </template>
-                                    <template #container>
-                                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="pluginDelete(pluginName)">
-                                            确认卸载 {{ pluginGroup[pluginName] }} ({{ pluginName }})
-                                        </button>
-                                    </template>
-                                </Modal>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </div>
-
-            <div class="my-2 rounded-2xl">
-                <div class="px-3 py-2">
-                    <h2 class="text-xl font-bold">服务器设置</h2>
-                    <p class="my-2">如果不知道要填什么，请保持原样</p>
-                </div>
-                <form autocomplete="off">
-                    <div class="p-3" v-for="_set in settingsGroup" :key="_set.name">
-                        <hr class="border-gray-400 dark:border-gray-600 mb-3" />
-                        <h3 class="text-lg mb-3 py-2 px-2 -mx-2 sticky top-0 bg-gray-100 dark:bg-gray-900">{{ _set.name }}</h3>
-                        <template v-for="(name, key) in _set.data" :key="key">
-                            <label :for="'input-' + key" class="block text-sm font-medium mb-1 mt-3">{{ name }}</label>
-                            <textarea
-                                :id="'input-' + key"
-                                v-if="['system_description', 'ann'].includes(key)"
-                                class="form-textarea placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                rows="8"
-                                v-model="serverSettings[key]"
-                            />
-                            <select
-                                :id="'input-' + key"
-                                v-else-if="key === 'sign_mode'"
-                                multiple
-                                class="form-multiselect placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="signMode"
+            <svg class="animate-spin h-5 w-5 dark:text-gray-100 text-sky-500 ml-3" v-if="serverStatus?.goversion === undefined" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <div class="p-3 grid grid-cols-2 gap-2" v-else>
+                <ul class="col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside">
+                    <li>
+                        <span class="font-bold">Goroutines : </span><span class="font-mono">{{ serverStatus.goroutine }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">Go 版本 : </span><span class="font-mono">{{ serverStatus.goversion }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">运行时长 : </span><span class="font-mono">{{ uptime }} {{ uptime === 1 ? 'min' : 'mins' }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">数据库模式 : </span
+                        ><span class="font-mono">{{ serverStatus.variables?.dbmode + (serverStatus.variables?.tlsdb && (serverStatus.variables?.dbmode || '').toString().toLowerCase() === 'mysql' ? ' (tls)' : '') }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">数据库版本 : </span><span class="font-mono">{{ serverStatus.variables?.dbversion }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">测试模式 : </span><span class="font-mono">{{ serverStatus.variables?.testmode }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">兼容版本 : </span><span class="font-mono">{{ serverStatus.compat }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">运行模式 : </span><span class="font-mono">{{ serverStatus.pure_go ? 'pure' : 'compat' }}</span>
+                    </li>
+                </ul>
+                <ul class="col-span-2 md:col-span-1 marker:text-indigo-500 list-disc list-inside">
+                    <li>
+                        <span class="font-bold">构建时间 : </span><span class="font-mono">{{ serverStatus.build.date }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">构建系统 : </span><span class="font-mono">{{ serverStatus.build.runtime }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">后端版本 : </span>
+                        <p class="inline-block font-mono" v-if="serverStatus?.build?.date">
+                            <span>{{ serverStatus.build.date.slice(0, 10).replaceAll('-', '') }}.</span>
+                            <NuxtLink
+                                v-if="serverStatus?.build?.commit_hash && serverStatus.build.commit_hash !== 'N/A'"
+                                :to="'https://github.com/BANKA2017/tbsign_go/commit/' + serverStatus.build.commit_hash"
+                                class="text-gray-100 bg-gray-500 px-2 rounded-xl"
+                                >{{ (serverStatus.build.commit_hash || '').slice(0, 7) }}</NuxtLink
                             >
-                                <option value="1">模拟手机客户端签到</option>
-                                <option value="2">手机网页签到</option>
-                                <option value="3">网页签到</option>
-                            </select>
-                            <select
-                                :id="'input-' + key"
-                                v-else-if="['enable_reg', 'ver4_ban_break_check', 'go_export_personal_data', 'go_import_personal_data'].includes(key)"
-                                class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="serverSettings[key]"
+                            <span v-else>_</span>
+                            <span>.</span>
+                            <NuxtLink
+                                v-if="serverStatus?.build?.embedded_frontend_commit_hash && serverStatus.build.embedded_frontend_commit_hash !== 'N/A'"
+                                :to="'https://github.com/BANKA2017/tbsign_go_fe/commit/' + serverStatus.build.embedded_frontend_commit_hash"
+                                class="text-gray-100 bg-gray-500 px-2 rounded-xl"
+                                >{{ (serverStatus.build.embedded_frontend_commit_hash || '').slice(0, 7) }}</NuxtLink
                             >
-                                <option value="0">否</option>
-                                <option value="1">是</option>
-                            </select>
-                            <select
-                                :id="'input-' + key"
-                                v-else-if="['mail_auth'].includes(key)"
-                                class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="serverSettings[key]"
-                            >
-                                <option value="0">关闭</option>
-                                <option value="1">开启</option>
-                            </select>
-                            <select
-                                :id="'input-' + key"
-                                v-else-if="['mail_secure'].includes(key)"
-                                class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="serverSettings[key]"
-                            >
-                                <!--<option value="none">无</option>-->
-                                <!--<option value="ssl">SSL</option>-->
-                                <option value="tls">TLS</option>
-                            </select>
-                            <select
-                                :id="'input-' + key"
-                                v-else-if="key === 'go_forum_sync_policy'"
-                                class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="serverSettings[key]"
-                            >
-                                <option value="add_only">[仅新增] 增加新关注的贴吧</option>
-                                <option value="add_delete">[严格同步] 增加新关注的贴吧，删除不再关注的贴吧</option>
-                            </select>
-                            <input
-                                :id="'input-' + key"
-                                v-else-if="['cron_limit', 'retry_max', 'sign_sleep', 'mail_port', 'ver4_ban_limit'].includes(key) || String(key || '').endsWith('_action_limit')"
-                                type="number"
-                                min="0"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
-                            <input
-                                :id="'input-' + key"
-                                v-else-if="key === 'sign_hour'"
-                                type="number"
-                                min="-1"
-                                max="23"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
-                            <input
-                                :id="'input-' + key"
-                                v-else-if="key === 'cktime'"
-                                type="number"
-                                min="30"
-                                :max="10 * 24 * 60 * 60"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
-                            <input
-                                :id="'input-' + key"
-                                v-else-if="key === 'mail_smtppw' && serverSettings[key] !== undefined"
-                                type="password"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
-                            <input
-                                :id="'input-' + key"
-                                v-else-if="key === 'mail_smtpname' && serverSettings[key] !== undefined"
-                                type="text"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
-                            <div v-else-if="['go_bark_addr', 'go_ntfy_addr'].includes(key)" class="flex w-full">
-                                <input
-                                    :id="'input-' + key"
-                                    type="text"
-                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-l-xl inline-block grow"
-                                    v-model="serverSettings[key]"
-                                />
-                                <button
-                                    type="button"
-                                    class="inline-block px-3 py-1 rounded-r-xl border border-slate-500 hover:bg-gray-300 hover:text-black transition-colors"
-                                    @click="
-                                        (e) => {
-                                            e.preventDefault()
-                                            sendTestMail(key.split('_')[1])
-                                        }
-                                    "
-                                >
-                                    测试
-                                </button>
-                            </div>
-                            <input
-                                :id="'input-' + key"
-                                v-else
-                                type="text"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
-                        </template>
-                        <button
-                            type="button"
-                            v-if="_set.name === '邮件'"
-                            class="px-3 py-1 mt-3 rounded-lg border-2 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors"
-                            @click="
-                                (e) => {
-                                    e.preventDefault()
-                                    sendTestMail('email')
-                                }
-                            "
-                        >
-                            发送测试邮件
-                        </button>
-                    </div>
-                    <input type="submit" role="button" class="text-gray-100 text-lg bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded-xl ml-3 px-5 py-1 transition-colors" @click="SaveSettings" value="保存" />
-                </form>
+                            <span v-else>_</span>
+                        </p>
+                    </li>
+                    <li>
+                        <span class="font-bold">前端版本 : </span>
+                        <NuxtLink v-if="config.public.NUXT_COMMIT_HASH" :to="'https://github.com/BANKA2017/tbsign_go_fe/commit/' + config.public.NUXT_COMMIT_HASH" class="font-mono text-gray-100 bg-gray-500 px-2 rounded-xl">{{
+                            (config.public.NUXT_COMMIT_HASH || '').slice(0, 7)
+                        }}</NuxtLink>
+                        <span v-else class="font-mono">Dev</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">发布类型 : </span><span class="font-mono">{{ serverStatus.build.publish_type }}</span>
+                    </li>
+                </ul>
+                <ul class="col-span-2 md:col-span-1 marker:text-teal-500 list-disc list-inside">
+                    <li>
+                        <span class="font-bold">账号总数 : </span><span class="font-mono">{{ serverStatus.uid_count }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">绑定总数 : </span><span class="font-mono">{{ serverStatus.pid_count }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">贴吧总数 : </span><span class="font-mono">{{ serverStatus.forum_count }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">签到情况 : </span>
+                        <ul class="col-span-2 md:col-span-1 marker:text-teal-500 list-disc list-inside ml-5">
+                            <li v-for="(v, k) in serverStatus.checkin_status || []" :key="k">
+                                <span class="font-bold">{{ k }} : </span><span class="font-mono">{{ v }}</span>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <span class="font-bold">最后执行/重签次数 : </span><span class="font-mono">{{ resignStatus }}</span>
+                    </li>
+                </ul>
             </div>
         </div>
-    </NuxtLayout>
+
+        <div class="my-2 rounded-2xl" v-if="isSupportVersion(serverGoStatus.os, serverGoStatus.arch)">
+            <div class="px-3 py-2">
+                <span class="text-lg">软件更新</span>
+            </div>
+            <div v-if="serverStatus.build.runtime === 'Dev'">
+                <p class="px-3">
+                    <SvgCross height="1.2em" width="1.2em" class="inline-block mx-0.5" /> 不支持的版本 (开发版)，请参考
+                    <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 自行编译运行
+                </p>
+            </div>
+            <div v-else-if="(serverStatus.build.publish_type || '').toLowerCase() === 'docker'">
+                <p class="px-3">
+                    <SvgCross height="1.2em" width="1.2em" class="inline-block mx-0.5" /> 请直接前往 <a href="https://github.com/BANKA2017/tbsign_go/pkgs/container/tbsign_go" target="_blank" class="underline"><code>tbsign_go/pkgs</code></a> 检查更新
+                </p>
+            </div>
+            <div v-else-if="releaseList.length == 0">
+                <button class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg ml-3 px-3 py-1 hover:text-gray-100 transition-colors" title="检查更新" aria-label="检查更新" @click="getReleasesList">检查更新</button>
+            </div>
+            <div v-if="releaseList.length > 0">
+                <ul role="list" class="px-3 my-2 marker:text-sky-500 list-disc list-inside">
+                    <li>
+                        如果下面列表中没有一项的右上角有<SvgCheck height="1.2em" width="1.2em" class="inline-block mx-0.5" />，说明当前版本过于老旧，或者属于拥有严重 BUG 被撤回的版本，请前往
+                        <a href="https://github.com/BANKA2017/tbsign_go/releases" target="_blank" class="underline"><code>Releases</code></a> 下载文件替换更新
+                    </li>
+                    <li @click="tenMinutesDelay = false" role="button">最后更新会有 10 分钟的延迟</li>
+                    <li>不支持自动降级</li>
+                </ul>
+
+                <div class="p-3 grid grid-cols-2 gap-2">
+                    <div class="col-span-2 md:col-span-1" v-for="(release, i) in releaseList.filter((x) => !tenMinutesDelay || Number(new Date(x.published_at)) + 1000 * 60 * 10 < Date.now())" :key="release.tag_name">
+                        <UpdateSystemItem
+                            :item="release.assets.find((x) => x.name.endsWith(Object.values(serverGoStatus).join('-') + (serverGoStatus.os === 'windows' ? '.exe' : '')))"
+                            :url="release.html_url"
+                            :current="fullVersion"
+                            :os="serverGoStatus.os"
+                            :arch="serverGoStatus.arch"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="my-2 rounded-2xl">
+            <div class="px-3 py-2">
+                <span class="text-lg">插件总开关</span>
+            </div>
+            <div class="p-3">
+                <template v-for="(value, pluginName, index) in pluginList" :key="pluginName">
+                    <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-1" />
+                    <div class="flex justify-between">
+                        <div>
+                            <span class="px-1.5 rounded bg-sky-500 dark:bg-sky-700 text-sm text-gray-100 mr-2">{{ value?.ver ? (value?.ver !== '-1' ? value.ver : 'und') : 'dev' }}</span>
+                            <span class="font-bold">{{ pluginGroup[pluginName] || pluginName }}</span>
+                        </div>
+                        <div class="inline-block">
+                            <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true, rounded: true }" @click="pluginSwitch(pluginName)">
+                                {{ value.status ? '已开启' : value.ver === '-1' ? '未安装' : '已关闭' }}
+                            </button>
+                            <Modal class="inline-block" :title="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + ' ？'" :aria-label="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + ' ？'" v-if="value.ver !== '-1'">
+                                <template #default>
+                                    <button class="ml-2 px-3 py-1 bg-pink-500 text-gray-100 transition-colors rounded">卸载</button>
+                                </template>
+                                <template #container>
+                                    <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="pluginDelete(pluginName)">确认卸载 {{ pluginGroup[pluginName] }} ({{ pluginName }})</button>
+                                </template>
+                            </Modal>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <div class="my-2 rounded-2xl">
+            <div class="px-3 py-2">
+                <h2 class="text-xl font-bold">服务器设置</h2>
+                <p class="my-2">如果不知道要填什么，请保持原样</p>
+            </div>
+            <form autocomplete="off">
+                <div class="p-3" v-for="_set in settingsGroup" :key="_set.name">
+                    <hr class="border-gray-400 dark:border-gray-600 mb-3" />
+                    <h3 class="text-lg mb-3 py-2 px-2 -mx-2 sticky top-0 bg-gray-100 dark:bg-gray-900">{{ _set.name }}</h3>
+                    <template v-for="(name, key) in _set.data" :key="key">
+                        <label :for="'input-' + key" class="block text-sm font-medium mb-1 mt-3">{{ name }}</label>
+                        <textarea
+                            :id="'input-' + key"
+                            v-if="['system_description', 'ann'].includes(key)"
+                            class="form-textarea placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                            rows="8"
+                            v-model="serverSettings[key]"
+                        />
+                        <select
+                            :id="'input-' + key"
+                            v-else-if="key === 'sign_mode'"
+                            multiple
+                            class="form-multiselect placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                            v-model="signMode"
+                        >
+                            <option value="1">模拟手机客户端签到</option>
+                            <option value="2">手机网页签到</option>
+                            <option value="3">网页签到</option>
+                        </select>
+                        <select
+                            :id="'input-' + key"
+                            v-else-if="['enable_reg', 'ver4_ban_break_check', 'go_export_personal_data', 'go_import_personal_data'].includes(key)"
+                            class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                            v-model="serverSettings[key]"
+                        >
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                        <select
+                            :id="'input-' + key"
+                            v-else-if="['mail_auth'].includes(key)"
+                            class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                            v-model="serverSettings[key]"
+                        >
+                            <option value="0">关闭</option>
+                            <option value="1">开启</option>
+                        </select>
+                        <select
+                            :id="'input-' + key"
+                            v-else-if="['mail_secure'].includes(key)"
+                            class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                            v-model="serverSettings[key]"
+                        >
+                            <!--<option value="none">无</option>-->
+                            <!--<option value="ssl">SSL</option>-->
+                            <option value="tls">TLS</option>
+                        </select>
+                        <select
+                            :id="'input-' + key"
+                            v-else-if="key === 'go_forum_sync_policy'"
+                            class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                            v-model="serverSettings[key]"
+                        >
+                            <option value="add_only">[仅新增] 增加新关注的贴吧</option>
+                            <option value="add_delete">[严格同步] 增加新关注的贴吧，删除不再关注的贴吧</option>
+                        </select>
+                        <input
+                            :id="'input-' + key"
+                            v-else-if="['cron_limit', 'retry_max', 'sign_sleep', 'mail_port', 'ver4_ban_limit'].includes(key) || String(key || '').endsWith('_action_limit')"
+                            type="number"
+                            min="0"
+                            class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                            v-model="serverSettings[key]"
+                        />
+                        <input
+                            :id="'input-' + key"
+                            v-else-if="key === 'sign_hour'"
+                            type="number"
+                            min="-1"
+                            max="23"
+                            class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                            v-model="serverSettings[key]"
+                        />
+                        <input
+                            :id="'input-' + key"
+                            v-else-if="key === 'cktime'"
+                            type="number"
+                            min="30"
+                            :max="10 * 24 * 60 * 60"
+                            class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                            v-model="serverSettings[key]"
+                        />
+                        <input
+                            :id="'input-' + key"
+                            v-else-if="key === 'mail_smtppw' && serverSettings[key] !== undefined"
+                            type="password"
+                            class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                            v-model="serverSettings[key]"
+                        />
+                        <input
+                            :id="'input-' + key"
+                            v-else-if="key === 'mail_smtpname' && serverSettings[key] !== undefined"
+                            type="text"
+                            class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                            v-model="serverSettings[key]"
+                        />
+                        <div v-else-if="['go_bark_addr', 'go_ntfy_addr'].includes(key)" class="flex w-full">
+                            <input
+                                :id="'input-' + key"
+                                type="text"
+                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-l-xl inline-block grow"
+                                v-model="serverSettings[key]"
+                            />
+                            <button
+                                type="button"
+                                class="inline-block px-3 py-1 rounded-r-xl border border-slate-500 hover:bg-gray-300 hover:text-black transition-colors"
+                                @click="
+                                    (e) => {
+                                        e.preventDefault()
+                                        sendTestMail(key.split('_')[1])
+                                    }
+                                "
+                            >
+                                测试
+                            </button>
+                        </div>
+                        <input
+                            :id="'input-' + key"
+                            v-else
+                            type="text"
+                            class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                            v-model="serverSettings[key]"
+                        />
+                    </template>
+                    <button
+                        type="button"
+                        v-if="_set.name === '邮件'"
+                        class="px-3 py-1 mt-3 rounded-lg border-2 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors"
+                        @click="
+                            (e) => {
+                                e.preventDefault()
+                                sendTestMail('email')
+                            }
+                        "
+                    >
+                        发送测试邮件
+                    </button>
+                </div>
+                <input type="submit" role="button" class="text-gray-100 text-lg bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded-xl ml-3 px-5 py-1 transition-colors" @click="SaveSettings" value="保存" />
+            </form>
+        </div>
+    </div>
 </template>
 
 <style scoped></style>

@@ -86,7 +86,7 @@ export const useMainStore = defineStore('main', {
             this.$state[k] = v
         },
         updateAuthorization(authorization: string) {
-            if (this._basePath) {
+            if (this._basePath && this.config[this._basePath]) {
                 if (authorization) {
                     this.config[this._basePath].authorization = authorization
                 } else {
@@ -100,7 +100,9 @@ export const useMainStore = defineStore('main', {
         },
         logout() {
             this.updateAuthorization('')
-            this._cache = {}
+            this._cache = {
+                config_page_login: this._cache?.config_page_login || undefined
+            }
         },
         updateSize() {
             if (typeof window === 'undefined') {
