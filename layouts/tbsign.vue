@@ -74,4 +74,20 @@ const isLoading = computed(() => !isNotLoginPath.value && Number(account_info.va
 <style>
 @import url('noty/lib/noty.css');
 @import url('noty/lib/themes/nest.css');
+
+.list-out {
+    opacity: 0;
+    transition:
+        max-height 0.1s ease-out,
+        opacity 0.1s ease-out;
+    overflow: hidden;
+}
+
+.list-in {
+    opacity: 1;
+    transition:
+        max-height 0.1s ease-in,
+        opacity 0.1s ease-in;
+    overflow: hidden;
+}
 </style>

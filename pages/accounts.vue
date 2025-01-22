@@ -741,7 +741,7 @@ onMounted(() => {
                 </div>
             </div>
             <div
-                :class="{ 'account-in': accounts[index].more, 'account-out': !accounts[index].more }"
+                :class="{ 'list-in': accounts[index].more, 'list-out': !accounts[index].more }"
                 :style="{ 'max-height': accounts[index].more ? accountListFilterWrapper(account.id, index).slice(100 * (accounts[index].page || 0), 100 + 100 * (accounts[index].page || 0)).length * 3 + 8 + 'rem' : 0 }"
             >
                 <input type="text" placeholder="搜索贴吧列表" v-model="accounts[index].search" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl my-3" />
@@ -867,20 +867,4 @@ onMounted(() => {
     </div>
 </template>
 
-<style scoped>
-.account-out {
-    opacity: 0;
-    transition:
-        max-height 0.1s ease-out,
-        opacity 0.1s ease-out;
-    overflow: hidden;
-}
-
-.account-in {
-    opacity: 1;
-    transition:
-        max-height 0.1s ease-in,
-        opacity 0.1s ease-in;
-    overflow: hidden;
-}
-</style>
+<style scoped></style>

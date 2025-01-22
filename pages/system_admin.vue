@@ -92,18 +92,22 @@ const resignStatus = computed(() => {
 const settingsGroup = ref({
     system: {
         name: '系统',
+        display: false,
         data: { ann: '公告', system_url: '地址' } //, system_name: '网站名称', system_keywords: '关键词', system_description: '简介' }
     },
     account: {
         name: '账号',
+        display: false,
         data: { enable_reg: '开启注册', yr_reg: '邀请码 (留空代表无需邀请码)', cktime: 'Session 有效期 (设置后签发的 Token 才生效)' }
     },
     backup: {
         name: '备份',
+        display: false,
         data: { go_export_personal_data: '允许导出个人数据', go_import_personal_data: '允许导入个人数据' }
     },
     checkin: {
         name: '签到',
+        display: false,
         data: {
             sign_mode: '签到模式 (TODO)',
             sign_hour: '下个整点签到 (-1 为 0 时开始签到，以此类推)',
@@ -115,14 +119,17 @@ const settingsGroup = ref({
     },
     mail: {
         name: '邮件',
+        display: false,
         data: { mail_name: '发件人邮箱', mail_yourname: '发件人名称', mail_host: 'SMTP服务器地址', mail_port: 'SMTP服务器端口', mail_secure: '加密方式 (TODO)', mail_auth: '需要身份验证', mail_smtpname: 'SMTP用户名', mail_smtppw: 'SMTP密码' }
     },
     push: {
         name: '推送',
+        display: false,
         data: { go_bark_addr: 'Bark 推送地址', go_ntfy_addr: 'ntfy 推送地址' }
     },
     plugin: {
         name: '插件',
+        display: false,
         data: {}
     }
 })
@@ -460,150 +467,173 @@ onMounted(() => {
         <div class="my-2 rounded-2xl">
             <div class="px-3 py-2">
                 <h2 class="text-xl font-bold">服务器设置</h2>
-                <p class="my-2">如果不知道要填什么，请保持原样</p>
+                <p class="text-sm">如果不知道要填什么，请保持原样</p>
             </div>
             <form autocomplete="off">
-                <div class="p-3" v-for="_set in settingsGroup" :key="_set.name">
-                    <hr class="border-gray-400 dark:border-gray-600 mb-3" />
-                    <h3 class="text-lg mb-3 py-2 px-2 -mx-2 sticky top-0 bg-gray-100 dark:bg-gray-900">{{ _set.name }}</h3>
-                    <template v-for="(name, key) in _set.data" :key="key">
-                        <label :for="'input-' + key" class="block text-sm font-medium mb-1 mt-3">{{ name }}</label>
-                        <textarea
-                            :id="'input-' + key"
-                            v-if="['system_description', 'ann'].includes(key)"
-                            class="form-textarea placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                            rows="8"
-                            v-model="serverSettings[key]"
-                        />
-                        <select
-                            :id="'input-' + key"
-                            v-else-if="key === 'sign_mode'"
-                            multiple
-                            class="form-multiselect placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                            v-model="signMode"
-                        >
-                            <option value="1">模拟手机客户端签到</option>
-                            <option value="2">手机网页签到</option>
-                            <option value="3">网页签到</option>
-                        </select>
-                        <select
-                            :id="'input-' + key"
-                            v-else-if="['enable_reg', 'ver4_ban_break_check', 'go_export_personal_data', 'go_import_personal_data'].includes(key)"
-                            class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                            v-model="serverSettings[key]"
-                        >
-                            <option value="0">否</option>
-                            <option value="1">是</option>
-                        </select>
-                        <select
-                            :id="'input-' + key"
-                            v-else-if="['mail_auth'].includes(key)"
-                            class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                            v-model="serverSettings[key]"
-                        >
-                            <option value="0">关闭</option>
-                            <option value="1">开启</option>
-                        </select>
-                        <select
-                            :id="'input-' + key"
-                            v-else-if="['mail_secure'].includes(key)"
-                            class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                            v-model="serverSettings[key]"
-                        >
-                            <!--<option value="none">无</option>-->
-                            <!--<option value="ssl">SSL</option>-->
-                            <option value="tls">TLS</option>
-                        </select>
-                        <select
-                            :id="'input-' + key"
-                            v-else-if="key === 'go_forum_sync_policy'"
-                            class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                            v-model="serverSettings[key]"
-                        >
-                            <option value="add_only">[仅新增] 增加新关注的贴吧</option>
-                            <option value="add_delete">[严格同步] 增加新关注的贴吧，删除不再关注的贴吧</option>
-                        </select>
-                        <input
-                            :id="'input-' + key"
-                            v-else-if="['cron_limit', 'retry_max', 'sign_sleep', 'mail_port', 'ver4_ban_limit'].includes(key) || String(key || '').endsWith('_action_limit')"
-                            type="number"
-                            min="0"
-                            class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                            v-model="serverSettings[key]"
-                        />
-                        <input
-                            :id="'input-' + key"
-                            v-else-if="key === 'sign_hour'"
-                            type="number"
-                            min="-1"
-                            max="23"
-                            class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                            v-model="serverSettings[key]"
-                        />
-                        <input
-                            :id="'input-' + key"
-                            v-else-if="key === 'cktime'"
-                            type="number"
-                            min="30"
-                            :max="10 * 24 * 60 * 60"
-                            class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                            v-model="serverSettings[key]"
-                        />
-                        <input
-                            :id="'input-' + key"
-                            v-else-if="key === 'mail_smtppw' && serverSettings[key] !== undefined"
-                            type="password"
-                            class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                            v-model="serverSettings[key]"
-                        />
-                        <input
-                            :id="'input-' + key"
-                            v-else-if="key === 'mail_smtpname' && serverSettings[key] !== undefined"
-                            type="text"
-                            class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                            v-model="serverSettings[key]"
-                        />
-                        <div v-else-if="['go_bark_addr', 'go_ntfy_addr'].includes(key)" class="flex w-full">
-                            <input
+                <div class="my-2 px-3 py-1 bg-gray-200 dark:bg-gray-800 rounded-xl transition-colors" v-for="_set in settingsGroup" :key="_set.name">
+                    <h3 role="button" :class="'flex justify-between text-lg py-2 px-2 -mx-2 sticky top-0 ' + (_set.display ? 'bg-gray-200 dark:bg-gray-800' : '')" @click="_set.display = !_set.display">
+                        <span>
+                            {{ _set.name }}
+                        </span>
+
+                        <span class="rounded-full h-4 text-gray-900 dark:text-gray-100 transition-colors my-1" title="展开设置列表" aria-label="展开设置列表">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-5 h-5" viewBox="0 0 16 16">
+                                <path
+                                    v-if="_set.display"
+                                    fill="currentColor"
+                                    fill-rule="evenodd"
+                                    d="M1 8a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13A.5.5 0 0 1 1 8m7-8a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L7.5 4.293V.5A.5.5 0 0 1 8 0m-.5 11.707l-1.146 1.147a.5.5 0 0 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 11.707V15.5a.5.5 0 0 1-1 0z"
+                                />
+                                <path
+                                    v-else
+                                    fill="currentColor"
+                                    fill-rule="evenodd"
+                                    d="M1 8a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13A.5.5 0 0 1 1 8M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10"
+                                />
+                            </svg>
+                        </span>
+                    </h3>
+                    <div :class="{ 'list-in': _set.display, 'list-out': !_set.display, 'mb-3': _set.display }" :style="{ 'max-height': _set.display ? '100vh' : 0 }">
+                        <hr class="border-gray-400 dark:border-gray-600 my-1" />
+                        <template v-for="(name, key) in _set.data" :key="key">
+                            <label :for="'input-' + key" class="block text-sm font-medium mb-1 mt-3">{{ name }}</label>
+                            <textarea
                                 :id="'input-' + key"
-                                type="text"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-l-xl inline-block grow"
+                                v-if="['system_description', 'ann'].includes(key)"
+                                class="form-textarea placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                rows="8"
                                 v-model="serverSettings[key]"
                             />
-                            <button
-                                type="button"
-                                class="inline-block px-3 py-1 rounded-r-xl border border-slate-500 hover:bg-gray-300 hover:text-black transition-colors"
-                                @click="
-                                    (e) => {
-                                        e.preventDefault()
-                                        sendTestMail(key.split('_')[1])
-                                    }
-                                "
+                            <select
+                                :id="'input-' + key"
+                                v-else-if="key === 'sign_mode'"
+                                multiple
+                                class="form-multiselect placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                v-model="signMode"
                             >
-                                测试
-                            </button>
-                        </div>
-                        <input
-                            :id="'input-' + key"
-                            v-else
-                            type="text"
-                            class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                            v-model="serverSettings[key]"
-                        />
-                    </template>
-                    <button
-                        type="button"
-                        v-if="_set.name === '邮件'"
-                        class="px-3 py-1 mt-3 rounded-lg border-2 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors"
-                        @click="
-                            (e) => {
-                                e.preventDefault()
-                                sendTestMail('email')
-                            }
-                        "
-                    >
-                        发送测试邮件
-                    </button>
+                                <option value="1">模拟手机客户端签到</option>
+                                <option value="2">手机网页签到</option>
+                                <option value="3">网页签到</option>
+                            </select>
+                            <select
+                                :id="'input-' + key"
+                                v-else-if="['enable_reg', 'ver4_ban_break_check', 'go_export_personal_data', 'go_import_personal_data'].includes(key)"
+                                class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                v-model="serverSettings[key]"
+                            >
+                                <option value="0">否</option>
+                                <option value="1">是</option>
+                            </select>
+                            <select
+                                :id="'input-' + key"
+                                v-else-if="['mail_auth'].includes(key)"
+                                class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                v-model="serverSettings[key]"
+                            >
+                                <option value="0">关闭</option>
+                                <option value="1">开启</option>
+                            </select>
+                            <select
+                                :id="'input-' + key"
+                                v-else-if="['mail_secure'].includes(key)"
+                                class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                v-model="serverSettings[key]"
+                            >
+                                <!--<option value="none">无</option>-->
+                                <!--<option value="ssl">SSL</option>-->
+                                <option value="tls">TLS</option>
+                            </select>
+                            <select
+                                :id="'input-' + key"
+                                v-else-if="key === 'go_forum_sync_policy'"
+                                class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                v-model="serverSettings[key]"
+                            >
+                                <option value="add_only">[仅新增] 增加新关注的贴吧</option>
+                                <option value="add_delete">[严格同步] 增加新关注的贴吧，删除不再关注的贴吧</option>
+                            </select>
+                            <input
+                                :id="'input-' + key"
+                                v-else-if="['cron_limit', 'retry_max', 'sign_sleep', 'mail_port', 'ver4_ban_limit'].includes(key) || String(key || '').endsWith('_action_limit')"
+                                type="number"
+                                min="0"
+                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                v-model="serverSettings[key]"
+                            />
+                            <input
+                                :id="'input-' + key"
+                                v-else-if="key === 'sign_hour'"
+                                type="number"
+                                min="-1"
+                                max="23"
+                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                v-model="serverSettings[key]"
+                            />
+                            <input
+                                :id="'input-' + key"
+                                v-else-if="key === 'cktime'"
+                                type="number"
+                                min="30"
+                                :max="10 * 24 * 60 * 60"
+                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                v-model="serverSettings[key]"
+                            />
+                            <input
+                                :id="'input-' + key"
+                                v-else-if="key === 'mail_smtppw' && serverSettings[key] !== undefined"
+                                type="password"
+                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                v-model="serverSettings[key]"
+                            />
+                            <input
+                                :id="'input-' + key"
+                                v-else-if="key === 'mail_smtpname' && serverSettings[key] !== undefined"
+                                type="text"
+                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                v-model="serverSettings[key]"
+                            />
+                            <div v-else-if="['go_bark_addr', 'go_ntfy_addr'].includes(key)" class="flex w-full">
+                                <input
+                                    :id="'input-' + key"
+                                    type="text"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-l-xl inline-block grow"
+                                    v-model="serverSettings[key]"
+                                />
+                                <button
+                                    type="button"
+                                    class="inline-block px-3 py-1 rounded-r-xl border border-slate-500 hover:bg-gray-300 hover:text-black transition-colors"
+                                    @click="
+                                        (e) => {
+                                            e.preventDefault()
+                                            sendTestMail(key.split('_')[1])
+                                        }
+                                    "
+                                >
+                                    测试
+                                </button>
+                            </div>
+                            <input
+                                :id="'input-' + key"
+                                v-else
+                                type="text"
+                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                v-model="serverSettings[key]"
+                            />
+                        </template>
+                        <button
+                            type="button"
+                            v-if="_set.name === '邮件'"
+                            class="px-3 py-1 mt-3 rounded-lg border-2 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors"
+                            @click="
+                                (e) => {
+                                    e.preventDefault()
+                                    sendTestMail('email')
+                                }
+                            "
+                        >
+                            发送测试邮件
+                        </button>
+                    </div>
                 </div>
                 <input type="submit" role="button" class="text-gray-100 text-lg bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded-xl ml-3 px-5 py-1 transition-colors" @click="SaveSettings" value="保存" />
             </form>
