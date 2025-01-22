@@ -396,15 +396,29 @@ onMounted(() => {
             <div class="px-3 py-2">
                 <span class="text-lg">软件更新</span>
             </div>
-            <div v-if="serverStatus.build.runtime === 'Dev'">
+            <div v-if="(serverStatus.build.publish_type || '').toLowerCase() === 'source'">
                 <p class="px-3">
-                    <SvgCross height="1.2em" width="1.2em" class="inline-block mx-0.5" /> 不支持的版本 (开发版)，请参考
+                    <svg xmlns="http://www.w3.org/2000/svg" height="1.2em" width="1.2em" fill="currentColor" class="bi bi-github inline-block mx-0.5" viewBox="0 0 16 16">
+                        <path
+                            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"
+                        />
+                    </svg>
+                    不支持的版本 (开发版)，请参考
                     <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 自行编译运行
                 </p>
             </div>
             <div v-else-if="(serverStatus.build.publish_type || '').toLowerCase() === 'docker'">
                 <p class="px-3">
-                    <SvgCross height="1.2em" width="1.2em" class="inline-block mx-0.5" /> 请直接前往 <a href="https://github.com/BANKA2017/tbsign_go/pkgs/container/tbsign_go" target="_blank" class="underline"><code>tbsign_go/pkgs</code></a> 检查更新
+                    <svg xmlns="http://www.w3.org/2000/svg" height="1.2em" width="1.2em" viewBox="0 0 256 256" class="inline-block mx-0.5">
+                        <g fill="none">
+                            <rect width="256" height="256" fill="#2396ED" rx="60" />
+                            <path
+                                fill="#fff"
+                                d="M141.187 122.123h20.717v-18.744h-20.717zm-24.662 0h20.716v-18.744h-20.716zm-24.17 0h20.717v-18.744H92.355zm-24.17 0H88.41v-18.744H68.186zm-24.662 0H64.24v-18.744H43.523zm24.663-22.69h20.223V80.69H68.186zm24.17 0h20.716V80.69H92.355zm24.169 0h20.716V80.69h-20.716zm0-22.69h20.716V58h-20.716zM228 113.739s-8.879-8.386-27.129-5.426c-1.973-14.305-17.264-22.69-17.264-22.69s-14.304 17.264-3.946 36.501c-2.959 1.48-7.892 3.453-15.291 3.453H28.726c-2.467 9.372-2.467 71.521 65.602 71.521c48.832 0 85.333-22.689 102.597-64.123C222.574 134.948 228 113.738 228 113.738"
+                            />
+                        </g>
+                    </svg>
+                    Docker 版请直接前往 <a href="https://github.com/BANKA2017/tbsign_go/pkgs/container/tbsign_go" target="_blank" class="underline"><code>tbsign_go/pkgs</code></a> 检查更新
                 </p>
             </div>
             <div v-else-if="releaseList.length == 0">
