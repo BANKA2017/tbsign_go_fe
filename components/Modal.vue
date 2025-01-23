@@ -29,11 +29,21 @@ const modalSwitch = (value: Event | boolean) => {
 
 <template>
     <div>
+        <div
+            style="z-index: 19999"
+            :class="`fixed top-0 left-0 transition-colors ` + (activeModal ? 'bg-gray-200/60 dark:bg-gray-900/60 h-[100vh] w-[100vw]' : 'h-0 w-0')"
+            @click="
+                (e) => {
+                    e.preventDefault()
+                    modalSwitch(false)
+                }
+            "
+        ></div>
         <div @click="modalSwitch" class="inline w-full">
             <slot> Click! </slot>
         </div>
         <div
-            style="z-index: 10000"
+            style="z-index: 20000"
             :class="
                 `fixed bottom-0 left-[calc(50vw-16em)] max-md:left-0 bg-gray-200 border-4 border-b-0 border-gray-400 dark:bg-gray-700 dark:border-gray-600 rounded-t-2xl w-full md:max-w-[32em] ` +
                 (firstModalSwitch ? (activeModal ? 'modal-in' : 'modal-out') : 'hidden')

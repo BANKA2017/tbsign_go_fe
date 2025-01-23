@@ -294,7 +294,7 @@ onMounted(() => {
     <div v-if="isAdmin">
         <div class="my-2 rounded-2xl">
             <div class="px-3 py-2">
-                <span class="text-lg">服务器状态</span>
+                <h2 class="text-xl font-bold">服务器状态</h2>
             </div>
             <svg class="animate-spin h-5 w-5 dark:text-gray-100 text-sky-500 ml-3" v-if="serverStatus?.goversion === undefined" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -392,44 +392,50 @@ onMounted(() => {
             </div>
         </div>
 
-        <div class="my-2 rounded-2xl" v-if="isSupportVersion(serverGoStatus.os, serverGoStatus.arch)">
+        <div class="my-2 rounded-2xl">
             <div class="px-3 py-2">
-                <span class="text-lg">软件更新</span>
+                <h2 class="text-xl font-bold">软件更新</h2>
             </div>
-            <div v-if="(serverStatus.build.publish_type || '').toLowerCase() === 'source'">
-                <p class="px-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="1.2em" width="1.2em" fill="currentColor" class="bi bi-github inline-block mx-0.5" viewBox="0 0 16 16">
+            <p class="px-3 py-1" v-if="(serverStatus.build.publish_type || '').toLowerCase() === 'source'">
+                <svg xmlns="http://www.w3.org/2000/svg" height="1em" width="1em" fill="#F54D27" class="bi bi-git inline-block -mt-0.5" viewBox="0 0 16 16">
+                    <path
+                        d="M15.698 7.287 8.712.302a1.03 1.03 0 0 0-1.457 0l-1.45 1.45 1.84 1.84a1.223 1.223 0 0 1 1.55 1.56l1.773 1.774a1.224 1.224 0 0 1 1.267 2.025 1.226 1.226 0 0 1-2.002-1.334L8.58 5.963v4.353a1.226 1.226 0 1 1-1.008-.036V5.887a1.226 1.226 0 0 1-.666-1.608L5.093 2.465l-4.79 4.79a1.03 1.03 0 0 0 0 1.457l6.986 6.986a1.03 1.03 0 0 0 1.457 0l6.953-6.953a1.03 1.03 0 0 0 0-1.457"
+                    />
+                </svg>
+                开发版请参考
+                <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 编译运行
+            </p>
+            <p class="px-3 py-1" v-else-if="(serverStatus.build.publish_type || '').toLowerCase() === 'docker'">
+                <svg xmlns="http://www.w3.org/2000/svg" height="1em" width="1em" viewBox="0 0 256 256" class="inline-block -mt-0.5">
+                    <g fill="none">
+                        <rect width="256" height="256" fill="#2396ED" rx="60" />
                         <path
-                            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"
+                            fill="#fff"
+                            d="M141.187 122.123h20.717v-18.744h-20.717zm-24.662 0h20.716v-18.744h-20.716zm-24.17 0h20.717v-18.744H92.355zm-24.17 0H88.41v-18.744H68.186zm-24.662 0H64.24v-18.744H43.523zm24.663-22.69h20.223V80.69H68.186zm24.17 0h20.716V80.69H92.355zm24.169 0h20.716V80.69h-20.716zm0-22.69h20.716V58h-20.716zM228 113.739s-8.879-8.386-27.129-5.426c-1.973-14.305-17.264-22.69-17.264-22.69s-14.304 17.264-3.946 36.501c-2.959 1.48-7.892 3.453-15.291 3.453H28.726c-2.467 9.372-2.467 71.521 65.602 71.521c48.832 0 85.333-22.689 102.597-64.123C222.574 134.948 228 113.738 228 113.738"
                         />
-                    </svg>
-                    不支持的版本 (开发版)，请参考
-                    <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 自行编译运行
-                </p>
-            </div>
-            <div v-else-if="(serverStatus.build.publish_type || '').toLowerCase() === 'docker'">
-                <p class="px-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="1.2em" width="1.2em" viewBox="0 0 256 256" class="inline-block mx-0.5">
-                        <g fill="none">
-                            <rect width="256" height="256" fill="#2396ED" rx="60" />
-                            <path
-                                fill="#fff"
-                                d="M141.187 122.123h20.717v-18.744h-20.717zm-24.662 0h20.716v-18.744h-20.716zm-24.17 0h20.717v-18.744H92.355zm-24.17 0H88.41v-18.744H68.186zm-24.662 0H64.24v-18.744H43.523zm24.663-22.69h20.223V80.69H68.186zm24.17 0h20.716V80.69H92.355zm24.169 0h20.716V80.69h-20.716zm0-22.69h20.716V58h-20.716zM228 113.739s-8.879-8.386-27.129-5.426c-1.973-14.305-17.264-22.69-17.264-22.69s-14.304 17.264-3.946 36.501c-2.959 1.48-7.892 3.453-15.291 3.453H28.726c-2.467 9.372-2.467 71.521 65.602 71.521c48.832 0 85.333-22.689 102.597-64.123C222.574 134.948 228 113.738 228 113.738"
-                            />
-                        </g>
-                    </svg>
-                    Docker 版请直接前往 <a href="https://github.com/BANKA2017/tbsign_go/pkgs/container/tbsign_go" target="_blank" class="underline"><code>tbsign_go/pkgs</code></a> 检查更新
-                </p>
-            </div>
+                    </g>
+                </svg>
+                Docker 版请前往 <a href="https://github.com/BANKA2017/tbsign_go/pkgs/container/tbsign_go" target="_blank" class="underline"><code>ghcr.io</code></a> 检查更新
+            </p>
+            <p class="px-3 py-1" v-else-if="!isSupportVersion(serverGoStatus.os, serverGoStatus.arch)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-cpu-fill inline-block -mt-0.5" viewBox="0 0 16 16">
+                    <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z" />
+                    <path
+                        d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"
+                    />
+                </svg>
+                {{ (serverGoStatus.os || '').toLowerCase() + '-' + (serverGoStatus.arch || '').toLowerCase() }} 不支持网页更新
+            </p>
             <div v-else-if="releaseList.length == 0">
                 <button class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg ml-3 px-3 py-1 hover:text-gray-100 transition-colors" title="检查更新" aria-label="检查更新" @click="getReleasesList">检查更新</button>
             </div>
             <div v-if="releaseList.length > 0">
                 <ul role="list" class="px-3 my-2 marker:text-sky-500 list-disc list-inside">
                     <li>
-                        如果下面列表中没有一项的右上角有<SvgCheck height="1.2em" width="1.2em" class="inline-block mx-0.5" />，说明当前版本过于老旧，或者属于拥有严重 BUG 被撤回的版本，请前往
+                        如果下面列表中没有一项的右上角有<SvgCheck height="1.2em" width="1.2em" class="inline-block mx-0.5" />，说明当前版本过于老旧，或者属于拥有严重 BUG 被撤回的版本，建议前往
                         <a href="https://github.com/BANKA2017/tbsign_go/releases" target="_blank" class="underline"><code>Releases</code></a> 下载文件替换更新
                     </li>
+                    <li>无法保证直接升级一定能够成功，升级前请提前备份数据库</li>
                     <li @click="tenMinutesDelay = false" role="button">最后更新会有 10 分钟的延迟</li>
                     <li>不支持自动降级</li>
                 </ul>
@@ -450,9 +456,9 @@ onMounted(() => {
 
         <div class="my-2 rounded-2xl">
             <div class="px-3 py-2">
-                <span class="text-lg">插件总开关</span>
+                <h2 class="text-xl font-bold">插件总开关</h2>
             </div>
-            <div class="p-3">
+            <div class="p-3 bg-gray-200 dark:bg-gray-800 rounded-xl">
                 <template v-for="(value, pluginName, index) in pluginList" :key="pluginName">
                     <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-1" />
                     <div class="flex justify-between">
