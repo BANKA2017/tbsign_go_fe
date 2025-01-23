@@ -369,6 +369,34 @@ const addAccount = (bduss = '', stoken = '') => {
     })
 }
 
+const updateAccoutList = () => {
+    Request(store.basePath + '/account', {
+        headers: {
+            Authorization: store.authorization
+        }
+    })
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            store.updateCache(
+                'accounts',
+                (res.data || []).map((account) => {
+                    account.page = 0
+                    account.more = false
+                    account.filter = 'all'
+                    account.search = ''
+                    return account
+                })
+            )
+            //console.log(res)
+        })
+        .catch((e) => {
+            Notice(e.toString(), 'error')
+        })
+}
+
 const qrLoginData = reactive<{
     sign: string
     imgurl: string
@@ -856,7 +884,12 @@ onMounted(() => {
             'rounded-md': true
         }"
         style="z-index: 9999"
-        @click="getForumList"
+        @click="
+            () => {
+                updateAccoutList()
+                getForumList()
+            }
+        "
     >
         <svg :class="{ 'animate-spin': loading }" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
             <g fill="currentColor">

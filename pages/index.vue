@@ -395,6 +395,34 @@ const logout = () => {
         })
 }
 
+const updateAccoutList = () => {
+    Request(store.basePath + '/account', {
+        headers: {
+            Authorization: store.authorization
+        }
+    })
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            store.updateCache(
+                'accounts',
+                (res.data || []).map((account) => {
+                    account.page = 0
+                    account.more = false
+                    account.filter = 'all'
+                    account.search = ''
+                    return account
+                })
+            )
+            //console.log(res)
+        })
+        .catch((e) => {
+            Notice(e.toString(), 'error')
+        })
+}
+
 const backupStatus = ref<string>('export') // import
 const backupFileData = ref<{ [p in string]: any }>({})
 
@@ -477,6 +505,7 @@ const importAccount = (password = '') => {
                 return
             }
             Notice(`导入完成，本次导入百度账号 ${res.data.tc_baiduid} 个，贴吧 ${res.data.tc_tieba} 个，请刷新网页`, 'success')
+            updateAccoutList()
         })
         .catch((e) => {
             Notice('导出失败: ' + e, 'error')
