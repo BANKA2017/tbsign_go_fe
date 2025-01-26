@@ -322,6 +322,9 @@ onMounted(() => {
                         <span class="font-bold">测试模式 : </span><span class="font-mono">{{ serverStatus.variables?.testmode }}</span>
                     </li>
                     <li>
+                        <span class="font-bold">加密数据 : </span><span class="font-mono">{{ serverStatus?.encrypt }}</span>
+                    </li>
+                    <li>
                         <span class="font-bold">兼容版本 : </span><span class="font-mono">{{ serverStatus.compat }}</span>
                     </li>
                     <li>
@@ -396,7 +399,18 @@ onMounted(() => {
             <div class="px-3 py-2">
                 <h2 class="text-xl font-bold">软件更新</h2>
             </div>
-            <p class="px-3 py-1" v-if="(serverStatus.build.publish_type || '').toLowerCase() === 'source'">
+            <p class="px-3 py-1" v-if="serverStatus?.encrypt">
+                <svg xmlns="http://www.w3.org/2000/svg" height="1em" width="1em" fill="currentColor" class="bi bi-file-earmark-lock-fill inline-block -mt-0.5" viewBox="0 0 16 16">
+                    <path
+                        d="M7 7a1 1 0 0 1 2 0v1H7zM6 9.3c0-.042.02-.107.105-.175A.64.64 0 0 1 6.5 9h3a.64.64 0 0 1 .395.125c.085.068.105.133.105.175v2.4c0 .042-.02.107-.105.175A.64.64 0 0 1 9.5 12h-3a.64.64 0 0 1-.395-.125C6.02 11.807 6 11.742 6 11.7z"
+                    />
+                    <path
+                        d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1M10 7v1.076c.54.166 1 .597 1 1.224v2.4c0 .816-.781 1.3-1.5 1.3h-3c-.719 0-1.5-.484-1.5-1.3V9.3c0-.627.46-1.058 1-1.224V7a2 2 0 1 1 4 0"
+                    />
+                </svg>
+                升级前请先解密数据
+            </p>
+            <p class="px-3 py-1" v-else-if="(serverStatus.build.publish_type || '').toLowerCase() === 'source'">
                 <svg xmlns="http://www.w3.org/2000/svg" height="1em" width="1em" fill="#F54D27" class="bi bi-git inline-block -mt-0.5" viewBox="0 0 16 16">
                     <path
                         d="M15.698 7.287 8.712.302a1.03 1.03 0 0 0-1.457 0l-1.45 1.45 1.84 1.84a1.223 1.223 0 0 1 1.55 1.56l1.773 1.774a1.224 1.224 0 0 1 1.267 2.025 1.226 1.226 0 0 1-2.002-1.334L8.58 5.963v4.353a1.226 1.226 0 1 1-1.008-.036V5.887a1.226 1.226 0 0 1-.666-1.608L5.093 2.465l-4.79 4.79a1.03 1.03 0 0 0 0 1.457l6.986 6.986a1.03 1.03 0 0 0 1.457 0l6.953-6.953a1.03 1.03 0 0 0 0-1.457"
