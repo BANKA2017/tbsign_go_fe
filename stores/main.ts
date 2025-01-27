@@ -13,6 +13,7 @@ interface MainStoreState {
             role: string
             ntfy_topic: string
             bark_key: string
+            pushdeer_key: string
             push_type: string
             system_settings: { [p in string]: string }
         }

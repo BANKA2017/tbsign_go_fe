@@ -63,7 +63,7 @@ const sendRequest = (e: Event) => {
         <div class="flex justify-center">
             <form class="rounded-2xl p-5 flex grow flex-col gap-2 max-w-[32em]">
                 <span v-if="runtimeConfig.public.NUXT_BASE_PATH === ''" class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5" v-show="step === 0">正在找回 {{ basePath }} 的密码</span>
-                <span v-if="!canSendEmail" class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5" v-show="step === 0">本站仅支持 Ntfy 和 Bark，不支持邮件找回</span>
+                <span v-if="!canSendEmail" class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5" v-show="step === 0">本站仅支持 Ntfy、Bark 和 PushDeer，不支持邮件找回</span>
                 <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2" v-show="step === 1 || step === 2">
                     {{ step === 1 ? (i_have_code ? '验证码有效期 5 分钟' : '如果此账号存在，并且推送渠道可用，您将会收到一条包含验证码的消息，验证码有效期 5 分钟') : '密码修改成功 🎉' }}
                 </div>

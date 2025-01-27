@@ -121,6 +121,25 @@
                             class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                             v-model="settingsValue.ntfy_topic"
                         />
+
+                        <label class="my-1 flex justify-between" for="pushdeer-key"> PushDeer key </label>
+                        <details role="button">
+                            <summary class="text-sm">关于 Pushdeer</summary>
+                            <ul role="list" class="mb-3 marker:text-sky-500 list-disc list-inside">
+                                <li><a href="https://www.pushdeer.com/" target="_blank" class="underline underline-offset-2">PushDeer</a> 支持多种客户端</li>
+                                <li>
+                                    本站使用的端点为 <span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 py-1 px-2 rounded-lg select-all">{{ accountInfo?.system_settings?.pushdeer_addr }}</span
+                                    >{{ accountInfo?.system_settings?.pushdeer_addr === 'https://api2.pushdeer.com' ? '(官服)' : '' }}
+                                </li>
+                            </ul>
+                        </details>
+                        <input
+                            id="pushdeer-key"
+                            type="text"
+                            class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                            v-model="settingsValue.pushdeer_key"
+                        />
+
                         <label class="block my-1" for="push-type">首选推送渠道</label>
                         <select
                             id="push-type"
@@ -130,6 +149,7 @@
                             <option value="email">邮箱</option>
                             <option value="ntfy">Ntfy</option>
                             <option value="bark">Bark</option>
+                            <option value="pushdeer">PushDeer</option>
                         </select>
 
                         <input
@@ -266,6 +286,7 @@ watch(accountInfo, () => {
     settingsValue.username = accountInfo.value?.name || ''
 
     settingsValue.bark_key = accountInfo.value?.bark_key || ''
+    settingsValue.pushdeer_key = accountInfo.value?.pushdeer_key || ''
     settingsValue.ntfy_topic = accountInfo.value?.ntfy_topic || ''
     settingsValue.push_type = accountInfo.value?.push_type || ''
 })
@@ -277,6 +298,7 @@ const settingsValue = reactive<{
     new_password: string
     ntfy_topic: string
     bark_key: string
+    pushdeer_key: string
     push_type: string
 }>({
     username: '',
@@ -286,6 +308,7 @@ const settingsValue = reactive<{
 
     ntfy_topic: '',
     bark_key: '',
+    pushdeer_key: '',
     push_type: ''
 })
 
@@ -307,6 +330,7 @@ onMounted(async () => {
         settingsValue.email = accountInfo.value?.email || ''
         settingsValue.username = accountInfo.value?.name || ''
         settingsValue.bark_key = accountInfo.value?.bark_key || ''
+        settingsValue.pushdeer_key = accountInfo.value?.pushdeer_key || ''
         settingsValue.ntfy_topic = accountInfo.value?.ntfy_topic || ''
         settingsValue.push_type = accountInfo.value?.push_type || ''
 
@@ -333,6 +357,7 @@ const saveSettings = (e: Event) => {
                 email: settingsValue.email,
                 ntfy_topic: settingsValue.ntfy_topic,
                 bark_key: settingsValue.bark_key,
+                pushdeer_key: settingsValue.pushdeer_key,
                 push_type: settingsValue.push_type,
                 password: settingsValue.password
             }).toString()
@@ -349,6 +374,7 @@ const saveSettings = (e: Event) => {
 
             newAccountInfo.ntfy_topic = res.data.ntfy_topic
             newAccountInfo.bark_key = res.data.bark_key
+            newAccountInfo.pushdeer_key = res.data.pushdeer_key
             newAccountInfo.push_type = res.data.push_type
             store.updateCache('accountInfo', newAccountInfo)
             //console.log(res)

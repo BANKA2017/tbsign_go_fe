@@ -125,7 +125,7 @@ const settingsGroup = ref({
     push: {
         name: '推送',
         display: false,
-        data: { go_bark_addr: 'Bark 推送地址', go_ntfy_addr: 'ntfy 推送地址' }
+        data: { go_bark_addr: 'Bark 推送地址', go_ntfy_addr: 'ntfy 推送地址', go_pushdeer_addr: 'PushDeer 推送地址' }
     },
     plugin: {
         name: '插件',
@@ -626,7 +626,7 @@ onMounted(() => {
                                 class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                                 v-model="serverSettings[key]"
                             />
-                            <div v-else-if="['go_bark_addr', 'go_ntfy_addr'].includes(key)" class="flex w-full">
+                            <div v-else-if="['go_bark_addr', 'go_ntfy_addr', 'go_pushdeer_addr'].includes(key)" class="flex w-full">
                                 <input
                                     :id="'input-' + key"
                                     type="text"
