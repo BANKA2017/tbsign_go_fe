@@ -111,6 +111,7 @@ const settingsGroup = ref({
             cron_limit: '单次单账号签到贴吧数量 (单次签到行为贴吧数量上限为 此值*3)',
             sign_sleep: '签到时间间隔 (ms)',
             retry_max: '最大重签次数',
+            go_re_check_in_max_interval: '最大重签间隔 (分钟)',
             go_forum_sync_policy: '贴吧同步策略'
         }
     },
@@ -565,6 +566,14 @@ onMounted(() => {
                                 v-else-if="['cron_limit', 'retry_max', 'sign_sleep', 'mail_port', 'ver4_ban_limit'].includes(key) || String(key || '').endsWith('_action_limit')"
                                 type="number"
                                 min="0"
+                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                v-model="serverSettings[key]"
+                            />
+                            <input
+                                :id="'input-' + key"
+                                v-else-if="key === 'go_re_check_in_max_interval'"
+                                type="number"
+                                min="1"
                                 class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
                                 v-model="serverSettings[key]"
                             />
