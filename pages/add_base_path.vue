@@ -38,7 +38,7 @@
                     <input
                         type="submit"
                         role="button"
-                        class="text-gray-100 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 text-xl"
+                        class="text-gray-100 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600"
                         @click="
                             (e) => {
                                 e.preventDefault()
