@@ -123,9 +123,7 @@ updateNavStatus()
                     >
                         <div class="py-2 my-1 flex justify-between gap-2">
                             <span class="inline-bolck truncate max-w-[60%] 3xs:max-w-[80%]">{{ nav.name }}</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="bi bi-list w-[1.5em]" viewBox="0 0 16 16" v-show="!showList && route.name === nav.routeName">
-                                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
-                            </svg>
+                            <uno-icon class="i-bi:list" style="height: 1.5rem; width: 1.5rem" v-show="!showList && route.name === nav.routeName" />
                         </div>
                     </NuxtLink>
                 </template>

@@ -76,7 +76,7 @@ const refreshPage = () => {
                 <span class="rounded-l-full pl-2 pr-1 text-sm border-2 bg-sky-500 border-sky-500 text-gray-100">{{ os }}</span>
                 <span class="rounded-r-full pr-2 pl-1 text-sm border-2 border-sky-500">{{ arch }}</span>
             </span>
-            <span v-if="isCurrent" title="当前版本"><SvgCheck height="1.2em" width="1.2em" class="inline-block" /></span>
+            <span v-if="isCurrent" title="当前版本"><SvgCheck height="1.2em" width="1.2em" class="inline-block -mt-1" /></span>
         </div>
         <ul role="list" class="my-2 marker:text-sky-500 list-disc list-inside">
             <li>

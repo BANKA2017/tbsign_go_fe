@@ -746,25 +746,11 @@ onMounted(() => {
                         </select>
                     </div>
                     <button v-show="editMode" @click="deleteAccount(account.id)" class="rounded-full h-10 text-pink-500 hover:text-pink-600 dark:hover:text-pink-400 transition-colors my-1" title="删除贴吧账号" aria-label="删除贴吧账号">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em]" viewBox="0 0 16 16">
-                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
-                        </svg>
+                        <uno-icon class="i-bi:x-circle-fill" style="width: 1.5em; height: 1.5em" />
                     </button>
                     <button @click="accounts[index].more = !accounts[index].more" class="rounded-full h-10 text-gray-900 dark:text-gray-100 transition-colors my-1" title="展开贴吧列表" aria-label="展开贴吧列表">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em]" viewBox="0 0 16 16">
-                            <path
-                                v-if="accounts[index].more"
-                                fill="currentColor"
-                                fill-rule="evenodd"
-                                d="M1 8a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13A.5.5 0 0 1 1 8m7-8a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L7.5 4.293V.5A.5.5 0 0 1 8 0m-.5 11.707l-1.146 1.147a.5.5 0 0 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 11.707V15.5a.5.5 0 0 1-1 0z"
-                            />
-                            <path
-                                v-else
-                                fill="currentColor"
-                                fill-rule="evenodd"
-                                d="M1 8a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13A.5.5 0 0 1 1 8M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10"
-                            />
-                        </svg>
+                        <uno-icon v-if="accounts[index].more" class="i-bi:arrows-collapse" style="width: 1.5em; height: 1.5em" />
+                        <uno-icon v-else class="i-bi:arrows-expand" style="width: 1.5em; height: 1.5em" />
                     </button>
                 </div>
             </div>
@@ -793,72 +779,45 @@ onMounted(() => {
                         <div class="flex gap-2">
                             <button
                                 v-show="editMode"
-                                class="transition-colors"
+                                class="transition-colors rounded-full text-pink-500"
                                 @click="deleteForum(tiebaItem.pid, tiebaItem.fid)"
                                 :title="'删除贴吧 ' + account.name + '/' + tiebaItem.tieba"
                                 :aria-label="'删除贴吧 ' + account.name + '/' + tiebaItem.tieba"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] rounded-full text-pink-500 transition-colors" viewBox="0 0 16 16">
-                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
-                                </svg>
+                                <uno-icon class="i-bi:x-circle-fill" style="width: 1.5em; height: 1.5em" />
                             </button>
                             <div v-show="!editMode">
-                                <svg v-if="tiebaItem.no" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-gray-500" viewBox="0 0 16 16">
-                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1z" />
-                                </svg>
-                                <svg
-                                    v-else-if="tiebaItem.status === 0 && new Date().getDate() === tiebaItem.latest"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="100%"
-                                    height="100%"
-                                    fill="currentColor"
-                                    class="w-[1.5em] text-green-500"
-                                    viewBox="0 0 16 16"
-                                >
-                                    <path
-                                        fill="currentColor"
-                                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417L5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
-                                    />
-                                </svg>
-                                <svg v-else-if="new Date().getDate() !== tiebaItem.latest" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-orange-500" viewBox="0 0 16 16">
-                                    <path
-                                        d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z"
-                                    />
-                                    <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0z" />
-                                    <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5" />
-                                </svg>
-                                <svg v-else xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-pink-500" viewBox="0 0 16 16">
-                                    <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2a1 1 0 0 0 0-2" />
-                                </svg>
+                                <div v-if="tiebaItem.no" class="text-gray-500 inline-block pt-2">
+                                    <uno-icon class="i-bi:dash-circle-fill" style="width: 1.5em; height: 1.5em" />
+                                </div>
+                                <div v-else-if="tiebaItem.status === 0 && new Date().getDate() === tiebaItem.latest" class="text-green-500 inline-block pt-2">
+                                    <uno-icon class="i-bi:check-circle-fill" style="width: 1.5em; height: 1.5em" />
+                                </div>
+                                <div v-else-if="new Date().getDate() !== tiebaItem.latest" class="text-orange-500 inline-block pt-2">
+                                    <uno-icon class="i-bi:clock-history" style="width: 1.5em; height: 1.5em" />
+                                </div>
+                                <div v-else class="text-pink-500 inline-block pt-2">
+                                    <uno-icon class="i-bi:exclamation-circle-fill" style="width: 1.5em; height: 1.5em" />
+                                </div>
                             </div>
                             <button
                                 v-show="editMode"
-                                class="transition-colors"
+                                class="transition-colors text-gray-500"
                                 @click="updateIgnoreForum(tiebaItem.pid, tiebaItem.fid)"
                                 :title="'忽略签到贴吧 ' + account.name + '/' + tiebaItem.tieba"
                                 :aria-label="'忽略签到贴吧 ' + account.name + '/' + tiebaItem.tieba"
                             >
-                                <svg v-if="tiebaItem.no" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-gray-500" viewBox="0 0 16 16">
-                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1z" />
-                                </svg>
-                                <svg v-else xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-gray-500" viewBox="0 0 16 16">
-                                    <path
-                                        d="M8 0q-.264 0-.523.017l.064.998a7 7 0 0 1 .918 0l.064-.998A8 8 0 0 0 8 0M6.44.152q-.52.104-1.012.27l.321.948q.43-.147.884-.237L6.44.153zm4.132.271a8 8 0 0 0-1.011-.27l-.194.98q.453.09.884.237zm1.873.925a8 8 0 0 0-.906-.524l-.443.896q.413.205.793.459zM4.46.824q-.471.233-.905.524l.556.83a7 7 0 0 1 .793-.458zM2.725 1.985q-.394.346-.74.74l.752.66q.303-.345.648-.648zm11.29.74a8 8 0 0 0-.74-.74l-.66.752q.346.303.648.648zm1.161 1.735a8 8 0 0 0-.524-.905l-.83.556q.254.38.458.793l.896-.443zM1.348 3.555q-.292.433-.524.906l.896.443q.205-.413.459-.793zM.423 5.428a8 8 0 0 0-.27 1.011l.98.194q.09-.453.237-.884zM15.848 6.44a8 8 0 0 0-.27-1.012l-.948.321q.147.43.237.884zM.017 7.477a8 8 0 0 0 0 1.046l.998-.064a7 7 0 0 1 0-.918zM16 8a8 8 0 0 0-.017-.523l-.998.064a7 7 0 0 1 0 .918l.998.064A8 8 0 0 0 16 8M.152 9.56q.104.52.27 1.012l.948-.321a7 7 0 0 1-.237-.884l-.98.194zm15.425 1.012q.168-.493.27-1.011l-.98-.194q-.09.453-.237.884zM.824 11.54a8 8 0 0 0 .524.905l.83-.556a7 7 0 0 1-.458-.793zm13.828.905q.292-.434.524-.906l-.896-.443q-.205.413-.459.793zm-12.667.83q.346.394.74.74l.66-.752a7 7 0 0 1-.648-.648zm11.29.74q.394-.346.74-.74l-.752-.66q-.302.346-.648.648zm-1.735 1.161q.471-.233.905-.524l-.556-.83a7 7 0 0 1-.793.458zm-7.985-.524q.434.292.906.524l.443-.896a7 7 0 0 1-.793-.459zm1.873.925q.493.168 1.011.27l.194-.98a7 7 0 0 1-.884-.237zm4.132.271a8 8 0 0 0 1.012-.27l-.321-.948a7 7 0 0 1-.884.237l.194.98zm-2.083.135a8 8 0 0 0 1.046 0l-.064-.998a7 7 0 0 1-.918 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1z"
-                                    />
-                                </svg>
+                                <uno-icon v-if="tiebaItem.no" class="i-bi:dash-circle-fill" style="width: 1.5em; height: 1.5em" />
+                                <uno-icon v-else class="i-bi:dash-circle-dotted" style="width: 1.5em; height: 1.5em" />
                             </button>
                             <button
                                 v-show="editMode"
-                                class="transition-colors"
+                                class="transition-colors text-orange-500"
                                 @click="resetForum(tiebaItem.pid, tiebaItem.fid)"
                                 :title="'重置签到状态 ' + account.name + '/' + tiebaItem.tieba"
                                 :aria-label="'重置签到状态 ' + account.name + '/' + tiebaItem.tieba"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="currentColor" class="w-[1.5em] text-orange-500" viewBox="0 0 16 16">
-                                    <path
-                                        d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828zm.66 11.34L3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293z"
-                                    />
-                                </svg>
+                                <uno-icon class="i-bi:bootstrap-reboot" style="width: 1.5em; height: 1.5em" />
                             </button>
                         </div>
                     </div>
@@ -891,12 +850,7 @@ onMounted(() => {
             }
         "
     >
-        <svg :class="{ 'animate-spin': loading }" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
-            <g fill="currentColor">
-                <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
-                <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182a.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
-            </g>
-        </svg>
+        <uno-icon :class="{ 'i-bi:arrow-clockwise': true, 'animate-spin': loading }" />
     </div>
 </template>
 

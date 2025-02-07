@@ -212,8 +212,8 @@ onMounted(() => {
                     <span class="font-bold">状态 : </span>
                     <ul v-if="task.status && task.status.startsWith('[')" class="grid grid-cols-6 gap-x-5 marker:text-sky-500 list-disc list-inside">
                         <li class="ml-5 col-span-6 md:col-span-3 lg:col-span-2" v-for="taskStatus in JSON.parse(task.status)" :key="task.pid + '_' + taskStatus.name">
-                            <SvgCheck v-if="taskStatus.task_status === 3" height="1em" width="1em" class="inline-block mr-1" title="完成" />
-                            <SvgCross v-else height="1em" width="1em" class="inline-block mr-1" :title="taskStatus.task_status === 2 ? '完成未领取' : '未完成'" />
+                            <SvgCheck v-if="taskStatus.task_status === 3" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" title="完成" />
+                            <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" :title="taskStatus.task_status === 2 ? '完成未领取' : '未完成'" />
                             <span :class="{ 'font-bold': true }">{{ taskStatus.task_name }}{{ taskStatus.sign_day !== undefined ? ` / 第 ${taskStatus.sign_day} 天` : '' }}</span>
                         </li>
                     </ul>
@@ -264,12 +264,7 @@ onMounted(() => {
         style="z-index: 9999"
         @click="getTasksList"
     >
-        <svg :class="{ 'animate-spin': loading }" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
-            <g fill="currentColor">
-                <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
-                <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182a.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
-            </g>
-        </svg>
+        <uno-icon :class="{ 'i-bi:arrow-clockwise': true, 'animate-spin': loading }" />
     </div>
 </template>
 

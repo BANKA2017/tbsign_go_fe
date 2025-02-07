@@ -35,6 +35,7 @@ export default defineNuxtConfig({
         'nuxt-lodash',
         '@vueuse/nuxt',
         '@nuxtjs/tailwindcss',
+        '@unocss/nuxt',
         [
             '@pinia/nuxt',
             {

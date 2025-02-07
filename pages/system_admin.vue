@@ -122,7 +122,7 @@ const settingsGroup = ref({
     },
     push: {
         name: '推送',
-        data: { go_bark_addr: 'Bark 推送地址', go_ntfy_addr: 'ntfy 推送地址', go_pushdeer_addr: 'PushDeer 推送地址', go_daily_report_hour: '每日签到报告推送时间（0~23 时，-1 即关闭报告）' }
+        data: { go_bark_addr: 'Bark 推送地址', go_ntfy_addr: 'ntfy 推送地址', go_pushdeer_addr: 'PushDeer 推送地址', go_daily_report_hour: '每日签到报告推送时间（填写 0~23 时或 -1 关闭推送）' }
     },
     plugin: {
         name: '插件',
@@ -396,44 +396,20 @@ onMounted(() => {
                 <h2 class="text-xl font-bold">软件更新</h2>
             </div>
             <p class="px-3 py-1" v-if="serverStatus?.encrypt">
-                <svg xmlns="http://www.w3.org/2000/svg" height="1em" width="1em" fill="currentColor" class="bi bi-file-earmark-lock-fill inline-block -mt-0.5" viewBox="0 0 16 16">
-                    <path
-                        d="M7 7a1 1 0 0 1 2 0v1H7zM6 9.3c0-.042.02-.107.105-.175A.64.64 0 0 1 6.5 9h3a.64.64 0 0 1 .395.125c.085.068.105.133.105.175v2.4c0 .042-.02.107-.105.175A.64.64 0 0 1 9.5 12h-3a.64.64 0 0 1-.395-.125C6.02 11.807 6 11.742 6 11.7z"
-                    />
-                    <path
-                        d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1M10 7v1.076c.54.166 1 .597 1 1.224v2.4c0 .816-.781 1.3-1.5 1.3h-3c-.719 0-1.5-.484-1.5-1.3V9.3c0-.627.46-1.058 1-1.224V7a2 2 0 1 1 4 0"
-                    />
-                </svg>
+                <uno-icon class="i-bi:file-earmark-lock-fill inline-block -mt-0.5" />
                 升级前请先解密数据
             </p>
             <p class="px-3 py-1" v-else-if="(serverStatus.build.publish_type || '').toLowerCase() === 'source'">
-                <svg xmlns="http://www.w3.org/2000/svg" height="1em" width="1em" fill="#F54D27" class="bi bi-git inline-block -mt-0.5" viewBox="0 0 16 16">
-                    <path
-                        d="M15.698 7.287 8.712.302a1.03 1.03 0 0 0-1.457 0l-1.45 1.45 1.84 1.84a1.223 1.223 0 0 1 1.55 1.56l1.773 1.774a1.224 1.224 0 0 1 1.267 2.025 1.226 1.226 0 0 1-2.002-1.334L8.58 5.963v4.353a1.226 1.226 0 1 1-1.008-.036V5.887a1.226 1.226 0 0 1-.666-1.608L5.093 2.465l-4.79 4.79a1.03 1.03 0 0 0 0 1.457l6.986 6.986a1.03 1.03 0 0 0 1.457 0l6.953-6.953a1.03 1.03 0 0 0 0-1.457"
-                    />
-                </svg>
+                <uno-icon class="i-bi:git -mt-0.5 inline-block" style="color: #f54d27" />
                 开发版请参考
                 <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 编译运行
             </p>
             <p class="px-3 py-1" v-else-if="(serverStatus.build.publish_type || '').toLowerCase() === 'docker'">
-                <svg xmlns="http://www.w3.org/2000/svg" height="1em" width="1em" viewBox="0 0 256 256" class="inline-block -mt-0.5">
-                    <g fill="none">
-                        <rect width="256" height="256" fill="#2396ED" rx="60" />
-                        <path
-                            fill="#fff"
-                            d="M141.187 122.123h20.717v-18.744h-20.717zm-24.662 0h20.716v-18.744h-20.716zm-24.17 0h20.717v-18.744H92.355zm-24.17 0H88.41v-18.744H68.186zm-24.662 0H64.24v-18.744H43.523zm24.663-22.69h20.223V80.69H68.186zm24.17 0h20.716V80.69H92.355zm24.169 0h20.716V80.69h-20.716zm0-22.69h20.716V58h-20.716zM228 113.739s-8.879-8.386-27.129-5.426c-1.973-14.305-17.264-22.69-17.264-22.69s-14.304 17.264-3.946 36.501c-2.959 1.48-7.892 3.453-15.291 3.453H28.726c-2.467 9.372-2.467 71.521 65.602 71.521c48.832 0 85.333-22.689 102.597-64.123C222.574 134.948 228 113.738 228 113.738"
-                        />
-                    </g>
-                </svg>
+                <uno-icon class="i-skill-icons:docker inline-block -mt-0.5" />
                 Docker 版请前往 <a href="https://github.com/BANKA2017/tbsign_go/pkgs/container/tbsign_go" target="_blank" class="underline"><code>ghcr.io</code></a> 检查更新
             </p>
             <p class="px-3 py-1" v-else-if="!isSupportVersion(serverGoStatus.os, serverGoStatus.arch)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-cpu-fill inline-block -mt-0.5" viewBox="0 0 16 16">
-                    <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z" />
-                    <path
-                        d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"
-                    />
-                </svg>
+                <uno-icon class="i-bi:cpu-fill -mt-0.5 inline-block" />
                 {{ (serverGoStatus.os || '').toLowerCase() + '-' + (serverGoStatus.arch || '').toLowerCase() }} 不支持网页更新
             </p>
             <div v-else-if="releaseList.length == 0">
@@ -442,7 +418,7 @@ onMounted(() => {
             <div v-if="releaseList.length > 0">
                 <ul role="list" class="px-3 my-2 marker:text-sky-500 list-disc list-inside">
                     <li>
-                        如果下面列表中没有一项的右上角有<SvgCheck height="1.2em" width="1.2em" class="inline-block mx-0.5" />，说明当前版本过于老旧，或者属于拥有严重 BUG 被撤回的版本，建议前往
+                        如果下面列表中没有一项的右上角有<SvgCheck height="1.2em" width="1.2em" class="inline-block mx-0.5 -mt-0.5" />，说明当前版本过于老旧，或者属于拥有严重 BUG 被撤回的版本，建议前往
                         <a href="https://github.com/BANKA2017/tbsign_go/releases" target="_blank" class="underline"><code>Releases</code></a> 下载文件替换更新
                     </li>
                     <li>无法保证直接升级一定能够成功，升级前请提前备份数据库</li>

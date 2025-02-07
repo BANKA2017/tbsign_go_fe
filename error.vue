@@ -1,7 +1,9 @@
 <template>
     <NuxtLayout name="tbsign">
         <h1 class="text-6xl mb-5 mt-3">{{ code }}</h1>
-        <p class="text-xl">🈚 {{ errorMessage[code] ? errorMessage[code] : '什么问题？' }}，回<NuxtLink to="/" class="mx-1 underline underline-offset-4">首页</NuxtLink>看看吧</p>
+        <p class="text-xl">
+            <uno-icon class="i-fluent-emoji-flat:japanese-free-of-charge-button inline-block -mt-0.5" /> {{ errorMessage[code] ? errorMessage[code] : '什么问题？' }}，回<NuxtLink to="/" class="mx-1 underline underline-offset-4">首页</NuxtLink>看看吧
+        </p>
     </NuxtLayout>
 </template>
 
