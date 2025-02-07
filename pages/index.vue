@@ -152,6 +152,18 @@
                             <option value="pushdeer">PushDeer</option>
                         </select>
 
+                        <label class="block my-1" for="push-type"
+                            >推送每日签到报告{{ (accountInfo?.system_settings?.go_daily_report_hour || -1) > -1 ? '（' + accountInfo.system_settings.go_daily_report_hour + ' 时开始推送）' : '（站点未开启每日报告）' }}</label
+                        >
+                        <select
+                            id="push-type"
+                            class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                            v-model="settingsValue.daily_report"
+                        >
+                            <option value="0">关闭</option>
+                            <option value="1">开启</option>
+                        </select>
+
                         <input
                             v-if="settingsValue.password !== ''"
                             type="submit"
@@ -289,6 +301,7 @@ watch(accountInfo, () => {
     settingsValue.pushdeer_key = accountInfo.value?.pushdeer_key || ''
     settingsValue.ntfy_topic = accountInfo.value?.ntfy_topic || ''
     settingsValue.push_type = accountInfo.value?.push_type || ''
+    settingsValue.daily_report = accountInfo.value?.daily_report || '0'
 })
 
 const settingsValue = reactive<{
@@ -300,6 +313,7 @@ const settingsValue = reactive<{
     bark_key: string
     pushdeer_key: string
     push_type: string
+    daily_report: '' | '0' | '1'
 }>({
     username: '',
     email: '',
@@ -309,7 +323,8 @@ const settingsValue = reactive<{
     ntfy_topic: '',
     bark_key: '',
     pushdeer_key: '',
-    push_type: ''
+    push_type: '',
+    daily_report: '0'
 })
 
 onMounted(async () => {
@@ -333,6 +348,7 @@ onMounted(async () => {
         settingsValue.pushdeer_key = accountInfo.value?.pushdeer_key || ''
         settingsValue.ntfy_topic = accountInfo.value?.ntfy_topic || ''
         settingsValue.push_type = accountInfo.value?.push_type || ''
+        settingsValue.daily_report = accountInfo.value?.daily_report
 
         if (accountInfo.value?.system_settings?.allow_export_personal_data !== '1' && accountInfo.value?.system_settings?.allow_import_personal_data === '1') {
             backupStatus.value = 'import'
@@ -359,6 +375,7 @@ const saveSettings = (e: Event) => {
                 bark_key: settingsValue.bark_key,
                 pushdeer_key: settingsValue.pushdeer_key,
                 push_type: settingsValue.push_type,
+                daily_report: settingsValue.daily_report === '1' ? '1' : '0',
                 password: settingsValue.password
             }).toString()
         }).then((res) => {
@@ -376,6 +393,7 @@ const saveSettings = (e: Event) => {
             newAccountInfo.bark_key = res.data.bark_key
             newAccountInfo.pushdeer_key = res.data.pushdeer_key
             newAccountInfo.push_type = res.data.push_type
+            newAccountInfo.daily_report = res.data.daily_report
             store.updateCache('accountInfo', newAccountInfo)
             //console.log(res)
         })

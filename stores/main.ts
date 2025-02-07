@@ -15,6 +15,7 @@ interface MainStoreState {
             bark_key: string
             pushdeer_key: string
             push_type: string
+            daily_report: '' | '0' | '1'
             system_settings: { [p in string]: string }
         }
         accounts?: {

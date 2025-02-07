@@ -122,7 +122,7 @@ const settingsGroup = ref({
     },
     push: {
         name: '推送',
-        data: { go_bark_addr: 'Bark 推送地址', go_ntfy_addr: 'ntfy 推送地址', go_pushdeer_addr: 'PushDeer 推送地址' }
+        data: { go_bark_addr: 'Bark 推送地址', go_ntfy_addr: 'ntfy 推送地址', go_pushdeer_addr: 'PushDeer 推送地址', go_daily_report_hour: '每日签到报告推送时间（0~23 时，-1 即关闭报告）' }
     },
     plugin: {
         name: '插件',
@@ -580,7 +580,7 @@ onMounted(() => {
                             />
                             <input
                                 :id="'input-' + key"
-                                v-else-if="key === 'sign_hour'"
+                                v-else-if="['sign_hour', 'go_daily_report_hour'].includes(key)"
                                 type="number"
                                 min="-1"
                                 max="23"
