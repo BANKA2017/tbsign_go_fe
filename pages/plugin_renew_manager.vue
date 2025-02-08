@@ -307,19 +307,23 @@ onMounted(() => {
                 </li>
             </ul>
 
-            <details class="marker:text-sky-500">
-                <summary class="cursor-pointer"><span class="font-bold ml-1">日志</span></summary>
-                <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
-                    <li class="break-all" v-for="(log_, i) in task.log.split('<br />')" :key="task.pid.toString() + '_' + task.fid + i" v-show="log_">{{ log_ }}</li>
-                </ul>
-            </details>
             <hr class="border-gray-400 dark:border-gray-600 my-3" />
-            <Modal class="inline-block" :title="'确认删除考核任务: ' + task.fname + '@' + pidNameKV[task.pid] + ' ？'" :aria-label="'确认删除考核任务: ' + task.fname + '@' + pidNameKV[task.pid] + ' ？'">
+            <Modal class="inline-block mr-1" :title="'确认删除考核任务: ' + task.fname + '@' + pidNameKV[task.pid] + ' ？'" :aria-label="'确认删除考核任务: ' + task.fname + '@' + pidNameKV[task.pid] + ' ？'">
                 <template #default>
                     <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors">删除</button>
                 </template>
                 <template #container>
                     <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTask(task.id)">确认删除</button>
+                </template>
+            </Modal>
+            <Modal class="mx-1 inline-block" title="日志">
+                <template #default>
+                    <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
+                </template>
+                <template #container>
+                    <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
+                        <li class="break-all" v-for="(log_, i) in task.log.split('<br />')" :key="task.pid.toString() + '_' + task.fid + i" v-show="log_">{{ log_ }}</li>
+                    </ul>
                 </template>
             </Modal>
         </div>

@@ -226,12 +226,18 @@ onMounted(() => {
                 </li>
             </ul>
 
-            <details class="marker:text-sky-500">
-                <summary class="cursor-pointer"><span class="font-bold ml-1">日志</span></summary>
-                <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
-                    <li class="break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
-                </ul>
-            </details>
+            <hr class="border-gray-400 dark:border-gray-600 my-2" />
+
+            <Modal class="mr-1 inline-block" title="日志">
+                <template #default>
+                    <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
+                </template>
+                <template #container>
+                    <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
+                        <li class="break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
+                    </ul>
+                </template>
+            </Modal>
         </div>
     </div>
     <div

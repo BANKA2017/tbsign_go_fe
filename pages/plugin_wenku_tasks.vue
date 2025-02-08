@@ -221,22 +221,26 @@ onMounted(() => {
                 </li>
             </ul>
 
-            <details class="marker:text-sky-500">
-                <summary class="cursor-pointer"><span class="font-bold ml-1">最近30天日志</span></summary>
-                <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
-                    <li class="break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
-                </ul>
-            </details>
             <hr class="border-gray-400 dark:border-gray-600 my-3" />
-            <Modal class="inline-block" :title="'确认删除文库任务: @' + pidNameKV[task.pid] + ' ？'" :aria-label="'确认删除文库任务: @' + pidNameKV[task.pid] + ' ？'">
+            <Modal class="inline-block mr-1" :title="'确认删除文库任务: @' + pidNameKV[task.pid] + ' ？'" :aria-label="'确认删除文库任务: @' + pidNameKV[task.pid] + ' ？'">
                 <template #default>
-                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors mr-1">删除</button>
+                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors">删除</button>
                 </template>
                 <template #container>
                     <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTask(task.id)">确认删除</button>
                 </template>
             </Modal>
-            <button v-if="tasksSignDayKV[index] === 7" class="border-2 border-sky-500 hover:bg-sky-500 rounded-lg px-3 py-1 dark:text-gray-100 hover:text-gray-100 transition-colors" @click="claimVIP(task.pid)">领取 VIP</button>
+            <Modal class="mx-1 inline-block" title="日志">
+                <template #default>
+                    <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
+                </template>
+                <template #container>
+                    <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
+                        <li class="break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
+                    </ul>
+                </template>
+            </Modal>
+            <button v-if="tasksSignDayKV[index] === 7" class="border-2 border-sky-500 hover:bg-sky-500 rounded-lg px-2.5 py-0.5 dark:text-gray-100 hover:text-gray-100 transition-colors mx-1" @click="claimVIP(task.pid)">领取 VIP</button>
         </div>
         <hr class="my-10 border-gray-400 dark:border-gray-600" />
         <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
