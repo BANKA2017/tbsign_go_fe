@@ -62,7 +62,7 @@ const modalSwitch = (value: Event | boolean) => {
                         "
                         title="关闭"
                     >
-                        <uno-icon class="i-bi:x" style="height: 24px; width: 24px" />
+                        <uno-icon class="i-bi:x-lg" style="height: 1rem; width: 1rem" />
                     </button>
                 </h5>
                 <slot name="container">这里什么都没有~</slot>
