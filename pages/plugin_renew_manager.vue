@@ -148,20 +148,32 @@ const updateTasksSwitch = () => {
     })
 }
 
-const tasksAlertSwitch = ref<boolean>(false)
+const tasksSettings = reactive<{
+    report_switch: boolean
+    action_interval: number
+}>({
+    report_switch: false,
+    action_interval: 1
+})
 
-const updateAlertTasksSwitch = () => {
-    Request(store.basePath + '/plugins/kd_renew_manager/alert/switch', {
+const saveSettings = () => {
+    Request(store.basePath + '/plugins/kd_renew_manager/settings', {
         headers: {
-            Authorization: store.authorization
+            Authorization: store.authorization,
+            'Content-Type': 'application/x-www-form-urlencoded'
         },
-        method: 'POST'
+        method: 'POST',
+        body: new URLSearchParams({
+            report_switch: tasksSettings.report_switch ? '1' : '0',
+            action_interval: tasksSettings.action_interval.toString()
+        }).toString()
     }).then((res) => {
         if (res.code !== 200) {
             Notice(res.message, 'error')
             return
         }
-        tasksAlertSwitch.value = res.data
+        tasksSettings.report_switch = res.data?.report_switch || false
+        tasksSettings.action_interval = res.data?.action_interval || 1
         //console.log(res)
     })
 }
@@ -202,7 +214,7 @@ onMounted(() => {
         //console.log(res)
     })
 
-    Request(store.basePath + '/plugins/kd_renew_manager/alert/switch', {
+    Request(store.basePath + '/plugins/kd_renew_manager/settings', {
         headers: {
             Authorization: store.authorization
         }
@@ -211,7 +223,8 @@ onMounted(() => {
             Notice(res.message, 'error')
             return
         }
-        tasksAlertSwitch.value = res.data
+        tasksSettings.report_switch = res.data?.report_switch || false
+        tasksSettings.action_interval = res.data?.action_interval || 1
         //console.log(res)
     })
     nowIntervalHandle = setInterval(() => {
@@ -229,11 +242,22 @@ onMounted(() => {
         </button>
 
         <div class="my-5">
-            <p class="my-2">根据设置，当本地记录时间小于15天将会每天推送手动完成任务提醒</p>
-            <button :class="{ 'bg-sky-500': !tasksAlertSwitch, 'bg-pink-500': tasksAlertSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-gray-100': true, 'transition-colors': true }" @click="updateAlertTasksSwitch">
-                {{ tasksAlertSwitch ? '已开启推送' : '已停止推送' }}
-            </button>
+            <p class="my-2">是否添加到每日报告</p>
+            <select v-model="tasksSettings.report_switch" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
+                <option :value="true">是</option>
+                <option :value="false">否</option>
+            </select>
+            <p class="my-2">执行间隔（天），默认每天执行，可以适当调大间隔避免吧务后台操作记录刷屏</p>
+            <input
+                type="number"
+                min="1"
+                max="29"
+                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 min-w-[8rem] bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                v-model="tasksSettings.action_interval"
+            />
         </div>
+
+        <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 transition-colors rounded-lg px-3 py-1 text-gray-100" @click="saveSettings">保存</button>
     </div>
 
     <div class="px-3 py-2">
