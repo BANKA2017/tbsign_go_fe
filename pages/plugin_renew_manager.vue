@@ -235,6 +235,8 @@ onMounted(() => {
 
 <template>
     <div class="px-3 py-2">
+        <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2">如果检查期间有进行有效的吧务操作，系统<span class="text-cold">不会</span>执行任何操作</div>
+
         <h4 class="text-lg mb-4">设置</h4>
 
         <button :class="{ 'bg-sky-500': !tasksSwitch, 'bg-pink-500': tasksSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-gray-100': true, 'transition-colors': true }" @click="updateTasksSwitch">
@@ -247,7 +249,7 @@ onMounted(() => {
                 <option :value="true">是</option>
                 <option :value="false">否</option>
             </select>
-            <p class="my-2">执行间隔（天），默认每天执行，可以适当调大间隔避免吧务后台操作记录刷屏</p>
+            <p class="my-2">检查间隔（天），默认每天检查，可以适当调大间隔避免吧务后台操作记录刷屏</p>
             <input
                 type="number"
                 min="1"
@@ -300,7 +302,8 @@ onMounted(() => {
         </div>
         <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.pid.toString() + '_' + task.fname">
             <div class="text-sm progress bg-gray-300 dark:bg-gray-700">
-                <div :style="{ width: Math.ceil((1 - (task.end - now) / (30 * 24 * 60 * 60)) * 100) + '%' }" :class="{ 'progress-bar': true, 'bg-sky-500': true }"></div>
+                <div :style="{ width: Math.ceil((1 - (task.end - now) / (30 * 24 * 60 * 60)) * 100) + '%' }" class="progress-bar bg-sky-500"></div>
+                <div :style="{ width: Math.ceil(((tasksSettings.action_interval * 24 * 60 * 60) / (30 * 24 * 60 * 60)) * 100) + '%' }" class="progress-checkpoint"></div>
                 <div class="progress-data">
                     <span class="font-bold">{{ Eta(now, task.end) }}</span>
                 </div>
@@ -314,10 +317,6 @@ onMounted(() => {
                     <span class="font-bold">执行贴吧 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + task.fname" target="blank">{{ task.fname }}</NuxtLink>
                 </li>
                 <li>
-                    <span class="font-bold">考核截止 : </span
-                    ><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/mo/q/bawu/taskinfoview?tbioswk=1&fid=' + task.fid" target="blank">{{ getPubDate(new Date(task.end * 1000)) }}</NuxtLink>
-                </li>
-                <li>
                     <span class="font-bold">任务帖子 : </span
                     ><span class="font-mono"
                         ><NuxtLink class="font-mono underline underline-offset-2" :to="'https://tieba.baidu.com/p/' + task.tid" target="blank">{{ task.tid }}</NuxtLink></span
@@ -328,6 +327,13 @@ onMounted(() => {
                 </li>
                 <li>
                     <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
+                </li>
+                <li>
+                    <span class="font-bold">预计下次检查 : </span><span class="font-mono">{{ getPubDate(new Date((task.date + tasksSettings.action_interval * 24 * 60 * 60) * 1000)) }}</span>
+                </li>
+                <li>
+                    <span class="font-bold">考核截止 : </span
+                    ><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/mo/q/bawu/taskinfoview?tbioswk=1&fid=' + task.fid" target="blank">{{ getPubDate(new Date(task.end * 1000)) }}</NuxtLink>
                 </li>
             </ul>
 
@@ -396,6 +402,15 @@ onMounted(() => {
         position: absolute;
         height: 100%;
         border-radius: 0.375em;
+    }
+    & > .progress-checkpoint {
+        position: absolute;
+        height: 100%;
+        background-color: transparent;
+        border-radius: 0;
+        border-right-width: 3px;
+        border-style: dashed;
+        border-right-color: gray;
     }
 }
 </style>
