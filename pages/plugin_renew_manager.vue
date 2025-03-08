@@ -235,7 +235,7 @@ onMounted(() => {
 
 <template>
     <div class="px-3 py-2">
-        <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2">如果检查期间有进行有效的吧务操作，系统<span class="font-bold">不会</span>执行任何操作</div>
+        <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2">如果账号在检查期间进行了有效的吧务操作，系统将<span class="font-bold">不会</span>执行任何操作</div>
 
         <h4 class="text-lg mb-4">设置</h4>
 
