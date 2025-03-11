@@ -6,6 +6,7 @@ const store = useMainStore()
 const loading = computed(() => store.loading)
 const accountInfo = computed(() => store.cache?.accountInfo)
 const pluginList = computed(() => store.cache?.plugin_list)
+const isAdmin = computed(() => store.admin)
 
 const route = useRoute()
 const router = useRouter()
@@ -546,67 +547,70 @@ onMounted(() => {
             </template>
             <template #container>
                 <div>
-                    <div v-if="qrLoginData.done" class="w-full">
-                        <button @click="getQRCode" class="col-span-2 md:col-span-1 px-2 py-1 my-1 w-full rounded-xl border-4 border-sky-500 bg-sky-500 text-gray-100">再次添加</button>
-                    </div>
-                    <div v-else-if="qrLoginData.sign && qrLoginData.imgurl">
-                        <div class="flex justify-center mb-5">
-                            <img class="max-w-36 max-h-36 aspect-square w-full h-full border-4" v-if="qrLoginData.imgurl" :src="'//' + qrLoginData.imgurl" :alt="'登录二维码#https://wappass.baidu.com/wp/?qrlogin=&sign=' + qrLoginData.sign" />
+                    <template v-if="!isAdmin && accountInfo?.system_settings?.bduss_num !== '0' && Number(accountInfo?.system_settings?.bduss_num || -1) > Object.keys(pidNameKV).length"> 无法添加更多账号，请删除一些账号再试</template>
+                    <template v-else>
+                        <div v-if="qrLoginData.done" class="w-full">
+                            <button @click="getQRCode" class="col-span-2 md:col-span-1 px-2 py-1 my-1 w-full rounded-xl border-4 border-sky-500 bg-sky-500 text-gray-100">再次添加</button>
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button @click="submitQRLogin" class="col-span-2 md:col-span-1 px-2 py-1 my-1 rounded-xl border-4 border-sky-500 hover:bg-sky-500 dark:text-gray-100 hover:text-gray-100 transition-colors">确认</button>
-                            <NuxtLink
-                                role="button"
-                                class="col-span-2 md:col-span-1 px-2 py-1 my-1 rounded-xl border-4 border-sky-500 bg-sky-500 text-gray-100 block text-center"
-                                v-if="qrLoginData.sign"
-                                :href="'https://wappass.baidu.com/wp/?qrlogin=&sign=' + qrLoginData.sign"
-                                target="_blank"
-                            >
-                                网页授权
-                            </NuxtLink>
-                        </div>
-                    </div>
-
-                    <div v-else>
-                        <div class="flex justify-center mb-5">
-                            <div class="max-w-36 max-h-36 w-full animate-pulse bg-slate-300 dark:bg-slate-500">
-                                <div class="w-[300px] h-[300px]"></div>
+                        <div v-else-if="qrLoginData.sign && qrLoginData.imgurl">
+                            <div class="flex justify-center mb-5">
+                                <img class="max-w-36 max-h-36 aspect-square w-full h-full border-4" v-if="qrLoginData.imgurl" :src="'//' + qrLoginData.imgurl" :alt="'登录二维码#https://wappass.baidu.com/wp/?qrlogin=&sign=' + qrLoginData.sign" />
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button @click="submitQRLogin" class="col-span-2 md:col-span-1 px-2 py-1 my-1 rounded-xl border-4 border-sky-500 hover:bg-sky-500 dark:text-gray-100 hover:text-gray-100 transition-colors">确认</button>
+                                <NuxtLink
+                                    role="button"
+                                    class="col-span-2 md:col-span-1 px-2 py-1 my-1 rounded-xl border-4 border-sky-500 bg-sky-500 text-gray-100 block text-center"
+                                    v-if="qrLoginData.sign"
+                                    :href="'https://wappass.baidu.com/wp/?qrlogin=&sign=' + qrLoginData.sign"
+                                    target="_blank"
+                                >
+                                    网页授权
+                                </NuxtLink>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="col-span-2 md:col-span-1 px-2 py-1 my-1 h-[2.5em] rounded-xl animate-pulse bg-slate-300 dark:bg-slate-500"></div>
-                            <div class="col-span-2 md:col-span-1 px-2 py-1 my-1 h-[2.5em] rounded-xl animate-pulse bg-slate-300 dark:bg-slate-500"></div>
+
+                        <div v-else>
+                            <div class="flex justify-center mb-5">
+                                <div class="max-w-36 max-h-36 w-full animate-pulse bg-slate-300 dark:bg-slate-500">
+                                    <div class="w-[300px] h-[300px]"></div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="col-span-2 md:col-span-1 px-2 py-1 my-1 h-[2.5em] rounded-xl animate-pulse bg-slate-300 dark:bg-slate-500"></div>
+                                <div class="col-span-2 md:col-span-1 px-2 py-1 my-1 h-[2.5em] rounded-xl animate-pulse bg-slate-300 dark:bg-slate-500"></div>
+                            </div>
                         </div>
-                    </div>
 
-                    <p class="text-sm mt-2">* 使用任意百度可扫码的客户端扫码确认后点击 “确认” 按钮</p>
-                    <p class="text-sm">** 或通过移动设备（手机）打开 “网页授权” 页确认后，返回点击 “确认” 按钮</p>
-                    <!--<hr class="border-gray-400 dark:border-gray-600 my-3" />
+                        <p class="text-sm mt-2">* 使用任意百度可扫码的客户端扫码确认后点击 “确认” 按钮</p>
+                        <p class="text-sm">** 或通过移动设备（手机）打开 “网页授权” 页确认后，返回点击 “确认” 按钮</p>
+                        <!--<hr class="border-gray-400 dark:border-gray-600 my-3" />
                             <button @click="newTiebaAccount" class="w-full px-2 py-1 text-xl rounded-xl bg-sky-500 text-gray-100">自动导入</button>-->
-                    <div class="flex gap-3 my-3 border-gray-400 dark:border-gray-600">
-                        <hr class="grow my-3" />
-                        <span>或</span>
-                        <hr class="grow my-3" />
-                    </div>
+                        <div class="flex gap-3 my-3 border-gray-400 dark:border-gray-600">
+                            <hr class="grow my-3" />
+                            <span>或</span>
+                            <hr class="grow my-3" />
+                        </div>
 
-                    <form>
-                        <label for="add-bduss">BDUSS</label>
-                        <input autocomplete="off" id="add-bduss" type="text" v-model="addAccountForm.bduss" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl" />
-                        <label for="add-stoken">Stoken</label>
-                        <input autocomplete="off" id="add-stoken" type="text" v-model="addAccountForm.stoken" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl" />
-                        <input
-                            @click="
-                                (e) => {
-                                    e.preventDefault()
-                                    addAccount(addAccountForm.bduss, addAccountForm.stoken)
-                                }
-                            "
-                            role="button"
-                            type="submit"
-                            class="bg-sky-500 px-2 py-1 rounded-lg my-3 text-gray-100"
-                            value="提交"
-                        />
-                    </form>
+                        <form>
+                            <label for="add-bduss">BDUSS</label>
+                            <input autocomplete="off" id="add-bduss" type="text" v-model="addAccountForm.bduss" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl" />
+                            <label for="add-stoken">Stoken</label>
+                            <input autocomplete="off" id="add-stoken" type="text" v-model="addAccountForm.stoken" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl" />
+                            <input
+                                @click="
+                                    (e) => {
+                                        e.preventDefault()
+                                        addAccount(addAccountForm.bduss, addAccountForm.stoken)
+                                    }
+                                "
+                                role="button"
+                                type="submit"
+                                class="bg-sky-500 px-2 py-1 rounded-lg my-3 text-gray-100"
+                                value="提交"
+                            />
+                        </form>
+                    </template>
                 </div>
             </template>
         </Modal>

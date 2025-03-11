@@ -10,7 +10,7 @@
                 <uno-icon v-else class="i-bi:arrows-expand" />
             </div>
         </h3>
-        <div :class="{ 'list-in': expand, 'list-out': !expand, 'mb-3': expand }" :style="{ 'max-height': expand ? '100vh' : 0 }">
+        <div :class="{ 'list-in': expand, 'list-out': !expand, 'mb-3': expand }" :style="{ 'max-height': expand ? '200vh' : 0 }">
             <hr class="border-gray-400 dark:border-gray-600 my-1" />
             <slot name="container">这里什么都没有~</slot>
         </div>

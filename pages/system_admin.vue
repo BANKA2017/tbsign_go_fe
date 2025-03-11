@@ -113,7 +113,10 @@ const settingsGroup = ref({
             sign_multith: '同时签到 Goroutine 数 (默认 10)',
             retry_max: '最大重签次数',
             go_re_check_in_max_interval: '最大重签间隔 (分钟)',
-            go_forum_sync_policy: '贴吧同步策略'
+            go_forum_sync_policy: '贴吧同步策略',
+
+            bduss_num: '最大允许用户添加账号数，0为无限，管理员不受限制' //，-1为禁止绑定'
+            // "tb_max": '最大关注贴吧数量，0为不限'
         }
     },
     mail: {
@@ -569,6 +572,14 @@ onMounted(() => {
                                 type="number"
                                 min="30"
                                 :max="10 * 24 * 60 * 60"
+                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                v-model="serverSettings[key]"
+                            />
+                            <input
+                                :id="'input-' + key"
+                                v-else-if="['bduss_num'].includes(key)"
+                                type="number"
+                                min="-1"
                                 class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
                                 v-model="serverSettings[key]"
                             />
