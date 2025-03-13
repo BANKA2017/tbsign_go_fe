@@ -302,8 +302,8 @@ onMounted(() => {
         </div>
         <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.pid.toString() + '_' + task.fname">
             <div class="text-sm progress bg-gray-300 dark:bg-gray-700">
-                <div :style="{ width: Math.ceil((1 - (task.end - now) / (30 * 24 * 60 * 60)) * 100) + '%' }" class="progress-bar bg-sky-500"></div>
-                <div :style="{ width: Math.ceil(((tasksSettings.action_interval * 24 * 60 * 60) / (30 * 24 * 60 * 60)) * 100) + '%' }" class="progress-checkpoint"></div>
+                <div :style="{ width: Math.ceil((1 - (task.end - now) / (task.end - task.date)) * 100) + '%' }" class="progress-bar bg-sky-500"></div>
+                <div :style="{ width: Math.ceil((1 - (task.end - task.date - tasksSettings.action_interval * 24 * 60 * 60) / (task.end - task.date)) * 100) + '%' }" class="progress-checkpoint"></div>
                 <div class="progress-data">
                     <span class="font-bold">{{ Eta(now, task.end) }}</span>
                 </div>
