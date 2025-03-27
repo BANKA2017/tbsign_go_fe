@@ -668,8 +668,11 @@ onMounted(() => {
     </div>
 
     <div class="grid grid-cols-12 gap-2 mt-2 mb-12">
-        <div v-for="(account, index) in accounts" :key="account.id" class="bg-gray-200 dark:bg-gray-800 col-span-12 rounded-2xl py-2 px-3">
-            <div :class="{ flex: true, 'justify-between': true, 'cursor-pointer': true, sticky: true, 'top-0': true, 'bg-gray-200': true, 'dark:bg-gray-800': true }" @click="accounts[index].more = !accounts[index].more">
+        <div v-for="(account, index) in accounts" :key="account.id" class="bg-gray-200 dark:bg-gray-800 col-span-12 rounded-2xl">
+            <div
+                :class="{ flex: true, 'justify-between': true, 'cursor-pointer': true, sticky: true, 'top-0': true, 'bg-gray-200': true, 'dark:bg-gray-800': true, 'z-10': true, 'px-3': true, 'pt-2': true, ' rounded-2xl': true }"
+                @click="accounts[index].more = !accounts[index].more"
+            >
                 <div class="flex gap-3">
                     <div :class="{ relative: true, hidden: true, '2xs:block': !(editMode || accounts[index].more), 'xs:block': true }">
                         <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1" />
@@ -759,8 +762,8 @@ onMounted(() => {
                 </div>
             </div>
             <div
-                :class="{ 'list-in': accounts[index].more, 'list-out': !accounts[index].more }"
-                :style="{ 'max-height': accounts[index].more ? accountListFilterWrapper(account.id, index).slice(100 * (accounts[index].page || 0), 100 + 100 * (accounts[index].page || 0)).length * 3 + 8 + 'rem' : 0 }"
+                :class="{ 'list-in': accounts[index].more, 'list-out': !accounts[index].more, 'z-0': true, 'px-3': true, 'pb-2': true, ' rounded-b-2xl': true }"
+                :style="{ 'max-height': accounts[index].more ? (accountListFilterWrapper(account.id, index).slice(100 * (accounts[index].page || 0), 100 + 100 * (accounts[index].page || 0)).length * 3 + 8) * 2 + 'rem' : 0 }"
             >
                 <input type="text" placeholder="搜索贴吧列表" v-model="accounts[index].search" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl my-3" />
 
