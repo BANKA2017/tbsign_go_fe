@@ -13,11 +13,12 @@ const props = defineProps({
 
 const store = useMainStore()
 
-const targetVersion = computed(() => props.item.name.replace('tbsign_go.', '').replace(`.${props.os}-${props.arch}`, ''))
+const targetVersion = computed(() => props.item.name.replace('tbsign_go.', '').replace(`.${props.os}-${props.arch}`, '').replace(/.exe/g, ''))
 const isCurrent = computed(() => targetVersion.value === props.current)
 
+const targetLink = computed(() => 'https://github.com/BANKA2017/tbsign_go/releases/download/tbsign_go.' + targetVersion.value + '/' + props.item.name)
+
 const flowStep = ref<number>(0)
-const doubleCheck = ref<boolean>(false)
 
 const upgradeToVersion = (version: string = '') => {
     Request(store.basePath + '/admin/server/upgrade', {
@@ -43,29 +44,8 @@ const upgradeToVersion = (version: string = '') => {
         })
 }
 
-const restartSystem = () => {
-    Request(store.basePath + '/admin/server/shutdown', {
-        headers: {
-            Authorization: store.authorization
-        },
-        method: 'POST'
-    })
-        .then((res) => {
-            if (res.code !== 200) {
-                Notice(res.message, 'error')
-                return
-            }
-            //console.log(res)
-        })
-        .catch((e) => {
-            Notice('软件已停止运行，请刷新本页', 'success')
-            flowStep.value = 2
-            console.error(e)
-        })
-}
-
 const refreshPage = () => {
-    location.reload()
+    window.location.href = window.location.pathname + '?_=' + Date.now()
 }
 </script>
 
@@ -103,29 +83,21 @@ const refreshPage = () => {
                         <ul role="list" class="mb-3 marker:text-sky-500 list-disc list-inside">
                             <li>确认后将会更新程序，本操作不可逆！</li>
                             <li>本操作可能需要较长时间，请等到右上角圈圈消失并弹出消息后再关闭本窗口！</li>
+                            <li>若更新成功，程序将会自动退出，请自行启动。</li>
                         </ul>
                         <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="upgradeToVersion(targetVersion)">确认更新</button>
                     </div>
                     <div v-else-if="flowStep === 1">
-                        <ul role="list" class="marker:text-sky-500 list-disc list-inside">
-                            <li>更新已完成，下次开启本程序将会使用新版本</li>
-                            <li>如果已经部署了守护程序请点击下面的确认关闭按钮，否则请回到最初部署的地方重启</li>
+                        <ul role="list" class="mb-3 marker:text-sky-500 list-disc list-inside">
+                            <li>更新已完成，下次启动本程序将会使用新版本</li>
+                            <li>请点击下方刷新按钮刷新页面</li>
                         </ul>
-                        <div class="my-3" v-show="!doubleCheck">
-                            <input type="checkbox" class="form-checkbox bg-gray-100 dark:bg-gray-900 dark:checked:bg-blue-500" v-model="doubleCheck" :id="'upgrade-double-check-:' + targetVersion" /><label
-                                class="ml-2"
-                                :for="'upgrade-double-check-:' + targetVersion"
-                                >确定关闭</label
-                            >
-                        </div>
 
-                        <button v-show="doubleCheck" class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg my-3" @click="restartSystem">确认关闭</button>
-                    </div>
-                    <div v-else-if="flowStep === 2">
                         <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="refreshPage">刷新</button>
                     </div>
                 </template>
             </Modal>
+            <NuxtLink :to="targetLink" class="border-sky-500 hover:bg-sky-500 border-2 rounded-lg px-3 py-1 hover:text-gray-100 transition-colors" title="下载文件" aria-label="下载文件" target="blank">下载文件</NuxtLink>
             <NuxtLink class="rounded-lg px-2 py-1 border-2 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" role="button" :to="url" target="blank">版本信息</NuxtLink>
         </div>
     </div>

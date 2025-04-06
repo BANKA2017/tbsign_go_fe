@@ -27,7 +27,7 @@ const serverStatus = ref<
 
 const isSupportVersion = (os = '', arch = '') => {
     // Windows will lock the binary file
-    return ['linux', 'darwin'].includes(os) && ['arm64', 'amd64'].includes(arch) // || (os === 'windows' && arch === 'amd64')
+    return (['linux', 'darwin'].includes(os) && ['arm64', 'amd64'].includes(arch)) || (os === 'windows' && arch === 'amd64')
 }
 
 const serverGoStatus = computed(() => {
