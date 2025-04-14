@@ -142,6 +142,29 @@ const claimVIP = (pid: number = 0) => {
 
 const _atob = (s: string = '') => atob(s)
 
+const parseLogs = (log_: string = '') => {
+    if (!log_) {
+        return []
+    }
+    return log_
+        .split('<br/>')
+        .map((log) => {
+            if (!log || log?.length < 12) {
+                return null
+            }
+            return {
+                date: log.slice(0, 10),
+                ...Object.fromEntries(
+                    log
+                        .slice(12)
+                        .split(',')
+                        .map((kv) => kv.split(':'))
+                )
+            }
+        })
+        .filter((x) => x)
+}
+
 onMounted(() => {
     getTasksList()
     Request(store.basePath + '/plugins/kd_wenku_tasks/settings', {
@@ -213,7 +236,8 @@ onMounted(() => {
                     <ul v-if="task.status && task.status.startsWith('[')" class="grid grid-cols-6 gap-x-5 marker:text-sky-500 list-disc list-inside">
                         <li class="ml-5 col-span-6 md:col-span-3 lg:col-span-2" v-for="taskStatus in JSON.parse(task.status)" :key="task.pid + '_' + taskStatus.name">
                             <SvgCheck v-if="taskStatus.task_status === 3" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" title="完成" />
-                            <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" :title="taskStatus.task_status === 2 ? '完成未领取' : '未完成'" />
+                            <SvgWarning v-else-if="taskStatus.task_status === 2" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" title="完成未领取" />
+                            <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" title="未完成" />
                             <span :class="{ 'font-bold': true }">{{ taskStatus.task_name }}{{ taskStatus.sign_day !== undefined ? ` / 第 ${taskStatus.sign_day} 天` : '' }}</span>
                         </li>
                     </ul>
@@ -235,9 +259,17 @@ onMounted(() => {
                     <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
                 </template>
                 <template #container>
-                    <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
-                        <li class="break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
-                    </ul>
+                    <div class="rounded-lg bg-gray-200 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.id + i">
+                        <h5 class="font-bold text-xl">{{ log_.date }}</h5>
+                        <div class="grid grid-cols-6 marker:text-sky-500">
+                            <span class="col-span-6 md:col-span-3" v-for="(logValue, logKey) in log_" v-show="logKey !== 'date'" :key="task.id + i + logKey">
+                                <SvgCheck v-if="logValue === '3'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                <SvgWarning v-else-if="logValue === '2'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" title="完成未领取" />
+                                <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" title="未完成" />
+                                <span>{{ logKey }}</span>
+                            </span>
+                        </div>
+                    </div>
                 </template>
             </Modal>
             <button v-if="tasksSignDayKV[index] === 7" class="border-2 border-sky-500 hover:bg-sky-500 rounded-lg px-2.5 py-0.5 dark:text-gray-100 hover:text-gray-100 transition-colors mx-1" @click="claimVIP(task.pid)">领取 VIP</button>

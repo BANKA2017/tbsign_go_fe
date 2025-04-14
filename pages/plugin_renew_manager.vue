@@ -198,6 +198,34 @@ const getRenewTasksList = () => {
         })
 }
 
+const logName = {
+    sync: '同步',
+    cacnel_top: '执行'
+}
+
+const parseLogs = (log_: string = '') => {
+    if (!log_) {
+        return []
+    }
+    return log_
+        .split('<br />')
+        .map((log) => {
+            if (!log || log?.length < 12) {
+                return null
+            }
+            return {
+                date: log.slice(0, 10),
+                ...Object.fromEntries(
+                    log
+                        .slice(12)
+                        .split(', ')
+                        .map((kv) => kv.split(': '))
+                )
+            }
+        })
+        .filter((x) => x)
+}
+
 onMounted(() => {
     getRenewTasksList()
 
@@ -351,9 +379,16 @@ onMounted(() => {
                     <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
                 </template>
                 <template #container>
-                    <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
-                        <li class="break-all" v-for="(log_, i) in task.log.split('<br />')" :key="task.pid.toString() + '_' + task.fid + i" v-show="log_">{{ log_ }}</li>
-                    </ul>
+                    <div class="rounded-lg bg-gray-200 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.pid.toString() + '_' + task.fid + i">
+                        <h5 class="font-bold text-xl">{{ log_.date }}</h5>
+                        <div class="grid grid-cols-6 marker:text-sky-500">
+                            <span class="col-span-6 md:col-span-3" v-for="(logValue, logKey) in log_" v-show="logKey !== 'date'" :key="task.id + i + logKey">
+                                <SvgCheck v-if="logValue === 'done'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                <span>{{ logName[logKey] }}</span>
+                            </span>
+                        </div>
+                    </div>
                 </template>
             </Modal>
         </div>
