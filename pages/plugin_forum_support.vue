@@ -114,11 +114,30 @@ const getForumSupportList = () => {
         })
 }
 
+const originalLogs = ref<boolean>(false)
+
+function getLines(text, line: number = 0, split: string = '\n') {
+    let count = 0
+    let pos = 0
+    const splitLength = split.length
+
+    while (count < line) {
+        let next = text.indexOf(split, pos)
+        if (next === -1) {
+            return text
+        }
+        pos = next + splitLength
+        count++
+    }
+
+    return text.substring(0, pos)
+}
+
 const parseLogs = (log_: string = '') => {
     if (!log_) {
         return []
     }
-    return log_
+    return getLines(log_, 30, '<br/>')
         .split('<br/>')
         .map((log) => {
             if (!log || log?.length < 11) {
@@ -253,7 +272,13 @@ onMounted(() => {
                     <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
                 </template>
                 <template #container>
-                    <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.id + i">
+                    <button :class="'rounded text-sm py-1 px-2 border-2 mb-3 border-sky-500 hover:bg-sky-500 text-gray-100 transition-colors ' + (originalLogs ? 'bg-sky-500' : '')" @click="originalLogs = !originalLogs">原始记录</button>
+                    <div v-if="originalLogs">
+                        <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
+                            <li class="break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
+                        </ul>
+                    </div>
+                    <div v-else class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.id + i">
                         <h5 class="font-bold text-xl">{{ log_.date }}</h5>
                         <SvgCheck v-if="log_.code === '0'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                         <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
