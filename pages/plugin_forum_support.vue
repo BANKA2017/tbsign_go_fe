@@ -272,7 +272,12 @@ onMounted(() => {
                     <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
                 </template>
                 <template #container>
-                    <button :class="'rounded text-sm py-1 px-2 border-2 mb-3 border-sky-500 hover:bg-sky-500 text-gray-100 transition-colors ' + (originalLogs ? 'bg-sky-500' : '')" @click="originalLogs = !originalLogs">原始记录</button>
+                    <button
+                        :class="'rounded text-sm py-1 px-2 border-2 mb-3 border-sky-500 hover:bg-sky-500 dark:text-gray-100 hover:text-gray-100 transition-colors ' + (originalLogs ? 'bg-sky-500 text-gray-100' : '')"
+                        @click="originalLogs = !originalLogs"
+                    >
+                        原始记录
+                    </button>
                     <div v-if="originalLogs">
                         <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
                             <li class="break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
