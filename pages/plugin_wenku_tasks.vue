@@ -254,14 +254,14 @@ onMounted(() => {
                     <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTask(task.id)">确认删除</button>
                 </template>
             </Modal>
-            <Modal class="mx-1 inline-block" title="日志">
+            <Modal class="mx-1 inline-block" :title="'@' + pidNameKV[task.pid] + ' 文库任务记录'">
                 <template #default>
                     <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
                 </template>
                 <template #container>
                     <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.id + i">
                         <h5 class="font-bold text-xl">{{ log_.date }}</h5>
-                        <div class="grid grid-cols-6 marker:text-sky-500">
+                        <div class="grid grid-cols-6">
                             <span class="col-span-6 md:col-span-3" v-for="(logValue, logKey) in log_" v-show="logKey !== 'date'" :key="task.id + i + logKey">
                                 <SvgCheck v-if="logValue === '3'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                                 <SvgWarning v-else-if="logValue === '2'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" title="完成未领取" />

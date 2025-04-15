@@ -199,8 +199,8 @@ const getRenewTasksList = () => {
 }
 
 const logName = {
-    sync: '同步',
-    cacnel_top: '执行'
+    sync: '同步有效期',
+    cacnel_top: '执行续期任务'
 }
 
 const parseLogs = (log_: string = '') => {
@@ -220,6 +220,7 @@ const parseLogs = (log_: string = '') => {
                         .slice(12)
                         .split(', ')
                         .map((kv) => kv.split(': '))
+                        .sort((a, b) => (a[0] > b[0] ? 1 : -1))
                 )
             }
         })
@@ -331,7 +332,11 @@ onMounted(() => {
         <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.pid.toString() + '_' + task.fname">
             <div class="text-sm progress bg-gray-300 dark:bg-gray-700">
                 <div :style="{ width: Math.ceil((1 - (task.end - now) / (task.end - task.date)) * 100) + '%' }" class="progress-bar bg-sky-500"></div>
-                <div :style="{ width: Math.ceil((1 - (task.end - task.date - tasksSettings.action_interval * 24 * 60 * 60) / (task.end - task.date)) * 100) + '%' }" class="progress-checkpoint"></div>
+                <div
+                    :style="{ width: Math.ceil((1 - (task.end - task.date - tasksSettings.action_interval * 24 * 60 * 60) / (task.end - task.date)) * 100) + '%', overflow: 'hidden' }"
+                    v-show="Math.ceil((1 - (task.end - task.date - tasksSettings.action_interval * 24 * 60 * 60) / (task.end - task.date)) * 100) <= 100"
+                    class="progress-checkpoint"
+                ></div>
                 <div class="progress-data">
                     <span class="font-bold">{{ Eta(now, task.end) }}</span>
                 </div>
@@ -374,14 +379,14 @@ onMounted(() => {
                     <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTask(task.id)">确认删除</button>
                 </template>
             </Modal>
-            <Modal class="mx-1 inline-block" title="日志">
+            <Modal class="mx-1 inline-block" :title="'@' + pidNameKV[task.pid] + ' 吧主考核任务记录'">
                 <template #default>
                     <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
                 </template>
                 <template #container>
                     <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.pid.toString() + '_' + task.fid + i">
                         <h5 class="font-bold text-xl">{{ log_.date }}</h5>
-                        <div class="grid grid-cols-6 marker:text-sky-500">
+                        <div class="grid grid-cols-6">
                             <span class="col-span-6 md:col-span-3" v-for="(logValue, logKey) in log_" v-show="logKey !== 'date'" :key="task.id + i + logKey">
                                 <SvgCheck v-if="logValue === 'done'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                                 <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />

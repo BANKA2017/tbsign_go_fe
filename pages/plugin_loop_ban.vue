@@ -75,15 +75,6 @@ watch(
     { deep: true }
 )
 
-const getTaskLog = (_log = ''): string[] => {
-    return _log
-        .replaceAll('<font color="red">', '')
-        .replaceAll('<font color="green">', '')
-        .replaceAll('</font>', '')
-        .split('<br>')
-        .filter((x) => x)
-}
-
 const saveSettings = () => {
     Request(store.basePath + '/plugins/ver4_ban/reason', {
         headers: {
@@ -290,6 +281,29 @@ const getLoopBanList = () => {
         })
 }
 
+const parseLogs = (log_: string = '') => {
+    if (!log_) {
+        return []
+    }
+    return log_
+        .replaceAll('<font color="red">', '')
+        .replaceAll('<font color="green">', '')
+        .replaceAll('</font>', '')
+        .split('<br>')
+        .map((log) => {
+            if (!log || log?.length < 20) {
+                return null
+            }
+            const [status, error] = log.slice(20).split('#')
+            return {
+                date: log.slice(0, 19),
+                status,
+                error: error?.split(' ') || []
+            }
+        })
+        .filter((x) => x)
+}
+
 onMounted(() => {
     getLoopBanList()
     Request(store.basePath + '/plugins/ver4_ban/reason', {
@@ -451,14 +465,17 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
                     <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTask(task.id)">确认删除</button>
                 </template>
             </Modal>
-            <Modal class="mx-1 inline-block" title="日志">
+            <Modal class="mx-1 inline-block" :title="task.fname + ' 吧封禁 @' + (task.name_show || task.name || task.portrait || '全无账号（？）') + ' 记录'">
                 <template #default>
                     <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
                 </template>
                 <template #container>
-                    <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
-                        <li class="break-all" v-for="(log_, i) in getTaskLog(task.log)" :key="task.pid.toString() + '_' + task.portrait + '_' + task.fname + i">{{ log_ }}</li>
-                    </ul>
+                    <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.pid.toString() + '_' + task.portrait + '_' + task.fname + i">
+                        <h5 class="font-bold text-xl">{{ log_.date }}</h5>
+                        <SvgCheck v-if="log_.error.length === 0" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                        <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                        <span>{{ log_.error.length ? log_.error.join('#') : log_.status }}</span>
+                    </div>
                 </template>
             </Modal>
         </div>

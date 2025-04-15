@@ -114,6 +114,26 @@ const getForumSupportList = () => {
         })
 }
 
+const parseLogs = (log_: string = '') => {
+    if (!log_) {
+        return []
+    }
+    return log_
+        .split('<br/>')
+        .map((log) => {
+            if (!log || log?.length < 11) {
+                return null
+            }
+            const [code, msg] = log.slice(11).split(',')
+            return {
+                date: log.slice(0, 10),
+                code: code.replace('#', ''),
+                msg
+            }
+        })
+        .filter((x) => x)
+}
+
 onMounted(() => {
     getForumSupportList()
     Request(store.basePath + '/plugins/ver4_rank/settings', {
@@ -228,14 +248,17 @@ onMounted(() => {
 
             <hr class="border-gray-400 dark:border-gray-600 my-2" />
 
-            <Modal class="mr-1 inline-block" title="日志">
+            <Modal class="mr-1 inline-block" :title="'@' + pidNameKV[task.pid] + ' 名人堂助攻 ' + task.name + ' 记录'">
                 <template #default>
                     <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
                 </template>
                 <template #container>
-                    <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
-                        <li class="break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
-                    </ul>
+                    <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.id + i">
+                        <h5 class="font-bold text-xl">{{ log_.date }}</h5>
+                        <SvgCheck v-if="log_.code === '0'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                        <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                        <span>{{ log_.msg }}</span>
+                    </div>
                 </template>
             </Modal>
         </div>
