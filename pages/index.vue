@@ -5,7 +5,7 @@
                 <h4 class="text-lg font-bold">公告</h4>
                 <hr class="border-gray-400 dark:border-gray-600 my-2" />
                 <div v-if="notifications">
-                    <p v-for="(text, line) in notifications.split('\n')" :key="line">{{ text }}</p>
+                    <p class="break-word whitespace-pre-wrap">{{ notifications }}</p>
                 </div>
                 <svg class="animate-spin h-5 w-5 dark:text-gray-100 text-sky-500" v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

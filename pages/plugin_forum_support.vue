@@ -280,7 +280,7 @@ onMounted(() => {
                     </button>
                     <div v-if="originalLogs">
                         <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
-                            <li class="break-all" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
+                            <li class="break-word whitespace-pre-wrap" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
                         </ul>
                     </div>
                     <div v-else class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.id + i">

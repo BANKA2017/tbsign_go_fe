@@ -311,13 +311,13 @@ onMounted(() => {
                         <div v-if="resetPasswordCodeStruct.value">
                             <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside">
                                 <li>
-                                    验证码：<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ resetPasswordCodeStruct.value }}</span>
+                                    验证码：<span class="break-word whitespace-pre-wrap font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ resetPasswordCodeStruct.value }}</span>
                                 </li>
                                 <li>
-                                    有效期至：<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ getPubDate(new Date(resetPasswordCodeStruct.expire * 1000)) }}</span>
+                                    有效期至：<span class="break-word whitespace-pre-wrap font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ getPubDate(new Date(resetPasswordCodeStruct.expire * 1000)) }}</span>
                                 </li>
                                 <li>
-                                    重置次数：<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ resetPasswordCodeStruct.time }}</span>
+                                    重置次数：<span class="break-word whitespace-pre-wrap font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ resetPasswordCodeStruct.time }}</span>
                                 </li>
                             </ul>
                         </div>
