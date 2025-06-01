@@ -30,7 +30,7 @@ const parsedBasePath = computed(() => {
 })
 
 onMounted(async () => {
-    if (undefinedICP.value) {
+    if (config.public.NUXT_BASE_PATH && undefinedICP.value) {
         try {
             store.updateCache('icp', await (await fetch('/.well-known/icp/icp.txt')).text())
         } catch (e) {
