@@ -53,6 +53,7 @@ export const useMainStore = defineStore('main', {
         config: {},
         _basePath: '',
         _cache: {},
+        icp: undefined,
         size: {
             innerHeight: 0,
             innerWidth: 0
