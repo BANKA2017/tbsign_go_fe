@@ -93,7 +93,7 @@ const resignStatus = computed(() => {
 const settingsGroup = ref({
     system: {
         name: '系统',
-        data: { ann: '公告', system_url: '地址' } //, system_name: '网站名称', system_keywords: '关键词', system_description: '简介' }
+        data: { ann: '公告', icp: '备案号', system_url: '地址' } //, system_name: '网站名称', system_keywords: '关键词', system_description: '简介' }
     },
     account: {
         name: '账号',
