@@ -38,8 +38,8 @@ interface MainStoreState {
                 option_name_cn: string
             }[]
         }[]
-        icp?: string
     }
+    icp?: string
     size: {
         innerHeight: number
         innerWidth: number

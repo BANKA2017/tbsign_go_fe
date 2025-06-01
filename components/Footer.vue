@@ -18,7 +18,7 @@ const store = useMainStore()
 const config = useRuntimeConfig()
 
 const basePath = computed(() => store.basePath)
-const icp = computed(() => store.cache.icp)
+const icp = computed(() => store.icp)
 const undefinedICP = computed(() => typeof icp.value === 'undefined')
 
 const parsedBasePath = computed(() => {
@@ -32,10 +32,10 @@ const parsedBasePath = computed(() => {
 onMounted(async () => {
     if (config.public.NUXT_BASE_PATH && undefinedICP.value) {
         try {
-            store.updateCache('icp', await (await fetch('/.well-known/icp/icp.txt')).text())
+            store.updateValue('icp', await (await fetch('/.well-known/icp/icp.txt')).text())
         } catch (e) {
             console.error(e)
-            store.updateCache('icp', '')
+            store.updateValue('icp', '')
         }
     }
 })
