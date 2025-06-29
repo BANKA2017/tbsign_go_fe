@@ -482,7 +482,7 @@ onMounted(() => {
             <form autocomplete="off">
                 <template v-for="(_set, _set_id) in settingsGroup" :key="_set_id">
                     <a :id="_set_id"></a>
-                    <Collapse v-if="_set_id !== 'backup' || (_set_id === 'backup' && accountInfo?.system_settings?.allow_export_personal_data === '1')">
+                    <Collapse>
                         <template #default>
                             {{ _set.name }}
                         </template>
