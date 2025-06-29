@@ -21,7 +21,6 @@ const state = reactive<{
         { name: '百度账号管理', to: '/accounts', routeName: 'accounts', active: false, show: true, sort: 2 },
         { name: '用户管理', to: '/user_admin', routeName: 'user_admin', active: false, show: true, sort: 4 },
         { name: '系统管理', to: '/system_admin', routeName: 'system_admin', active: false, show: true, sort: 5 },
-        //{ name: '更多工具', to: '/tools', routeName: 'tools', active: false, show: true, sort: 6},
         { name: '登录', to: '/signin', routeName: 'signin', active: false, show: true, sort: 7 },
         { name: '注册', to: '/signup', routeName: 'signup', active: false, show: true, sort: 8 },
         { name: '找回密码', to: '/reset_password', routeName: 'reset_password', active: false, show: true, sort: 9 },

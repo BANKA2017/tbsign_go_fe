@@ -196,8 +196,7 @@
                             <button v-if="accountInfo?.system_settings?.allow_export_personal_data === '1'" :class="'mr-1 rounded px-2 ' + (backupStatus === 'export' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'export'">导出</button>
                             <button v-if="accountInfo?.system_settings?.allow_import_personal_data === '1'" :class="'mr-1 rounded px-2 ' + (backupStatus === 'import' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'import'">导入</button>
                         </div>
-                        <form v-if="backupStatus === 'export'" class="flex flex-col gap-2">
-                            <label class="block">密码</label>
+                        <form v-if="backupStatus === 'export'" class="flex flex-col gap-2 mt-3">
                             <input
                                 type="password"
                                 placeholder="当前密码"
@@ -228,15 +227,17 @@
                                 <li>如果百度账号已经存在，程序只会以<span class="font-bold">仅新增</span>的模式合并贴吧列表</li>
                                 <li>导入的顺序可能会改变</li>
                             </ul>
-                            <label class="block">密码</label>
+                            <hr class="border-gray-400 dark:border-gray-600 my-1" />
+                            <label class="block" for="restore-backup-password">密码</label>
                             <input
+                                id="restore-backup-password"
                                 type="password"
                                 placeholder="当前密码"
                                 autocomplete="current-password"
                                 class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                                 v-model="settingsValue.password"
                             />
-                            <label class="block">备份文件</label>
+                            <label class="block" for="upload-backup-data">备份文件</label>
                             <input
                                 type="file"
                                 class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-300 file:text-gray-700 hover:file:bg-gray-400 dark:file:bg-gray-600 dark:file:text-gray-100 dark:hover:file:bg-gray-500"

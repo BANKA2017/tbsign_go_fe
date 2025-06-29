@@ -5,6 +5,7 @@ import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const config = useRuntimeConfig()
+const accountInfo = computed(() => store.cache?.accountInfo)
 const isAdmin = computed(() => store.admin)
 const pluginList = computed({
     get: () => store.cache?.plugin_list || {},
@@ -479,167 +480,170 @@ onMounted(() => {
                 <p class="text-sm">如果不知道要填什么，请保持原样</p>
             </div>
             <form autocomplete="off">
-                <Collapse v-for="_set in settingsGroup" :key="_set.name">
-                    <template #default>
-                        {{ _set.name }}
-                    </template>
-                    <template #container>
-                        <template v-for="(name, key) in _set.data" :key="key">
-                            <label :for="'input-' + key" class="block text-sm font-medium mb-1 mt-3">{{ name }}</label>
-                            <textarea
-                                :id="'input-' + key"
-                                v-if="['system_description', 'ann'].includes(key)"
-                                class="form-textarea placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                rows="8"
-                                v-model="serverSettings[key]"
-                            />
-                            <select
-                                :id="'input-' + key"
-                                v-else-if="key === 'sign_mode'"
-                                multiple
-                                class="form-multiselect placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="signMode"
-                            >
-                                <option value="1">模拟手机客户端签到</option>
-                                <option value="2">手机网页签到</option>
-                                <option value="3">网页签到</option>
-                            </select>
-                            <select
-                                :id="'input-' + key"
-                                v-else-if="['enable_reg', 'ver4_ban_break_check', 'go_export_personal_data', 'go_import_personal_data'].includes(key)"
-                                class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="serverSettings[key]"
-                            >
-                                <option value="0">否</option>
-                                <option value="1">是</option>
-                            </select>
-                            <select
-                                :id="'input-' + key"
-                                v-else-if="['mail_auth'].includes(key)"
-                                class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="serverSettings[key]"
-                            >
-                                <option value="0">关闭</option>
-                                <option value="1">开启</option>
-                            </select>
-                            <select
-                                :id="'input-' + key"
-                                v-else-if="['mail_secure'].includes(key)"
-                                class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="serverSettings[key]"
-                            >
-                                <!--<option value="none">无</option>-->
-                                <!--<option value="ssl">SSL</option>-->
-                                <option value="tls">TLS</option>
-                            </select>
-                            <select
-                                :id="'input-' + key"
-                                v-else-if="key === 'go_forum_sync_policy'"
-                                class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="serverSettings[key]"
-                            >
-                                <option value="add_only">[仅新增] 增加新关注的贴吧</option>
-                                <option value="add_delete">[严格同步] 增加新关注的贴吧，删除不再关注的贴吧</option>
-                            </select>
-                            <input
-                                :id="'input-' + key"
-                                v-else-if="['cron_limit', 'retry_max', 'sign_sleep', 'sign_multith', 'mail_port', 'ver4_ban_limit'].includes(key) || String(key || '').endsWith('_action_limit')"
-                                type="number"
-                                min="0"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
-                            <input
-                                :id="'input-' + key"
-                                v-else-if="key === 'go_re_check_in_max_interval'"
-                                type="number"
-                                min="1"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
-                            <input
-                                :id="'input-' + key"
-                                v-else-if="['sign_hour', 'go_daily_report_hour'].includes(key)"
-                                type="number"
-                                min="-1"
-                                max="23"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
-                            <input
-                                :id="'input-' + key"
-                                v-else-if="key === 'cktime'"
-                                type="number"
-                                min="30"
-                                :max="10 * 24 * 60 * 60"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
-                            <input
-                                :id="'input-' + key"
-                                v-else-if="['bduss_num'].includes(key)"
-                                type="number"
-                                min="-1"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
-                            <input
-                                :id="'input-' + key"
-                                v-else-if="key === 'mail_smtppw' && serverSettings[key] !== undefined"
-                                type="password"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
-                            <input
-                                :id="'input-' + key"
-                                v-else-if="key === 'mail_smtpname' && serverSettings[key] !== undefined"
-                                type="text"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
-                            <div v-else-if="['go_bark_addr', 'go_ntfy_addr', 'go_pushdeer_addr'].includes(key)" class="flex w-full">
-                                <input
+                <template v-for="(_set, _set_id) in settingsGroup" :key="_set_id">
+                    <a :id="_set_id"></a>
+                    <Collapse v-if="_set_id !== 'backup' || (_set_id === 'backup' && accountInfo?.system_settings?.allow_export_personal_data === '1')">
+                        <template #default>
+                            {{ _set.name }}
+                        </template>
+                        <template #container>
+                            <template v-for="(name, key) in _set.data" :key="key">
+                                <label :for="'input-' + key" class="block text-sm font-medium mb-1 mt-3">{{ name }}</label>
+                                <textarea
                                     :id="'input-' + key"
-                                    type="text"
-                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-l-xl inline-block grow"
+                                    v-if="['system_description', 'ann'].includes(key)"
+                                    class="form-textarea placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                    rows="8"
                                     v-model="serverSettings[key]"
                                 />
-                                <button
-                                    type="button"
-                                    class="inline-block px-3 py-1 rounded-r-xl border border-slate-500 hover:bg-gray-300 hover:text-black transition-colors"
-                                    @click="
-                                        (e) => {
-                                            e.preventDefault()
-                                            sendTestMail(key.split('_')[1])
-                                        }
-                                    "
+                                <select
+                                    :id="'input-' + key"
+                                    v-else-if="key === 'sign_mode'"
+                                    multiple
+                                    class="form-multiselect placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                    v-model="signMode"
                                 >
-                                    测试
-                                </button>
-                            </div>
-                            <input
-                                :id="'input-' + key"
-                                v-else
-                                type="text"
-                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
-                                v-model="serverSettings[key]"
-                            />
+                                    <option value="1">模拟手机客户端签到</option>
+                                    <option value="2">手机网页签到</option>
+                                    <option value="3">网页签到</option>
+                                </select>
+                                <select
+                                    :id="'input-' + key"
+                                    v-else-if="['enable_reg', 'ver4_ban_break_check', 'go_export_personal_data', 'go_import_personal_data'].includes(key)"
+                                    class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                    v-model="serverSettings[key]"
+                                >
+                                    <option value="0">否</option>
+                                    <option value="1">是</option>
+                                </select>
+                                <select
+                                    :id="'input-' + key"
+                                    v-else-if="['mail_auth'].includes(key)"
+                                    class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                    v-model="serverSettings[key]"
+                                >
+                                    <option value="0">关闭</option>
+                                    <option value="1">开启</option>
+                                </select>
+                                <select
+                                    :id="'input-' + key"
+                                    v-else-if="['mail_secure'].includes(key)"
+                                    class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                    v-model="serverSettings[key]"
+                                >
+                                    <!--<option value="none">无</option>-->
+                                    <!--<option value="ssl">SSL</option>-->
+                                    <option value="tls">TLS</option>
+                                </select>
+                                <select
+                                    :id="'input-' + key"
+                                    v-else-if="key === 'go_forum_sync_policy'"
+                                    class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                    v-model="serverSettings[key]"
+                                >
+                                    <option value="add_only">[仅新增] 增加新关注的贴吧</option>
+                                    <option value="add_delete">[严格同步] 增加新关注的贴吧，删除不再关注的贴吧</option>
+                                </select>
+                                <input
+                                    :id="'input-' + key"
+                                    v-else-if="['cron_limit', 'retry_max', 'sign_sleep', 'sign_multith', 'mail_port', 'ver4_ban_limit'].includes(key) || String(key || '').endsWith('_action_limit')"
+                                    type="number"
+                                    min="0"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                    v-model="serverSettings[key]"
+                                />
+                                <input
+                                    :id="'input-' + key"
+                                    v-else-if="key === 'go_re_check_in_max_interval'"
+                                    type="number"
+                                    min="1"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                    v-model="serverSettings[key]"
+                                />
+                                <input
+                                    :id="'input-' + key"
+                                    v-else-if="['sign_hour', 'go_daily_report_hour'].includes(key)"
+                                    type="number"
+                                    min="-1"
+                                    max="23"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                    v-model="serverSettings[key]"
+                                />
+                                <input
+                                    :id="'input-' + key"
+                                    v-else-if="key === 'cktime'"
+                                    type="number"
+                                    min="30"
+                                    :max="10 * 24 * 60 * 60"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                    v-model="serverSettings[key]"
+                                />
+                                <input
+                                    :id="'input-' + key"
+                                    v-else-if="['bduss_num'].includes(key)"
+                                    type="number"
+                                    min="-1"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                    v-model="serverSettings[key]"
+                                />
+                                <input
+                                    :id="'input-' + key"
+                                    v-else-if="key === 'mail_smtppw' && serverSettings[key] !== undefined"
+                                    type="password"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                    v-model="serverSettings[key]"
+                                />
+                                <input
+                                    :id="'input-' + key"
+                                    v-else-if="key === 'mail_smtpname' && serverSettings[key] !== undefined"
+                                    type="text"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                    v-model="serverSettings[key]"
+                                />
+                                <div v-else-if="['go_bark_addr', 'go_ntfy_addr', 'go_pushdeer_addr'].includes(key)" class="flex w-full">
+                                    <input
+                                        :id="'input-' + key"
+                                        type="text"
+                                        class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-l-xl inline-block grow"
+                                        v-model="serverSettings[key]"
+                                    />
+                                    <button
+                                        type="button"
+                                        class="inline-block px-3 py-1 rounded-r-xl border border-slate-500 hover:bg-gray-300 hover:text-black transition-colors"
+                                        @click="
+                                            (e) => {
+                                                e.preventDefault()
+                                                sendTestMail(key.split('_')[1])
+                                            }
+                                        "
+                                    >
+                                        测试
+                                    </button>
+                                </div>
+                                <input
+                                    :id="'input-' + key"
+                                    v-else
+                                    type="text"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                    v-model="serverSettings[key]"
+                                />
+                            </template>
+                            <button
+                                type="button"
+                                v-if="_set.name === '邮件'"
+                                class="px-3 py-1 mt-3 rounded-lg border-2 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors"
+                                @click="
+                                    (e) => {
+                                        e.preventDefault()
+                                        sendTestMail('email')
+                                    }
+                                "
+                            >
+                                发送测试邮件
+                            </button>
                         </template>
-                        <button
-                            type="button"
-                            v-if="_set.name === '邮件'"
-                            class="px-3 py-1 mt-3 rounded-lg border-2 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors"
-                            @click="
-                                (e) => {
-                                    e.preventDefault()
-                                    sendTestMail('email')
-                                }
-                            "
-                        >
-                            发送测试邮件
-                        </button>
-                    </template>
-                </Collapse>
+                    </Collapse>
+                </template>
                 <input type="submit" role="button" class="text-gray-100 text-lg bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded-xl ml-3 px-5 py-1 transition-colors" @click="SaveSettings" value="保存" />
             </form>
         </div>

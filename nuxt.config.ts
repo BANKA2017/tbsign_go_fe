@@ -69,7 +69,6 @@ export default defineNuxtConfig({
         '/reset_password': { ssr: true },
         '/signup': { ssr: true },
         '/add_base_path': { prerender: true },
-        //'/tools': { prerender: true },
         '/': { ssr: false },
         '/settings': { ssr: false },
         '/accounts': { ssr: false },
