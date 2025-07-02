@@ -195,8 +195,9 @@ const updateIgnoreForum = (pid = 0, fid = 0) => {
         })
 }
 
+const forumListKeys = ['id', 'uid', 'pid', 'fid', 'tieba', 'no', 'status', 'latest', 'last_error']
 const getForumList = () => {
-    Request(store.basePath + '/list', {
+    Request(store.basePath + '/list?array_mode=1', {
         headers: {
             Authorization: store.authorization
         }
@@ -205,7 +206,7 @@ const getForumList = () => {
             if (res.code !== 200) {
                 return
             }
-            list.value = res.data
+            list.value = res.data.map((forum) => Object.fromEntries(forum.map((v, i) => [forumListKeys[i], v])))
             //console.log(res)
         })
         .catch((e) => {
@@ -675,7 +676,7 @@ onMounted(() => {
             >
                 <div class="flex gap-3">
                     <div :class="{ relative: true, hidden: true, '2xs:block': !(editMode || accounts[index].more), 'xs:block': true }">
-                        <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1" />
+                        <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1 bg-gray-300 dark:bg-gray-700" />
                         <div
                             :class="`h-2 w-2 absolute right-1 bottom-1 rounded-full border ` + (account.status === undefined ? 'bg-gray-500 border-gray-500' : account.status ? 'bg-green-500 border-green-500' : 'bg-pink-500 border-pink-500')"
                             :style="{
@@ -707,15 +708,18 @@ onMounted(() => {
                                 (tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.pending || 0) + '等待，' + (tblistFilter[account.id]?.failed || 0) + '失败，' + (tblistFilter[account.id]?.ignore || 0) + '忽略'
                             "
                         >
-                            <div>
-                                <span class="text-green-500">{{ tblistFilter[account.id]?.success || 0 }}</span
-                                ><span class="mx-0.5">/</span><span class="text-orange-500">{{ tblistFilter[account.id]?.pending || 0 }}</span
-                                ><span class="mx-0.5">/</span>
-                            </div>
-                            <div>
-                                <span class="text-pink-500">{{ tblistFilter[account.id]?.failed || 0 }}</span
-                                ><span class="mx-0.5">/</span><span class="text-gray-600 dark:text-gray-400">{{ tblistFilter[account.id]?.ignore || 0 }}</span>
-                            </div>
+                            <div v-if="typeof tblistFilter[account.id] === 'undefined'" class="w-20 h-4 rounded bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
+                            <template v-else>
+                                <div>
+                                    <span class="text-green-500">{{ tblistFilter[account.id]?.success || 0 }}</span
+                                    ><span class="mx-0.5">/</span><span class="text-orange-500">{{ tblistFilter[account.id]?.pending || 0 }}</span
+                                    ><span class="mx-0.5">/</span>
+                                </div>
+                                <div>
+                                    <span class="text-pink-500">{{ tblistFilter[account.id]?.failed || 0 }}</span
+                                    ><span class="mx-0.5">/</span><span class="text-gray-600 dark:text-gray-400">{{ tblistFilter[account.id]?.ignore || 0 }}</span>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </div>

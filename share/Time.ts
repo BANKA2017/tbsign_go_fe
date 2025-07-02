@@ -32,3 +32,5 @@ export const Eta = (now: number = Date.now() / 1000, end: number = 0) => {
     const days = diff
     return `${days.toString()} 天 ${hours.toString().padStart(2, '0')} 小时 ${minutes.toString().padStart(2, '0')} 分钟 ${Math.ceil(seconds).toString().padStart(2, '0') + ' 秒'}`
 }
+
+export const DayList = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']

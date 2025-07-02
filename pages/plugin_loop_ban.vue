@@ -257,7 +257,10 @@ const updateTasksSwitch = () => {
     })
 }
 
+const loadingList = ref<boolean>(false)
+
 const getLoopBanList = () => {
+    loadingList.value = true
     Request(store.basePath + '/plugins/ver4_ban/list', {
         headers: {
             Authorization: store.authorization
@@ -278,6 +281,9 @@ const getLoopBanList = () => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
+        })
+        .finally(() => {
+            loadingList.value = false
         })
 }
 
@@ -425,60 +431,63 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
                 </template>
             </Modal>
         </div>
-        <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.pid.toString() + '_' + task.portrait + '_' + task.fname">
-            <ul class="marker:text-sky-500 list-disc list-inside">
-                <li>
-                    <span class="font-bold">账号 : </span
-                    ><NuxtLink class="font-mono hover:underline underline-offset-1" :to="`https://tieba.baidu.com/home/main?id=${task.portrait}`" target="blank">{{ task.name_show || task.name || task.portrait || '全无账号（？）' }}</NuxtLink
-                    ><span class="font-mono"></span>
-                </li>
-                <li>
-                    <span class="font-bold">封禁贴吧 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + task.fname" target="blank">{{ task.fname }}</NuxtLink>
-                </li>
-                <li>
-                    <span class="font-bold">执行时间 : </span><span class="font-mono">{{ getPubDate(new Date(task.start * 1000)) }} ~ {{ getPubDate(new Date(task.end * 1000)) }}</span>
-                </li>
+        <div v-if="loadingList" class="w-full h-32 rounded-xl bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
+        <template v-else>
+            <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.pid.toString() + '_' + task.portrait + '_' + task.fname">
+                <ul class="marker:text-sky-500 list-disc list-inside">
+                    <li>
+                        <span class="font-bold">账号 : </span
+                        ><NuxtLink class="font-mono hover:underline underline-offset-1" :to="`https://tieba.baidu.com/home/main?id=${task.portrait}`" target="blank">{{ task.name_show || task.name || task.portrait || '全无账号（？）' }}</NuxtLink
+                        ><span class="font-mono"></span>
+                    </li>
+                    <li>
+                        <span class="font-bold">封禁贴吧 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + task.fname" target="blank">{{ task.fname }}</NuxtLink>
+                    </li>
+                    <li>
+                        <span class="font-bold">执行时间 : </span><span class="font-mono">{{ getPubDate(new Date(task.start * 1000)) }} ~ {{ getPubDate(new Date(task.end * 1000)) }}</span>
+                    </li>
+                    <hr class="border-gray-400 dark:border-gray-600 my-3" />
+                    <li>
+                        <!--TODO use portrait-->
+                        <span class="font-bold">吧务账号 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/home/main?un=' + pidNameKV[task.pid]" target="blank">{{ pidNameKV[task.pid] }}</NuxtLink>
+                    </li>
+                    <li>
+                        <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">执行情况 : </span>
+                        <span>
+                            <SvgCheck v-if="task.success" height="1em" width="1em" class="inline-block -mt-0.5" />
+                            <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5" />
+                        </span>
+                    </li>
+                </ul>
+
                 <hr class="border-gray-400 dark:border-gray-600 my-3" />
-                <li>
-                    <!--TODO use portrait-->
-                    <span class="font-bold">吧务账号 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/home/main?un=' + pidNameKV[task.pid]" target="blank">{{ pidNameKV[task.pid] }}</NuxtLink>
-                </li>
-                <li>
-                    <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
-                </li>
-                <li>
-                    <span class="font-bold">执行情况 : </span>
-                    <span>
-                        <SvgCheck v-if="task.success" height="1em" width="1em" class="inline-block -mt-0.5" />
-                        <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5" />
-                    </span>
-                </li>
-            </ul>
 
-            <hr class="border-gray-400 dark:border-gray-600 my-3" />
-
-            <Modal class="mr-1 inline-block" :title="'确认删除封禁任务: ' + task.fname + '@' + task.name_show + ' ？'" :aria-label="'确认删除封禁任务: ' + task.fname + '@' + task.name_show + ' ？'">
-                <template #default>
-                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors">删除</button>
-                </template>
-                <template #container>
-                    <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTask(task.id)">确认删除</button>
-                </template>
-            </Modal>
-            <Modal class="mx-1 inline-block" :title="task.fname + ' 吧封禁 @' + (task.name_show || task.name || task.portrait || '全无账号（？）') + ' 记录'">
-                <template #default>
-                    <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
-                </template>
-                <template #container>
-                    <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.pid.toString() + '_' + task.portrait + '_' + task.fname + i">
-                        <h5 class="font-bold text-xl">{{ log_.date }}</h5>
-                        <SvgCheck v-if="log_.error.length === 0" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
-                        <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
-                        <span>{{ log_.error.length ? log_.error.join('#') : log_.status }}</span>
-                    </div>
-                </template>
-            </Modal>
-        </div>
+                <Modal class="mr-1 inline-block" :title="'确认删除封禁任务: ' + task.fname + '@' + task.name_show + ' ？'" :aria-label="'确认删除封禁任务: ' + task.fname + '@' + task.name_show + ' ？'">
+                    <template #default>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors">删除</button>
+                    </template>
+                    <template #container>
+                        <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTask(task.id)">确认删除</button>
+                    </template>
+                </Modal>
+                <Modal class="mx-1 inline-block" :title="task.fname + ' 吧封禁 @' + (task.name_show || task.name || task.portrait || '全无账号（？）') + ' 记录'">
+                    <template #default>
+                        <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
+                    </template>
+                    <template #container>
+                        <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.pid.toString() + '_' + task.portrait + '_' + task.fname + i">
+                            <h5 class="font-bold text-xl">{{ log_.date }}</h5>
+                            <SvgCheck v-if="log_.error.length === 0" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                            <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                            <span>{{ log_.error.length ? log_.error.join('#') : log_.status }}</span>
+                        </div>
+                    </template>
+                </Modal>
+            </div>
+        </template>
     </div>
     <div
         :class="{

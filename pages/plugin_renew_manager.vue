@@ -178,7 +178,10 @@ const saveSettings = () => {
     })
 }
 
+const loadingTasks = ref<boolean>(false)
+
 const getRenewTasksList = () => {
+    loadingTasks.value = true
     Request(store.basePath + '/plugins/kd_renew_manager/list', {
         headers: {
             Authorization: store.authorization
@@ -195,6 +198,9 @@ const getRenewTasksList = () => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
+        })
+        .finally(() => {
+            loadingTasks.value = false
         })
 }
 
@@ -329,74 +335,77 @@ onMounted(() => {
                 </template>
             </Modal>
         </div>
-        <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.pid.toString() + '_' + task.fname">
-            <div class="text-sm progress bg-gray-300 dark:bg-gray-700">
-                <div :style="{ width: Math.ceil((1 - (task.end - now) / (task.end - task.date)) * 100) + '%' }" class="progress-bar bg-sky-500"></div>
-                <div
-                    :style="{ width: Math.ceil((1 - (task.end - task.date - tasksSettings.action_interval * 24 * 60 * 60) / (task.end - task.date)) * 100) + '%', overflow: 'hidden' }"
-                    v-show="Math.ceil((1 - (task.end - task.date - tasksSettings.action_interval * 24 * 60 * 60) / (task.end - task.date)) * 100) <= 100"
-                    class="progress-checkpoint"
-                ></div>
-                <div class="progress-data">
-                    <span class="font-bold">{{ Eta(now, task.end) }}</span>
-                </div>
-            </div>
-            <ul class="marker:text-sky-500 list-disc list-inside">
-                <li>
-                    <!--TODO use portrait-->
-                    <span class="font-bold">吧主账号 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/home/main?un=' + pidNameKV[task.pid]" target="blank">{{ pidNameKV[task.pid] }}</NuxtLink>
-                </li>
-                <li>
-                    <span class="font-bold">执行贴吧 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + task.fname" target="blank">{{ task.fname }}</NuxtLink>
-                </li>
-                <li>
-                    <span class="font-bold">任务帖子 : </span
-                    ><span class="font-mono"
-                        ><NuxtLink class="font-mono underline underline-offset-2" :to="'https://tieba.baidu.com/p/' + task.tid" target="blank">{{ task.tid }}</NuxtLink></span
-                    >
-                </li>
-                <li>
-                    <span class="font-bold">上次结果 : </span><span class="font-mono">{{ task.status }}</span>
-                </li>
-                <li>
-                    <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
-                </li>
-                <li>
-                    <span class="font-bold">预计下次检查 : </span><span class="font-mono">{{ getPubDate(new Date((task.date + tasksSettings.action_interval * 24 * 60 * 60) * 1000)) }}</span>
-                </li>
-                <li>
-                    <span class="font-bold">考核截止 : </span
-                    ><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/mo/q/bawu/taskinfoview?tbioswk=1&fid=' + task.fid" target="blank">{{ getPubDate(new Date(task.end * 1000)) }}</NuxtLink>
-                </li>
-            </ul>
-
-            <hr class="border-gray-400 dark:border-gray-600 my-3" />
-            <Modal class="inline-block mr-1" :title="'确认删除考核任务: ' + task.fname + '@' + pidNameKV[task.pid] + ' ？'" :aria-label="'确认删除考核任务: ' + task.fname + '@' + pidNameKV[task.pid] + ' ？'">
-                <template #default>
-                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors">删除</button>
-                </template>
-                <template #container>
-                    <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTask(task.id)">确认删除</button>
-                </template>
-            </Modal>
-            <Modal class="mx-1 inline-block" :title="'@' + pidNameKV[task.pid] + ' 吧主考核任务记录'">
-                <template #default>
-                    <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
-                </template>
-                <template #container>
-                    <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.pid.toString() + '_' + task.fid + i">
-                        <h5 class="font-bold text-xl">{{ log_.date }}</h5>
-                        <div class="grid grid-cols-6">
-                            <span class="col-span-6 md:col-span-3" v-for="(logValue, logKey) in log_" v-show="logKey !== 'date'" :key="task.id + i + logKey">
-                                <SvgCheck v-if="logValue === 'done'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
-                                <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
-                                <span>{{ logName[logKey] }}</span>
-                            </span>
-                        </div>
+        <div v-if="loadingTasks" class="w-full h-32 rounded-xl bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
+        <template v-else>
+            <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.pid.toString() + '_' + task.fname">
+                <div class="text-sm progress bg-gray-300 dark:bg-gray-700">
+                    <div :style="{ width: Math.ceil((1 - (task.end - now) / (task.end - task.date)) * 100) + '%' }" class="progress-bar bg-sky-500"></div>
+                    <div
+                        :style="{ width: Math.ceil((1 - (task.end - task.date - tasksSettings.action_interval * 24 * 60 * 60) / (task.end - task.date)) * 100) + '%', overflow: 'hidden' }"
+                        v-show="Math.ceil((1 - (task.end - task.date - tasksSettings.action_interval * 24 * 60 * 60) / (task.end - task.date)) * 100) <= 100"
+                        class="progress-checkpoint"
+                    ></div>
+                    <div class="progress-data">
+                        <span class="font-bold">{{ Eta(now, task.end) }}</span>
                     </div>
-                </template>
-            </Modal>
-        </div>
+                </div>
+                <ul class="marker:text-sky-500 list-disc list-inside">
+                    <li>
+                        <!--TODO use portrait-->
+                        <span class="font-bold">吧主账号 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/home/main?un=' + pidNameKV[task.pid]" target="blank">{{ pidNameKV[task.pid] }}</NuxtLink>
+                    </li>
+                    <li>
+                        <span class="font-bold">执行贴吧 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + task.fname" target="blank">{{ task.fname }}</NuxtLink>
+                    </li>
+                    <li>
+                        <span class="font-bold">任务帖子 : </span
+                        ><span class="font-mono"
+                            ><NuxtLink class="font-mono underline underline-offset-2" :to="'https://tieba.baidu.com/p/' + task.tid" target="blank">{{ task.tid }}</NuxtLink></span
+                        >
+                    </li>
+                    <li>
+                        <span class="font-bold">上次结果 : </span><span class="font-mono">{{ task.status }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">预计下次检查 : </span><span class="font-mono">{{ getPubDate(new Date((task.date + tasksSettings.action_interval * 24 * 60 * 60) * 1000)) }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">考核截止 : </span
+                        ><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/mo/q/bawu/taskinfoview?tbioswk=1&fid=' + task.fid" target="blank">{{ getPubDate(new Date(task.end * 1000)) }}</NuxtLink>
+                    </li>
+                </ul>
+
+                <hr class="border-gray-400 dark:border-gray-600 my-3" />
+                <Modal class="inline-block mr-1" :title="'确认删除考核任务: ' + task.fname + '@' + pidNameKV[task.pid] + ' ？'" :aria-label="'确认删除考核任务: ' + task.fname + '@' + pidNameKV[task.pid] + ' ？'">
+                    <template #default>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors">删除</button>
+                    </template>
+                    <template #container>
+                        <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTask(task.id)">确认删除</button>
+                    </template>
+                </Modal>
+                <Modal class="mx-1 inline-block" :title="'@' + pidNameKV[task.pid] + ' 吧主考核任务记录'">
+                    <template #default>
+                        <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
+                    </template>
+                    <template #container>
+                        <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.pid.toString() + '_' + task.fid + i">
+                            <h5 class="font-bold text-xl">{{ log_.date }}</h5>
+                            <div class="grid grid-cols-6">
+                                <span class="col-span-6 md:col-span-3" v-for="(logValue, logKey) in log_" v-show="logKey !== 'date'" :key="task.id + i + logKey">
+                                    <SvgCheck v-if="logValue === 'done'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                    <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                    <span>{{ logName[logKey] }}</span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </Modal>
+            </div>
+        </template>
     </div>
     <div
         :class="{

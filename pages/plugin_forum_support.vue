@@ -94,7 +94,10 @@ const saveSettings = () => {
     })
 }
 
+const loadingSettings = ref<boolean>(false)
+
 const getForumSupportList = () => {
+    loadingSettings.value = true
     Request(store.basePath + '/plugins/ver4_rank/settings', {
         headers: {
             Authorization: store.authorization
@@ -112,9 +115,10 @@ const getForumSupportList = () => {
             console.error(e)
             Notice(e.toString(), 'error')
         })
+        .finally(() => {
+            loadingSettings.value = false
+        })
 }
-
-const originalLogs = ref<boolean>(false)
 
 function getLines(text, line: number = 0, split: string = '\n') {
     let count = 0
@@ -155,18 +159,6 @@ const parseLogs = (log_: string = '') => {
 
 onMounted(() => {
     getForumSupportList()
-    Request(store.basePath + '/plugins/ver4_rank/settings', {
-        headers: {
-            Authorization: store.authorization
-        }
-    }).then((res) => {
-        if (res.code !== 200) {
-            Notice(res.message, 'error')
-            return
-        }
-        tasksList.value = res.data
-        //console.log(res)
-    })
     Request(store.basePath + '/plugins/ver4_rank/switch', {
         headers: {
             Authorization: store.authorization
@@ -212,25 +204,10 @@ onMounted(() => {
                     <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="编辑名人堂任务">编辑列表</button>
                 </template>
                 <template #container>
-                    <button
-                        :class="{
-                            'px-3': true,
-                            'py-1': true,
-                            'rounded-lg': true,
-                            'mr-2': true,
-                            'my-2': true,
-                            'bg-sky-500': activePID === account.id,
-                            'hover:bg-sky-500': true,
-                            'hover:text-gray-100': true,
-                            'text-gray-100': activePID === account.id,
-                            'transition-colors': true
-                        }"
-                        v-for="account in accounts"
-                        :key="account.id"
-                        @click="activePID = account.id"
-                    >
-                        {{ account.name }}
-                    </button>
+                    <label for="pid-to-add">账号</label>
+                    <select id="pid-to-add" v-model="activePID" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl block w-full my-3">
+                        <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
+                    </select>
                     <div class="" v-if="activePID">
                         <div class="my-1" v-for="character in list" :key="character.nid">
                             <input type="checkbox" class="form-checkbox bg-gray-100 dark:bg-gray-900 dark:checked:bg-blue-500" v-model="fourmSupportSettingsKV[activePID][character.nid]" :id="'ver4_rank:character:' + character.nid" /><label
@@ -246,52 +223,44 @@ onMounted(() => {
             </Modal>
         </div>
 
-        <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.id">
-            <ul class="marker:text-sky-500 list-disc list-inside">
-                <li>
-                    <span class="font-bold">序号 : </span><span class="font-mono">{{ task.id }}</span>
-                </li>
-                <li>
-                    <span class="font-bold">贴吧账号 : </span><span class="font-mono">{{ pidNameKV[task.pid] }}</span>
-                </li>
-                <li>
-                    <span class="font-bold">贴吧 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + task.tieba" target="blank">{{ task.tieba }}</NuxtLink>
-                </li>
-                <li>
-                    <span class="font-bold">名人 : </span><span class="font-mono">{{ task.name }}</span>
-                </li>
-                <li>
-                    <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
-                </li>
-            </ul>
+        <div v-if="loadingSettings" class="w-full h-32 rounded-xl bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
+        <template v-else>
+            <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.id">
+                <ul class="marker:text-sky-500 list-disc list-inside">
+                    <li>
+                        <span class="font-bold">序号 : </span><span class="font-mono">{{ task.id }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">贴吧账号 : </span><span class="font-mono">{{ pidNameKV[task.pid] }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">贴吧 : </span><NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + task.tieba" target="blank">{{ task.tieba }}</NuxtLink>
+                    </li>
+                    <li>
+                        <span class="font-bold">名人 : </span><span class="font-mono">{{ task.name }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
+                    </li>
+                </ul>
 
-            <hr class="border-gray-400 dark:border-gray-600 my-2" />
+                <hr class="border-gray-400 dark:border-gray-600 my-2" />
 
-            <Modal class="mr-1 inline-block" :title="'@' + pidNameKV[task.pid] + ' 名人堂助攻 ' + task.name + ' 记录'">
-                <template #default>
-                    <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
-                </template>
-                <template #container>
-                    <button
-                        :class="'rounded text-sm py-1 px-2 border-2 mb-3 border-sky-500 hover:bg-sky-500 dark:text-gray-100 hover:text-gray-100 transition-colors ' + (originalLogs ? 'bg-sky-500 text-gray-100' : '')"
-                        @click="originalLogs = !originalLogs"
-                    >
-                        原始记录
-                    </button>
-                    <div v-if="originalLogs">
-                        <ul class="marker:text-sky-500 list-disc list-inside gap-3 ml-5">
-                            <li class="break-word whitespace-pre-wrap" v-for="(log_, i) in task.log.split('<br/>').filter((x) => x)" :key="task.id + i">{{ log_ }}</li>
-                        </ul>
-                    </div>
-                    <div v-else class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.id + i">
-                        <h5 class="font-bold text-xl">{{ log_.date }}</h5>
-                        <SvgCheck v-if="log_.code === '0'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
-                        <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
-                        <span>{{ log_.msg }}</span>
-                    </div>
-                </template>
-            </Modal>
-        </div>
+                <Modal class="mr-1 inline-block" :title="'@' + pidNameKV[task.pid] + ' 名人堂助攻 ' + task.name + ' 记录'">
+                    <template #default>
+                        <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
+                    </template>
+                    <template #container>
+                        <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.id + i">
+                            <h5 class="font-bold text-xl">{{ log_.date }}</h5>
+                            <SvgCheck v-if="log_.code === '0'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                            <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                            <span>{{ log_.msg }}</span>
+                        </div>
+                    </template>
+                </Modal>
+            </div>
+        </template>
     </div>
     <div
         :class="{

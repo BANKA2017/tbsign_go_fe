@@ -107,7 +107,10 @@ const addTask = () => {
     })
 }
 
+const loadingTasks = ref<boolean>(false)
+
 const getTasksList = () => {
+    loadingTasks.value = true
     Request(store.basePath + '/plugins/kd_growth/list', {
         headers: {
             Authorization: store.authorization
@@ -124,6 +127,9 @@ const getTasksList = () => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
+        })
+        .finally(() => {
+            loadingTasks.value = false
         })
 }
 const taskStatusName = computed(() => {
@@ -219,61 +225,64 @@ onMounted(() => {
             <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 text-gray-100" @click="addTask">保存</button>
         </div>
 
-        <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3 relative" v-for="task in tasksList" :key="task.id">
-            <div v-if="tasksStatus[task.pid]?.level" class="absolute right-4 top-4 group">
-                <span class="px-2 rounded group-hover:rounded-r-none border-2 border-yellow-500 bg-yellow-500 text-black font-bold">LV{{ tasksStatus[task.pid]?.level }}</span>
-                <span class="px-2 rounded-r border-2 hidden group-hover:inline border-yellow-500 text-black dark:text-gray-100">{{ tasksStatus[task.pid]?.growth_value }}/{{ tasksStatus[task.pid]?.next_level_value }}</span>
-            </div>
-            <ul class="marker:text-sky-500 list-disc list-inside">
-                <li>
-                    <span class="font-bold">序号 : </span><span class="font-mono">{{ task.id }}</span>
-                </li>
-                <li>
-                    <span class="font-bold">贴吧账号 : </span><span class="font-sans">{{ pidNameKV[task.pid] }}</span>
-                </li>
-                <li>
-                    <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
-                </li>
-                <li>
-                    <span class="font-bold">状态 : </span>
-                    <ul v-if="task.status && task.status.startsWith('[')" class="grid grid-cols-6 gap-x-5 marker:text-sky-500 list-disc list-inside">
-                        <li class="ml-5 col-span-6 md:col-span-3 lg:col-span-2" v-for="taskStatus in JSON.parse(task.status)" :key="task.pid + '_' + taskStatus.name">
-                            <SvgCheck v-if="taskStatus.status" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
-                            <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
-                            <span class="font-bold">{{ taskStatus.name }}</span>
-                        </li>
-                    </ul>
-                    <span v-else class="font-mono">{{ task.status }}</span>
-                </li>
-            </ul>
-            <hr class="border-gray-400 dark:border-gray-600 my-3" />
-            <Modal class="inline-block mr-1" :title="'确认删除成长任务: @' + pidNameKV[task.pid] + ' ？'" :aria-label="'确认删除成长任务: @' + pidNameKV[task.pid] + ' ？'">
-                <template #default>
-                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors">删除</button>
-                </template>
-                <template #container>
-                    <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTask(task.id)">确认删除</button>
-                </template>
-            </Modal>
-            <Modal class="mx-1 inline-block" :title="'@' + pidNameKV[task.pid] + ' 成长任务记录'">
-                <template #default>
-                    <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
-                </template>
-                <template #container>
-                    <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.id + i">
-                        <h5 class="font-bold text-xl">{{ log_.date }}</h5>
-                        <div class="grid grid-cols-6">
-                            <span class="col-span-6 md:col-span-3" v-for="(logValue, logKey) in log_" v-show="logKey !== 'date'" :key="task.id + i + logKey">
-                                <SvgCheck v-if="logValue === '1'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+        <div v-if="loadingTasks" class="w-full h-32 rounded-xl bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
+        <template v-else>
+            <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3 relative" v-for="task in tasksList" :key="task.id">
+                <div v-if="tasksStatus[task.pid]?.level" class="absolute right-4 top-4 group">
+                    <span class="px-2 rounded group-hover:rounded-r-none border-2 border-yellow-500 bg-yellow-500 text-black font-bold">LV{{ tasksStatus[task.pid]?.level }}</span>
+                    <span class="px-2 rounded-r border-2 hidden group-hover:inline border-yellow-500 text-black dark:text-gray-100">{{ tasksStatus[task.pid]?.growth_value }}/{{ tasksStatus[task.pid]?.next_level_value }}</span>
+                </div>
+                <ul class="marker:text-sky-500 list-disc list-inside">
+                    <li>
+                        <span class="font-bold">序号 : </span><span class="font-mono">{{ task.id }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">贴吧账号 : </span><span class="font-sans">{{ pidNameKV[task.pid] }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">上次执行 : </span><span class="font-mono">{{ getPubDate(new Date(task.date * 1000)) }}</span>
+                    </li>
+                    <li>
+                        <span class="font-bold">状态 : </span>
+                        <ul v-if="task.status && task.status.startsWith('[')" class="grid grid-cols-6 gap-x-5 marker:text-sky-500 list-disc list-inside">
+                            <li class="ml-5 col-span-6 md:col-span-3 lg:col-span-2" v-for="taskStatus in JSON.parse(task.status)" :key="task.pid + '_' + taskStatus.name">
+                                <SvgCheck v-if="taskStatus.status" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                                 <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
-                                <span>{{ getTaskStatusName(logKey) }}</span>
-                            </span>
+                                <span class="font-bold">{{ taskStatus.name }}</span>
+                            </li>
+                        </ul>
+                        <span v-else class="font-mono">{{ task.status }}</span>
+                    </li>
+                </ul>
+                <hr class="border-gray-400 dark:border-gray-600 my-3" />
+                <Modal class="inline-block mr-1" :title="'确认删除成长任务: @' + pidNameKV[task.pid] + ' ？'" :aria-label="'确认删除成长任务: @' + pidNameKV[task.pid] + ' ？'">
+                    <template #default>
+                        <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors">删除</button>
+                    </template>
+                    <template #container>
+                        <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTask(task.id)">确认删除</button>
+                    </template>
+                </Modal>
+                <Modal class="mx-1 inline-block" :title="'@' + pidNameKV[task.pid] + ' 成长任务记录'">
+                    <template #default>
+                        <button class="rounded-lg bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-1 text-gray-900 dark:text-gray-100 transition-colors" title="日志">日志</button>
+                    </template>
+                    <template #container>
+                        <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.id + i">
+                            <h5 class="font-bold text-xl">{{ log_.date }}</h5>
+                            <div class="grid grid-cols-6">
+                                <span class="col-span-6 md:col-span-3" v-for="(logValue, logKey) in log_" v-show="logKey !== 'date'" :key="task.id + i + logKey">
+                                    <SvgCheck v-if="logValue === '1'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                    <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                    <span>{{ getTaskStatusName(logKey) }}</span>
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                </template>
-            </Modal>
-            <button v-show="!tasksStatus[task.pid]" class="border-2 border-sky-500 hover:bg-sky-500 rounded-lg mx-1 px-2.5 py-0.5 dark:text-gray-100 hover:text-gray-100 transition-colors" @click="getStatus(task.pid)">状态</button>
-        </div>
+                    </template>
+                </Modal>
+                <button v-show="!tasksStatus[task.pid]" class="border-2 border-sky-500 hover:bg-sky-500 rounded-lg mx-1 px-2.5 py-0.5 dark:text-gray-100 hover:text-gray-100 transition-colors" @click="getStatus(task.pid)">状态</button>
+            </div>
+        </template>
     </div>
     <div
         :class="{
