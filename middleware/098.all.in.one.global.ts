@@ -117,7 +117,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
                     if (!store.cache?.accounts) {
                         Request(
-                            store.basePath + '/account',
+                            store.basePath + '/account?array_mode=1',
                             {
                                 headers: {
                                     Authorization: authorization
@@ -130,13 +130,16 @@ export default defineNuxtRouteMiddleware((to, from) => {
                             }
                             store.updateCache(
                                 'accounts',
-                                (res.data || []).map((account) => {
-                                    account.page = 0
-                                    account.more = false
-                                    account.filter = 'all'
-                                    account.search = ''
-                                    return account
-                                })
+                                (res.data || []).map((account) => ({
+                                    id: account[0],
+                                    uid: account[1],
+                                    name: account[2],
+                                    portrait: account[3],
+                                    page: 0,
+                                    more: false,
+                                    filter: 'all',
+                                    search: ''
+                                }))
                             )
                             //console.log(res)
                         })

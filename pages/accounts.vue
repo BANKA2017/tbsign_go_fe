@@ -11,6 +11,10 @@ const isAdmin = computed(() => store.admin)
 const route = useRoute()
 const router = useRouter()
 
+const forumListKeys = ['id', 'uid', 'pid', 'fid', 'tieba', 'no', 'status', 'latest', 'last_error']
+
+const ForumListArr2Obj = (list = []) => list.map((forum) => Object.fromEntries(forum.map((v, i) => [forumListKeys[i], v])))
+
 const list = ref<
     {
         fid: number
@@ -140,7 +144,7 @@ const syncTiebaList = async () => {
         return
     }
     syncList.value = true
-    Request(store.basePath + '/list/sync', {
+    Request(store.basePath + '/list/sync?array_mode=1', {
         headers: {
             Authorization: store.authorization
         },
@@ -153,7 +157,7 @@ const syncTiebaList = async () => {
                 return
             }
             Notice('列表已同步', 'success')
-            list.value = res.data
+            list.value = ForumListArr2Obj(res.data)
             //console.log(res)
         })
         .catch((e) => {
@@ -195,7 +199,6 @@ const updateIgnoreForum = (pid = 0, fid = 0) => {
         })
 }
 
-const forumListKeys = ['id', 'uid', 'pid', 'fid', 'tieba', 'no', 'status', 'latest', 'last_error']
 const getForumList = () => {
     Request(store.basePath + '/list?array_mode=1', {
         headers: {
@@ -206,7 +209,7 @@ const getForumList = () => {
             if (res.code !== 200) {
                 return
             }
-            list.value = res.data.map((forum) => Object.fromEntries(forum.map((v, i) => [forumListKeys[i], v])))
+            list.value = ForumListArr2Obj(res.data)
             //console.log(res)
         })
         .catch((e) => {
@@ -372,7 +375,7 @@ const addAccount = (bduss = '', stoken = '') => {
 }
 
 const updateAccoutList = () => {
-    Request(store.basePath + '/account', {
+    Request(store.basePath + '/account?array_mode=1', {
         headers: {
             Authorization: store.authorization
         }
@@ -384,13 +387,16 @@ const updateAccoutList = () => {
             }
             store.updateCache(
                 'accounts',
-                (res.data || []).map((account) => {
-                    account.page = 0
-                    account.more = false
-                    account.filter = 'all'
-                    account.search = ''
-                    return account
-                })
+                (res.data || []).map((account) => ({
+                    id: account[0],
+                    uid: account[1],
+                    name: account[2],
+                    portrait: account[3],
+                    page: 0,
+                    more: false,
+                    filter: 'all',
+                    search: ''
+                }))
             )
             //console.log(res)
         })
