@@ -31,12 +31,17 @@ const parsedBasePath = computed(() => {
 
 onMounted(async () => {
     if (config.public.NUXT_BASE_PATH && undefinedICP.value) {
-        try {
-            store.updateValue('icp', await (await fetch('/.well-known/icp/icp.txt')).text())
-        } catch (e) {
-            console.error(e)
-            store.updateValue('icp', '')
+        window.__GetICP = (data) => {
+            if (data.icp) {
+                store.updateValue('icp', data.icp)
+            } else {
+                store.updateValue('icp', '')
+            }
         }
+
+        const script = document.createElement('script')
+        script.src = '/icp.jsonp?t=' + Date.now()
+        document.body.appendChild(script)
     }
 })
 </script>
