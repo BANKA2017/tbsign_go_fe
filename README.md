@@ -13,7 +13,7 @@
 
 ## 部署
 
-开箱即用，`npx nuxt generate` 后静态部署 `dist` 目录内的产物即可
+开箱即用，`npx nuxt generate` 后静态部署 `.output/public` 目录内的产物即可
 
 ### 后端
 
