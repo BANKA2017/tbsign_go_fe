@@ -19,14 +19,6 @@ const props = defineProps({
 
 const code = ref<number>(props.error.statusCode || 500)
 
-useHead({
-    script: [
-        {
-            innerHTML: `d=localStorage.darkMode||'0';c=document.documentElement.classList;v=c.value==='';if((d==='0'&&matchMedia('(prefers-color-scheme:dark)').matches&&v)||(d==='2'&&v)){c.add('dark')}`
-        }
-    ]
-})
-
 const errorMessage = {
     302: '跳转中……',
     404: '根本没有这个页面',

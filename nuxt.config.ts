@@ -76,5 +76,19 @@ export default defineNuxtConfig({
         '/system_admin': { ssr: false }
     },
 
+    app: {
+        head: {
+            htmlAttrs: {
+                lang: 'zh'
+            },
+            title: '贴吧云签到',
+            script: [
+                {
+                    innerHTML: `d=localStorage.darkMode||'0';do=document;c=do.documentElement.classList;v=c.value==='';if((d==='0'&&matchMedia('(prefers-color-scheme:dark)').matches&&v)||(d==='2'&&v)){c.add('dark');m=do.createElement('meta');m.name='color-scheme';m.content='dark';do.head.appendChild(m)}`
+                }
+            ]
+        }
+    },
+
     compatibilityDate: '2024-11-10'
 })

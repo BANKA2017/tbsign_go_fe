@@ -199,7 +199,10 @@ const updateIgnoreForum = (pid = 0, fid = 0) => {
         })
 }
 
+const loadingList = ref<boolean>(false)
+
 const getForumList = () => {
+    loadingList.value = true
     Request(store.basePath + '/list?array_mode=1', {
         headers: {
             Authorization: store.authorization
@@ -215,6 +218,9 @@ const getForumList = () => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
+        })
+        .finally(() => {
+            loadingList.value = false
         })
 }
 
@@ -714,7 +720,7 @@ onMounted(() => {
                                 (tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.pending || 0) + '等待，' + (tblistFilter[account.id]?.failed || 0) + '失败，' + (tblistFilter[account.id]?.ignore || 0) + '忽略'
                             "
                         >
-                            <div v-if="typeof tblistFilter[account.id] === 'undefined'" class="w-20 h-4 rounded bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
+                            <div v-if="loadingList" class="w-20 h-4 rounded bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
                             <template v-else>
                                 <div>
                                     <span class="text-green-500">{{ tblistFilter[account.id]?.success || 0 }}</span
