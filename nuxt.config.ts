@@ -84,7 +84,7 @@ export default defineNuxtConfig({
             title: '贴吧云签到',
             script: [
                 {
-                    innerHTML: `d=localStorage.darkMode||'0';dc=document;c=dc.documentElement.classList;v=c.value==='';if((d==='0'&&matchMedia('(prefers-color-scheme:dark)').matches&&v)||(d==='2'&&v)){c.add('dark');m=dc.createElement('meta');m.name='color-scheme';m.content='dark';dc.head.appendChild(m)}`
+                    innerHTML: `d=localStorage.darkMode||'0';dc=document;m=dc.createElement('meta');m.name='color-scheme';c=dc.documentElement.classList;v=c.value==='';if((d==='0'&&matchMedia('(prefers-color-scheme:dark)').matches&&v)||(d==='2'&&v)){c.add('dark');m.content='dark';dc.head.appendChild(m)}else{m.content='light';dc.head.appendChild(m)}`
                 }
             ]
         }
