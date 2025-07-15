@@ -711,7 +711,7 @@ onMounted(() => {
                             :to="`https://tieba.baidu.com/home/main?id=${account.portrait}`"
                             target="blank"
                         >
-                            {{ account.name }}</NuxtLink
+                            {{ account.name || account.portrait }}</NuxtLink
                         >
                         <div
                             :class="{ 'text-sm': true, flex: true, 'flex-col': accounts[index].more, 'flex-row': !accounts[index].more, 'xs:flex-row': true }"

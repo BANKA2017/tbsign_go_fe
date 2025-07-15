@@ -73,7 +73,7 @@ export const useMainStore = defineStore('main', {
             return this._basePath
         },
         pidNameKV(): { [p in string]: string } {
-            return Object.fromEntries((this._cache.accounts || []).map((account) => [account.id, account.name]))
+            return Object.fromEntries((this._cache.accounts || []).map((account) => [account.id, account.name || account.portrait]))
         },
         configLength(): number {
             return Object.keys(this.config).length
