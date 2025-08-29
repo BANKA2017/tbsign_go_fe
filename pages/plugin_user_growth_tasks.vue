@@ -6,8 +6,9 @@ const store = useMainStore()
 const pidNameKV = computed(() => store.pidNameKV)
 const loading = computed(() => store.loading)
 
-const settings = ref<{ sign_only: '0' | '1'; break_icon_tasks: '0' | '1' }>({ sign_only: '0', break_icon_tasks: '0' })
+const settings = ref<{ sign_only: '0' | '1' | '2'; break_icon_tasks: '0' | '1' | '2'; ext_tasks: { [p in string]: string } }>({ sign_only: '0', break_icon_tasks: '0', ext_tasks: {} })
 const selectedPID = ref<number>(0)
+const extTaskActType = ref<string>('')
 
 const tasksList = ref<
     {
@@ -31,7 +32,16 @@ const saveSettings = () => {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         method: 'PUT',
-        body: new URLSearchParams(settings.value).toString()
+        body: new URLSearchParams({
+            sign_only: settings.value.sign_only,
+            break_icon_tasks: settings.value.break_icon_tasks,
+            ext_tasks: JSON.stringify(
+                ((v) => {
+                    settings.value.ext_tasks = Object.fromEntries(Object.entries(v).filter((x) => x[0] && x[1]))
+                    return settings.value.ext_tasks
+                })(settings.value.ext_tasks)
+            )
+        }).toString()
     }).then((res) => {
         if (res.code !== 200 && res.code !== 201 && res.code !== 204) {
             Notice(res.message, 'error')
@@ -201,6 +211,7 @@ onMounted(() => {
             <select v-model="settings.sign_only" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
                 <option value="0">仅签到</option>
                 <option value="1">全部任务</option>
+                <option value="2">全部任务+自定义任务</option>
             </select>
 
             <p class="my-2">印记任务开关，完成印记任务可能会导致账号的 IP 归属地更变为签到服务的服务器所在地</p>
@@ -208,6 +219,57 @@ onMounted(() => {
                 <option value="0">不跳过印记任务</option>
                 <option value="1">跳过印记任务</option>
             </select>
+
+            <p class="my-2">自定义任务</p>
+            <Modal class="inline-block mr-1" title="编辑自定义任务" aria-label="编辑自定义任务">
+                <template #default>
+                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors">编辑任务</button>
+                </template>
+                <template #container>
+                    <div v-if="Object.keys(settings.ext_tasks).length > 0">
+                        <div v-for="(v, act_type) in settings.ext_tasks" :key="act_type" class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3">
+                            <label :for="'act-type-name-' + act_type" class="mb-2 font-mono">ActType: {{ act_type }}</label>
+                            <p class="w-full mb-2">
+                                <span class="font-mono">Name: </span><input :id="'act-type-name-' + act_type" class="form-input bg-gray-200 dark:bg-gray-900 rounded-xl text-sm" type="text" v-model="settings.ext_tasks[act_type]" placeholder="Name" />
+                            </p>
+                            <button
+                                class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100"
+                                @click="
+                                    () => {
+                                        delete settings.ext_tasks[act_type]
+                                    }
+                                "
+                            >
+                                删除
+                            </button>
+                        </div>
+
+                        <hr class="border-gray-400 dark:border-gray-600 my-3" />
+                    </div>
+
+                    <div class="flex w-full rounded-xl mb-3">
+                        <input type="text" class="form-input bg-gray-200 dark:bg-gray-900 grow rounded-l-xl" v-model="extTaskActType" placeholder="ActType" />
+                        <button
+                            class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl"
+                            @click="
+                                () => {
+                                    settings.ext_tasks[extTaskActType] = ''
+                                    extTaskActType = ''
+                                }
+                            "
+                        >
+                            添加
+                        </button>
+                    </div>
+
+                    <ul class="mt-2 col-span-2 md:col-span-1 marker:text-pink-500 list-disc list-inside">
+                        <li>
+                            <span class="break-all font-mono mr-2 text-gray-100 bg-gray-800 py-1 px-2 rounded-lg select-all">ActType</span>和<span class="break-all font-mono mx-2 text-gray-100 bg-gray-800 py-1 px-2 rounded-lg select-all">Name</span
+                            >请自行查找，空白键值会被清理
+                        </li>
+                    </ul>
+                </template>
+            </Modal>
         </div>
 
         <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded-lg px-3 py-1 text-gray-100 transition-colors" @click="saveSettings">保存</button>
