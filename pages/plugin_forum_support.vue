@@ -206,7 +206,7 @@ onMounted(() => {
                 <template #container>
                     <label for="pid-to-add">账号</label>
                     <select id="pid-to-add" v-model="activePID" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl block w-full my-3">
-                        <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
+                        <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name || account.portrait }}</option>
                     </select>
                     <div class="" v-if="activePID">
                         <div class="my-1" v-for="character in list" :key="character.nid">

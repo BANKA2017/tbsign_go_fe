@@ -89,26 +89,9 @@ onMounted(() => {
 
     <div class="px-3 py-2">
         <h4 class="text-lg">最近 30 天抽奖记录</h4>
-
-        <button
-            :class="{
-                'px-3': true,
-                'py-1': true,
-                'rounded-lg': true,
-                'mr-2': true,
-                'my-2': true,
-                'bg-sky-500': activePID === account.id,
-                'hover:bg-sky-500': true,
-                'hover:text-gray-100': true,
-                'text-gray-100': activePID === account.id,
-                'transition-colors': true
-            }"
-            v-for="account in accounts"
-            :key="account.id"
-            @click="activePID = account.id"
-        >
-            {{ account.name }}
-        </button>
+        <select id="pid-to-knows-lottery" v-model="activePID" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select w-full md:w-auto block my-3 rounded-xl">
+            <option v-for="(name, pid) in pidNameKV" :key="pid" :value="Number(pid)">{{ name }}</option>
+        </select>
 
         <div v-if="loadingLogs">
             <div v-for="i in [1, 2, 3]" class="w-full h-12 rounded-xl bg-gray-300 dark:bg-gray-700 animate-pulse my-2"></div>
