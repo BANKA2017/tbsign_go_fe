@@ -51,6 +51,9 @@ const signup = (e: Event) => {
     }
 
     Request(store.basePath + '/passport/signup', {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
         method: 'POST',
         body: new URLSearchParams(tmpBody)
     })

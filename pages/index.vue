@@ -516,7 +516,8 @@ const loadingBackupData = () => {
 const exportAccount = (password = '') => {
     Request(store.basePath + '/passport/export', {
         headers: {
-            Authorization: store.authorization
+            Authorization: store.authorization,
+            'Content-Type': 'application/x-www-form-urlencoded'
         },
         method: 'POST',
         body: new URLSearchParams({
@@ -539,7 +540,8 @@ const exportAccount = (password = '') => {
 const importAccount = (password = '') => {
     Request(store.basePath + '/passport/import', {
         headers: {
-            Authorization: store.authorization
+            Authorization: store.authorization,
+            'Content-Type': 'application/x-www-form-urlencoded'
         },
         method: 'POST',
         body: new URLSearchParams({

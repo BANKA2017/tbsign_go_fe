@@ -61,6 +61,9 @@ const sendLogin = (e: Event) => {
         return
     }
     Request(store.basePath + '/passport/login', {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
         method: 'POST',
         body: new URLSearchParams({
             account: account.value,

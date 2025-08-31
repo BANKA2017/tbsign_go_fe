@@ -56,7 +56,7 @@ const modalSwitch = (value: Event | boolean) => {
         >
             <div ref="modal_dom" class="rounded-2xl pt-5 pb-12 px-5 overflow-x-auto" :style="{ 'max-height': size.innerHeight ? size.innerHeight + 'px' : '100vh' }">
                 <h5 class="mb-5 dark:text-gray-100 flex justify-between w-full">
-                    <span class="font-bold py-1">{{ title }}</span>
+                    <span class="font-bold py-1 grow truncate">{{ title }}</span>
                     <button
                         class="p-1"
                         @click="
