@@ -77,7 +77,11 @@ const sendLogin = (e: Event) => {
             }
             Notice('登录成功', 'success')
             if (res.data.token) {
-                store.updateAuthorization(res.data.token)
+                let token = res.data.token
+                if (runtimeConfig.public.NUXT_BASE_PATH && runtimeConfig.public.NUXT_USE_COOKIE_TOKEN) {
+                    token = 'cookie-token'
+                }
+                store.updateAuthorization(token)
                 navigateTo('/')
             }
         })

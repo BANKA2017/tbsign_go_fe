@@ -16,7 +16,7 @@
         <div class="p-3 flex flex-col justify-between gap-2">
             <div class="flex flex-col">
                 <div class="flex flex-col 3xs:flex-row justify-start gap-2">
-                    <div class="flex flex-col">
+                    <div class="flex flex-col min-w-[90px]">
                         <span class="text-2xl max-w-[250px] overflow-hidden truncate">{{ accountInfo.name }}</span>
                         <span class="text-sm max-w-[250px] overflow-hidden truncate">{{ accountInfo.email }}</span>
                     </div>
@@ -293,6 +293,7 @@ const store = useMainStore()
 const accountInfo = computed(() => store.cache?.accountInfo)
 const tbaccounts = computed(() => store.cache?.accounts || [])
 const notifications = ref<string>('')
+const runtimeConfig = useRuntimeConfig()
 
 watch(accountInfo, () => {
     settingsValue.email = accountInfo.value?.email || ''
@@ -414,7 +415,11 @@ const saveSettings = (e: Event) => {
                 return
             }
             Notice('密码修改成功', 'success')
-            store.updateAuthorization(res.data.token)
+            let token = res.data.token
+            if (runtimeConfig.public.NUXT_BASE_PATH && runtimeConfig.public.NUXT_USE_COOKIE_TOKEN) {
+                token = 'cookie-token'
+            }
+            store.updateAuthorization(token)
             //console.log(res)
         })
     } else if (settingsValue.password === settingsValue.new_password) {

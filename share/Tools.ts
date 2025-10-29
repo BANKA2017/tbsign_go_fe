@@ -25,7 +25,7 @@ export const Request = async (input: string | URL | globalThis.Request, init?: R
             return res.json()
         })
         .then((res) => {
-            if (init?.headers?.Authorization !== '' && res.code === 401) {
+            if (res.code === 401) {
                 // Notice(res.message, 'error')
                 store.logout()
                 if (['signin', 'signup', 'reset_password', 'add_base_path'].includes(routeName || '')) {

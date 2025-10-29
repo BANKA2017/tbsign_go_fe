@@ -13,6 +13,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
     // check status
     const store = useMainStore()
     const runtimeConfig = useRuntimeConfig()
+    const privateSite = !!runtimeConfig.public.NUXT_BASE_PATH
 
     if (!store.basePath) {
         try {
@@ -54,16 +55,17 @@ export default defineNuxtRouteMiddleware((to, from) => {
             validPath = true
         } catch {}
 
-        if ((!store.basePath || (!runtimeConfig.public.NUXT_BASE_PATH && !validPath)) && !['add_base_path'].includes(to.name as string)) {
+        if ((!store.basePath || (!privateSite && !validPath)) && !['add_base_path'].includes(to.name as string)) {
             return navigateTo('/add_base_path')
         }
     }
 
     // auth
-
     let authorization = store.authorization
 
-    if ((authorization || '').split(':').length !== 2) {
+    const useCookieToken = privateSite && runtimeConfig.public.NUXT_USE_COOKIE_TOKEN && authorization === 'cookie-token'
+
+    if (!useCookieToken && (authorization || '').split(':').length !== 3) {
         if (!['signin', 'signup', 'reset_password', 'add_base_path'].includes(to.name as string)) {
             return navigateTo('/signin')
         }
@@ -85,12 +87,11 @@ export default defineNuxtRouteMiddleware((to, from) => {
         return
     }
 
-    authorization = store.authorization
     if (!store.basePath) {
         return navigateTo('/add_base_path')
     }
 
-    if ((authorization || '').split(':').length !== 2) {
+    if (!useCookieToken && (authorization || '').split(':').length !== 3) {
         if (!store.cache?.config_page_login) {
             Request(store.basePath + '/config/page/login', {}, to.name?.toString() || null).then((res) => {
                 if (res.code !== 200) {

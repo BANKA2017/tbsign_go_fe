@@ -33,6 +33,12 @@
 
 编辑环境变量 `NUXT_BASE_PATH`，填入后端地址，即可成为专有前端
 
+##### Cookie 模式
+
+编辑环境变量 `NUXT_USE_COOKIE_TOKEN` 使其不为空，即可启用 cookie token，使用 cookie 传输账号令牌
+
+目前只支持位于 `/api` 的 api 端点
+
 #### 嵌入式前端
 
 请参考 [BANKA2017/tbsign_go#嵌入式前端](https://github.com/BANKA2017/tbsign_go?tab=readme-ov-file#%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%89%8D%E7%AB%AF)

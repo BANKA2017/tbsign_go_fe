@@ -1,4 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
+const proxyPath = process.env.NUXT_DEV_API_PROXY_BASE_PATH || ''
+let nuxtRouteRules: {[p in string]: any} = {}
+if (proxyPath) {
+    nuxtRouteRules['/api/**'] = { proxy: proxyPath + '/**' }
+}
+
 export default defineNuxtConfig({
     devtools: { enabled: true },
 
@@ -27,7 +34,8 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             NUXT_BASE_PATH: process.env.NUXT_BASE_PATH,
-            NUXT_COMMIT_HASH: process.env.NUXT_COMMIT_HASH
+            NUXT_COMMIT_HASH: process.env.NUXT_COMMIT_HASH,
+            NUXT_USE_COOKIE_TOKEN: !!process.env.NUXT_USE_COOKIE_TOKEN
         }
     },
 
@@ -89,6 +97,8 @@ export default defineNuxtConfig({
             ]
         }
     },
+
+    routeRules: nuxtRouteRules,
 
     compatibilityDate: '2024-11-10'
 })
