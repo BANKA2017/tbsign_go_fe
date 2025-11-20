@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 const proxyPath = process.env.NUXT_DEV_API_PROXY_BASE_PATH || ''
-let nuxtRouteRules: {[p in string]: any} = {}
+let nuxtRouteRules: { [p in string]: any } = {}
 if (proxyPath) {
     nuxtRouteRules['/api/**'] = { proxy: proxyPath + '/**' }
 }

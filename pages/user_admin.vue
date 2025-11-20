@@ -419,7 +419,7 @@ onMounted(() => {
 
                             <template v-else-if="activeAction === 'reset_plugin_status'">
                                 <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside">
-                                    <li>确认后将会清空对应账号的所有本站贴吧账号绑定本日的签到状态，会导致重签。</li>
+                                    <li>确认后将会清空该账号对应插件本日的签到状态，稍后将会自动重签。</li>
                                     <li>短时间内频繁提交可能会导致对应的账号被封禁，请谨慎使用本功能。</li>
                                     <li>部分插件无需重置状态，会一直返回成功</li>
                                 </ul>

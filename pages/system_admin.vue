@@ -107,7 +107,7 @@ const settingsGroup = ref({
     checkin: {
         name: '签到',
         data: {
-            sign_mode: '签到模式 (TODO)',
+            sign_mode: '签到模式',
             sign_hour: '下个整点签到 (-1 为 0 时开始签到，以此类推)',
             cron_limit: '单次单账号签到贴吧数量 (单次签到行为贴吧数量上限为 此值*3)',
             sign_sleep: '签到时间间隔 (ms)',
@@ -122,7 +122,7 @@ const settingsGroup = ref({
     },
     mail: {
         name: '邮件',
-        data: { mail_name: '发件人邮箱', mail_yourname: '发件人名称', mail_host: 'SMTP服务器地址', mail_port: 'SMTP服务器端口', mail_secure: '加密方式 (TODO)', mail_auth: '需要身份验证', mail_smtpname: 'SMTP用户名', mail_smtppw: 'SMTP密码' }
+        data: { mail_name: '发件人邮箱', mail_yourname: '发件人名称', mail_host: 'SMTP服务器地址', mail_port: 'SMTP服务器端口', mail_secure: '加密方式', mail_auth: '需要身份验证', mail_smtpname: 'SMTP用户名', mail_smtppw: 'SMTP密码' }
     },
     push: {
         name: '推送',
@@ -163,7 +163,14 @@ const SaveSettings = (e: Event) => {
             //console.log(res)
             return
         }
-        Notice('设置已保存', 'success')
+
+        if (res.message !== 'OK') {
+            const savedKeys = Object.keys(res.data)
+            Notice((savedKeys.length ? '部分设置已保存:<br />' + savedKeys.join(', ') + '<br /><br />' : '') + '以下设置未保存:<br />' + res.message.split('\n').join('<br /><br />'), 'error', 5000)
+            console.error(res.message)
+        } else {
+            Notice('设置已保存', 'success')
+        }
         //console.log(res)
     })
 }
@@ -523,7 +530,8 @@ onMounted(() => {
                                     v-model="serverSettings[key]"
                                 >
                                     <option value="0">关闭</option>
-                                    <option value="1">开启</option>
+                                    <option value="1">LOGIN</option>
+                                    <option value="2">PLAIN</option>
                                 </select>
                                 <select
                                     :id="'input-' + key"
