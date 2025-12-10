@@ -5,6 +5,14 @@ const props = defineProps({
     nested_modal: {
         type: Boolean,
         default: false
+    },
+    no_modal: {
+        type: Boolean,
+        default: false
+    },
+    no_close: {
+        type: Boolean,
+        default: false
     }
 })
 
@@ -13,11 +21,14 @@ const size = computed(() => store.size)
 
 const emit = defineEmits(['activeCallback'])
 
-const firstModalSwitch = ref<boolean>(false)
+const firstModalSwitch = ref<boolean>(props.active)
 const activeModal = ref<boolean>(false)
 const propsActive = computed(() => props.active)
 watch(propsActive, () => {
     activeModal.value = propsActive.value
+    if (!firstModalSwitch.value) {
+        firstModalSwitch.value = true
+    }
 })
 
 const modalSwitch = (value: Event | boolean) => {
@@ -34,6 +45,7 @@ const modalSwitch = (value: Event | boolean) => {
 <template>
     <div>
         <div
+            v-if="!no_modal"
             style="z-index: 19999"
             :class="`fixed top-0 left-0 transition-colors ` + (activeModal ? (nested_modal ? '' : 'bg-gray-200/60 dark:bg-gray-900/60 ') + ' h-[100vh] w-[100vw]' : 'h-0 w-0')"
             @click="
@@ -44,7 +56,7 @@ const modalSwitch = (value: Event | boolean) => {
             "
         ></div>
         <div @click="modalSwitch" class="inline w-full">
-            <slot> Click! </slot>
+            <slot />
         </div>
         <div
             style="z-index: 20000"
@@ -54,10 +66,11 @@ const modalSwitch = (value: Event | boolean) => {
                 (firstModalSwitch ? (activeModal ? 'modal-in' : 'modal-out') : 'hidden')
             "
         >
-            <div ref="modal_dom" class="rounded-2xl pt-5 pb-12 px-5 overflow-x-auto" :style="{ 'max-height': size.innerHeight ? size.innerHeight + 'px' : '100vh' }">
-                <h5 class="mb-5 dark:text-gray-100 flex justify-between w-full">
+            <div ref="modal_dom" class="rounded-2xl pt-2 pb-12 px-5 overflow-x-auto" :style="{ 'max-height': size.innerHeight ? size.innerHeight + 'px' : '100vh' }">
+                <h5 class="mb-2 dark:text-gray-100 flex justify-between w-full">
                     <span class="font-bold py-1 grow truncate">{{ title }}</span>
                     <button
+                        v-if="!no_close"
                         class="p-1"
                         @click="
                             (e) => {

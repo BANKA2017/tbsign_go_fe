@@ -13,25 +13,102 @@ const router = useRouter()
 
 const forumListKeys = ['id', 'uid', 'pid', 'fid', 'tieba', 'no', 'status', 'latest', 'last_error']
 
-const ForumListArr2Obj = (list = []) => list.map((forum) => Object.fromEntries(forum.map((v, i) => [forumListKeys[i], v])))
+const runtimeConfig = useRuntimeConfig()
+const onePageItemsCount = runtimeConfig.public.NUXT_ACCOUNT_FORUM_LIST_ONE_PAGE_COUNT || 100
 
-const list = ref<
-    {
-        fid: number
-        id: number
-        last_error: string
-        latest: number
-        no: boolean
-        pid: number
-        status: number
-        tieba: string
-        uid: number
-    }[]
->([])
+interface ForumListItem {
+    fid: number
+    id: number
+    last_error: string
+    latest: number
+    no: boolean
+    pid: number
+    status: number
+    tieba: string
+    uid: number
+
+    index: number
+}
+
+const ForumListArr2Obj: ForumListItem[] = (list = []) =>
+    list.map((forum, index) => {
+        let fl = Object.fromEntries(forum.map((v, i) => [forumListKeys[i], v]))
+        fl.index = index
+        return fl
+    })
+
+const list = ref<ForumListItem[]>([])
 const accounts = computed(() => store.cache?.accounts)
 const pidNameKV = computed(() => store.pidNameKV)
 
 const editMode = ref<boolean>(false)
+
+const batchList = ref<{ [p in number]: Set<number> }>({})
+
+const batchSize = computed(() => {
+    return Object.values(batchList.value).reduce((p, c) => p + c.size, 0)
+})
+
+const batchPid = computed(() => {
+    return Number(Object.keys(batchList.value)?.[0] || 0)
+})
+
+const batchAdd = (pid: number, fid: number) => {
+    if (!batchList.value[pid]) {
+        batchList.value[pid] = new Set<number>()
+    }
+    if (batchList.value[pid].has(fid)) {
+        return
+    }
+    batchList.value[pid].add(fid)
+}
+const batchDel = (pid: number, fid: number) => {
+    if (!batchList.value[pid]) {
+        return
+    }
+    batchList.value[pid].delete(fid)
+    if (batchList.value[pid].size === 0) {
+        delete batchList.value[pid]
+    }
+}
+
+const batchHas = (pid: number, fid: number) => {
+    if (!batchList.value[pid]) {
+        return false
+    }
+    return batchList.value[pid].has(fid)
+}
+
+const batchModify = (listIndex: number) => {
+    if (!editMode.value) {
+        return
+    }
+    const pid = list.value[listIndex]?.pid || 0
+    const fid = list.value[listIndex]?.fid || 0
+    if (batchList.value[pid] && batchList.value[pid].has(fid)) {
+        batchDel(pid, fid)
+    } else {
+        batchAdd(pid, fid)
+    }
+}
+
+const batchSelectAllInPage = (pid: number) => {
+    const accountIndex = accounts.value?.findIndex((acc) => acc.id === pid)
+    if (accountIndex <= -1) {
+        return
+    }
+
+    for (const tiebaItem of accountListFilterWrapper(accounts.value[accountIndex].id, accountIndex).slice(
+        onePageItemsCount * (accounts.value[accountIndex].page || 0),
+        onePageItemsCount + onePageItemsCount * (accounts.value[accountIndex].page || 0)
+    )) {
+        batchAdd(pid, tiebaItem.fid)
+    }
+}
+
+watch(editMode, () => {
+    batchList.value = {}
+})
 
 const checkAccountStatus = async () => {
     if (!accounts.value) {
@@ -94,10 +171,12 @@ const tbList = computed(() => {
         return {}
     }
     let _list: { [p in string]: any } = {}
-    for (const item of list.value) {
+    for (const index in list.value) {
+        const item = list.value[index]
         if (!_list[item.pid]) {
             _list[item.pid] = []
         }
+        item.index = Number(index)
         _list[item.pid].push(item)
     }
     return _list
@@ -151,7 +230,6 @@ const syncTiebaList = async () => {
         method: 'POST'
     })
         .then((res) => {
-            syncList.value = false
             if (res.code !== 200) {
                 Notice(res.message, 'error')
                 return
@@ -163,39 +241,67 @@ const syncTiebaList = async () => {
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
+        })
+        .finally(() => {
             syncList.value = false
         })
 }
 
-const updateIgnoreForum = (pid = 0, fid = 0) => {
-    if (pid <= 0 || fid <= 0) {
-        return
-    }
+const updateIgnoreForum = (pid = 0, fid: number | number[] = 0, forumIndex = -1, ignore = null) => {
+    let fidList = []
+    let batchMode = false
+    let forumInfo
 
-    let forumIndex = (list.value || []).map((forumData) => `${forumData?.pid || -1},${forumData?.fid || -1}`).indexOf(`${pid},${fid}`)
-
-    if (forumIndex === -1) {
+    if (Array.isArray(fid)) {
+        fidList = fid.filter((f) => {
+            const fIndex = list.value.findIndex((forum) => forum.pid === pid && forum.fid === f)
+            return fIndex > -1 && /\d+/.test(f.toString()) && f > 0
+        })
+        if (fidList.length === 0) {
+            Notice('无有效 fid', 'error')
+            return
+        }
+        batchMode = true
+    } else if (forumIndex <= -1) {
         Notice('pid:' + pid + '/fid:' + fid + ' 不存在')
         return
+    } else {
+        forumInfo = list.value[forumIndex]
+        fidList = [fid]
     }
-    const forumInfo = list.value[forumIndex]
-    Request(store.basePath + '/list/' + forumInfo.pid + '/' + forumInfo.fid + '/ignore', {
+
+    Request(store.basePath + '/list/' + pid + '/' + fidList.join(',') + '/ignore', {
         headers: {
             Authorization: store.authorization
         },
-        method: forumInfo?.no ? 'DELETE' : 'PATCH'
+        method: (!batchMode && typeof ignore !== 'boolean' && forumInfo?.no) || ignore ? 'DELETE' : 'PATCH'
     })
         .then((res) => {
             if (res.code !== 200) {
                 return
             }
-            Notice((res.data.no ? '已忽略 ' : '已恢复 ') + pidNameKV.value[res.data.pid] + '/' + list.value[forumIndex]?.tieba || 'fid:' + list.value[forumIndex]?.fid, 'success')
-            list.value[forumIndex].no = res.data.no
+            if (batchMode) {
+                let count = res.data.fid.valid_fid.length
+                if (count > 0) {
+                    list.value
+                        .filter((l) => l.pid === pid && res.data.fid.valid_fid.includes(l.fid))
+                        .forEach((l) => {
+                            l.no = res.data.no
+                        })
+                }
+                Notice((res.data.no ? '已忽略 ' : '已恢复 ') + pidNameKV.value[pid] + '的' + count + '个贴吧', 'success')
+            } else {
+                Notice((res.data.no ? '已忽略 ' : '已恢复 ') + pidNameKV.value[pid] + '/' + list.value[forumIndex]?.tieba || 'fid:' + list.value[forumIndex]?.fid, 'success')
+                list.value[forumIndex].no = res.data.no
+            }
             //console.log(res)
         })
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
+        })
+        .finally(() => {
+            batchList.value = {}
         })
 }
 
@@ -224,19 +330,30 @@ const getForumList = () => {
         })
 }
 
-const deleteForum = (pid = 0, fid = 0) => {
-    if (pid <= 0 || fid <= 0) {
-        return
-    }
+const deleteForum = (pid = 0, fid = 0, forumIndex = -1) => {
+    let fidList = []
+    let batchMode = false
+    let forumInfo
 
-    let forumIndex = (list.value || []).map((forumData) => `${forumData?.pid || -1},${forumData?.fid || -1}`).indexOf(`${pid},${fid}`)
-
-    if (forumIndex === -1) {
+    if (Array.isArray(fid)) {
+        fidList = fid.filter((f) => {
+            const fIndex = list.value.findIndex((forum) => forum.pid === pid && forum.fid === f)
+            return fIndex > -1 && /\d+/.test(f.toString()) && f > 0
+        })
+        if (fidList.length === 0) {
+            Notice('无有效 fid', 'error')
+            return
+        }
+        batchMode = true
+    } else if (forumIndex <= -1) {
         Notice('pid:' + pid + '/fid:' + fid + ' 不存在')
         return
+    } else {
+        forumInfo = list.value[forumIndex]
+        fidList = [fid]
     }
-    const forumInfo = list.value[forumIndex]
-    Request(store.basePath + '/list/' + forumInfo.pid + '/' + forumInfo.fid, {
+
+    Request(store.basePath + '/list/' + pid + '/' + fidList.join(','), {
         headers: {
             Authorization: store.authorization
         },
@@ -247,29 +364,50 @@ const deleteForum = (pid = 0, fid = 0) => {
                 Notice(res.message, 'error')
                 return
             }
-            Notice('已删除 ' + pidNameKV.value[pid] + '/' + list.value[forumIndex]?.tieba || 'fid:' + list.value[forumIndex]?.fid, 'success')
-            list.value = list.value.slice(0, forumIndex).concat(list.value.slice(forumIndex + 1))
+            if (batchMode) {
+                let count = res.data.valid_fid.length
+                if (count > 0) {
+                    list.value = list.value.filter((l) => !(l.pid === pid && res.data.valid_fid.includes(l.fid)))
+                }
+                Notice('已删除 ' + pidNameKV.value[pid] + '的' + count + '个贴吧', 'success')
+            } else {
+                Notice('已删除 ' + pidNameKV.value[pid] + '/' + list.value[forumIndex]?.tieba || 'fid:' + list.value[forumIndex]?.fid, 'success')
+                list.value = list.value.slice(0, forumIndex).concat(list.value.slice(forumIndex + 1))
+            }
             //console.log(res)
         })
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
         })
+        .finally(() => {
+            batchList.value = {}
+        })
 }
 
-const resetForum = (pid = 0, fid = 0) => {
-    if (pid <= 0 || fid <= 0) {
-        return
-    }
+const resetForum = (pid = 0, fid = 0, forumIndex = -1) => {
+    let fidList = []
+    let batchMode = false
+    let forumInfo
 
-    let forumIndex = (list.value || []).map((forumData) => `${forumData?.pid || -1},${forumData?.fid || -1}`).indexOf(`${pid},${fid}`)
-
-    if (forumIndex === -1) {
+    if (Array.isArray(fid)) {
+        fidList = fid.filter((f) => {
+            const fIndex = list.value.findIndex((forum) => forum.pid === pid && forum.fid === f)
+            return fIndex > -1 && /\d+/.test(f.toString()) && f > 0
+        })
+        if (fidList.length === 0) {
+            Notice('无有效 fid', 'error')
+            return
+        }
+        batchMode = true
+    } else if (forumIndex <= -1) {
         Notice('pid:' + pid + '/fid:' + fid + ' 不存在')
         return
+    } else {
+        forumInfo = list.value[forumIndex]
+        fidList = [fid]
     }
-    const forumInfo = list.value[forumIndex]
-    Request(store.basePath + '/list/' + forumInfo.pid + '/' + forumInfo.fid + '/reset', {
+    Request(store.basePath + '/list/' + pid + '/' + fidList.join(',') + '/reset', {
         headers: {
             Authorization: store.authorization
         },
@@ -280,13 +418,28 @@ const resetForum = (pid = 0, fid = 0) => {
                 Notice(res.message, 'error')
                 return
             }
-            Notice('已重置 ' + pidNameKV.value[pid] + '/' + list.value[forumIndex]?.tieba || 'fid:' + list.value[forumIndex]?.fid + ' 的签到状态', 'success')
-            list.value[forumIndex].latest = 0
+            if (batchMode) {
+                let count = res.data.valid_fid.length
+                if (count > 0) {
+                    list.value
+                        .filter((l) => l.pid === pid && res.data.valid_fid.includes(l.fid))
+                        .forEach((l) => {
+                            l.latest = 0
+                        })
+                }
+                Notice('已重置 ' + pidNameKV.value[pid] + '的' + count + '个贴吧', 'success')
+            } else {
+                Notice('已重置 ' + pidNameKV.value[pid] + '/' + list.value[forumIndex]?.tieba || 'fid:' + list.value[forumIndex]?.fid + ' 的签到状态', 'success')
+                list.value[forumIndex].latest = 0
+            }
             //console.log(res)
         })
         .catch((e) => {
             console.error(e)
             Notice(e.toString(), 'error')
+        })
+        .finally(() => {
+            batchList.value = {}
         })
 }
 
@@ -510,8 +663,8 @@ const accountListFilterWrapper = (id: number, accountIndex: number) => {
             return tiebaItem.tieba.toString().includes(accounts.value[accountIndex].search)
         })
     // effect
-    if (tmpList.length / 100 < accounts.value[accountIndex].page) {
-        accounts.value[accountIndex].page = tmpList.length > 0 ? Math.ceil(tmpList.length / 100) - 1 : 0
+    if (tmpList.length / onePageItemsCount < accounts.value[accountIndex].page) {
+        accounts.value[accountIndex].page = tmpList.length > 0 ? Math.ceil(tmpList.length / onePageItemsCount) - 1 : 0
     }
     return tmpList
 }
@@ -750,9 +903,9 @@ onMounted(() => {
                             v-model="accounts[index].page"
                             class="rounded-xl bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select block w-24 mx-1 my-1 text-sm h-10"
                             placeholder="页码"
-                            v-show="new Array(Math.ceil((accountListFilterWrapper(account.id, index) || []).length / 100)).length > 0"
+                            v-show="new Array(Math.ceil((accountListFilterWrapper(account.id, index) || []).length / onePageItemsCount)).length > 0"
                         >
-                            <option :value="i" v-for="i in Object.keys(new Array(Math.ceil((accountListFilterWrapper(account.id, index) || []).length / 100)).fill(null))">第{{ Number(i) + 1 }}页</option>
+                            <option :value="i" v-for="i in Object.keys(new Array(Math.ceil((accountListFilterWrapper(account.id, index) || []).length / onePageItemsCount)).fill(null))">第{{ Number(i) + 1 }}页</option>
                         </select>
                         <select
                             title="筛选"
@@ -779,13 +932,30 @@ onMounted(() => {
             </div>
             <div
                 :class="{ 'list-in': accounts[index].more, 'list-out': !accounts[index].more, 'z-0': true, 'px-3': true, 'pb-2': true, ' rounded-b-2xl': true }"
-                :style="{ 'max-height': accounts[index].more ? (accountListFilterWrapper(account.id, index).slice(100 * (accounts[index].page || 0), 100 + 100 * (accounts[index].page || 0)).length * 3 + 8) * 2 + 'rem' : 0 }"
+                :style="{
+                    'max-height': accounts[index].more
+                        ? (accountListFilterWrapper(account.id, index).slice(onePageItemsCount * (accounts[index].page || 0), onePageItemsCount + onePageItemsCount * (accounts[index].page || 0)).length * 3 + 8) * 2 + 'rem'
+                        : 0
+                }"
             >
                 <input type="text" placeholder="搜索贴吧列表" v-model="accounts[index].search" class="block w-full bg-gray-200 dark:bg-gray-900 rounded-xl my-3" />
 
-                <div v-for="(tiebaItem, i) in accountListFilterWrapper(account.id, index).slice(100 * (accounts[index].page || 0), 100 + 100 * (accounts[index].page || 0))" :key="account.id + '_' + i">
-                    <hr v-if="i > 0" class="border-gray-400 dark:border-gray-600 my-1" />
-                    <div class="flex justify-between">
+                <div v-for="(tiebaItem, i) in accountListFilterWrapper(account.id, index).slice(onePageItemsCount * (accounts[index].page || 0), onePageItemsCount + onePageItemsCount * (accounts[index].page || 0))" :key="account.id + '_' + i">
+                    <hr v-if="i > 0" class="border-gray-400 dark:border-gray-600" />
+                    <div
+                        :class="{
+                            flex: true,
+                            'justify-between': true,
+                            'py-1': true,
+                            'bg-gray-300': batchHas(tiebaItem.pid, tiebaItem.fid),
+                            'dark:bg-gray-700': batchHas(tiebaItem.pid, tiebaItem.fid),
+                            'cursor-pointer': editMode,
+                            '-mx-2': editMode,
+                            'px-2': editMode,
+                            'rounded-xl': editMode
+                        }"
+                        @click="batchModify(tiebaItem.index)"
+                    >
                         <div class="flex flex-col">
                             <div>
                                 <NuxtLink class="hover:underline underline-offset-2" :to="`https://tieba.baidu.com/f?kw=${tiebaItem.tieba}`" target="blank">{{ tiebaItem.tieba }}</NuxtLink>
@@ -803,7 +973,7 @@ onMounted(() => {
                             <button
                                 v-show="editMode"
                                 class="transition-colors rounded-full text-pink-500"
-                                @click="deleteForum(tiebaItem.pid, tiebaItem.fid)"
+                                @click.stop="deleteForum(tiebaItem.pid, tiebaItem.fid, tiebaItem.index)"
                                 :title="'删除贴吧 ' + account.name + '/' + tiebaItem.tieba"
                                 :aria-label="'删除贴吧 ' + account.name + '/' + tiebaItem.tieba"
                             >
@@ -826,9 +996,9 @@ onMounted(() => {
                             <button
                                 v-show="editMode"
                                 class="transition-colors text-gray-500"
-                                @click="updateIgnoreForum(tiebaItem.pid, tiebaItem.fid)"
-                                :title="'忽略签到贴吧 ' + account.name + '/' + tiebaItem.tieba"
-                                :aria-label="'忽略签到贴吧 ' + account.name + '/' + tiebaItem.tieba"
+                                @click.stop="updateIgnoreForum(tiebaItem.pid, tiebaItem.fid, tiebaItem.index)"
+                                :title="(tiebaItem.no ? '(已忽略)' : '(未忽略)') + '忽略签到贴吧 ' + account.name + '/' + tiebaItem.tieba"
+                                :aria-label="(tiebaItem.no ? '(已忽略)' : '(未忽略)') + '忽略签到贴吧 ' + account.name + '/' + tiebaItem.tieba"
                             >
                                 <uno-icon v-if="tiebaItem.no" class="i-bi:dash-circle-fill" style="width: 1.5em; height: 1.5em" />
                                 <uno-icon v-else class="i-bi:dash-circle-dotted" style="width: 1.5em; height: 1.5em" />
@@ -836,7 +1006,7 @@ onMounted(() => {
                             <button
                                 v-show="editMode"
                                 class="transition-colors text-orange-500"
-                                @click="resetForum(tiebaItem.pid, tiebaItem.fid)"
+                                @click.stop="resetForum(tiebaItem.pid, tiebaItem.fid, tiebaItem.index)"
                                 :title="'重置签到状态 ' + account.name + '/' + tiebaItem.tieba"
                                 :aria-label="'重置签到状态 ' + account.name + '/' + tiebaItem.tieba"
                             >
@@ -875,6 +1045,39 @@ onMounted(() => {
     >
         <uno-icon :class="{ 'i-bi:arrow-clockwise': true, 'animate-spin': loading }" />
     </div>
+    <Modal
+        class="col-span-3 md:col-span-1"
+        :title="'已为 ' + pidNameKV[batchPid] + ' 选择 ' + batchSize + ' 个贴吧'"
+        :aria-label="'已选择 ' + batchSize + ' 个贴吧'"
+        :active="batchSize > 0"
+        :no_modal="true"
+        @active-callback="
+            (c) => {
+                if (!c) {
+                    batchList = {}
+                }
+            }
+        "
+    >
+        <template #default></template>
+        <template #container>
+            <p v-if="!editMode">请点击 “编辑列表” 按钮</p>
+            <p v-else-if="Object.keys(batchList).length !== 1">暂不支持多账号批处理</p>
+            <p v-else-if="batchList[batchPid].size === 0">请至少选择一个贴吧</p>
+            <div v-else>
+                <button class="border-pink-500 hover:border-pink-600 dark:hover:border-pink-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-1" @click="deleteForum(batchPid, [...batchList[batchPid]], -1)">删除</button>
+                <button class="border-gray-500 hover:border-gray-600 dark:hover:border-gray-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-1" @click="updateIgnoreForum(batchPid, [...batchList[batchPid]], -1, false)">忽略</button>
+                <button
+                    class="border-gray-500 hover:border-gray-600 dark:hover:border-gray-400 border-2 border-dotted hover:border-dashed px-3 py-1 rounded-lg transition-colors mr-3 mb-1"
+                    @click="updateIgnoreForum(batchPid, [...batchList[batchPid]], -1, true)"
+                >
+                    取消忽略
+                </button>
+                <button class="border-orange-500 hover:border-orange-600 dark:hover:border-orange-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-1" @click="resetForum(batchPid, [...batchList[batchPid]], -1)">重置</button>
+                <button class="border-sky-500 hover:border-sky-600 dark:hover:border-sky-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-1" @click="batchSelectAllInPage(batchPid)">全选</button>
+            </div>
+        </template>
+    </Modal>
 </template>
 
 <style scoped></style>

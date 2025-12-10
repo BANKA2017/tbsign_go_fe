@@ -35,7 +35,8 @@ export default defineNuxtConfig({
         public: {
             NUXT_BASE_PATH: process.env.NUXT_BASE_PATH,
             NUXT_COMMIT_HASH: process.env.NUXT_COMMIT_HASH,
-            NUXT_USE_COOKIE_TOKEN: !!process.env.NUXT_USE_COOKIE_TOKEN
+            NUXT_USE_COOKIE_TOKEN: !!process.env.NUXT_USE_COOKIE_TOKEN,
+            NUXT_ACCOUNT_FORUM_LIST_ONE_PAGE_COUNT: parseInt(process.env.NUXT_ACCOUNT_FORUM_LIST_ONE_PAGE_COUNT || '100', 10)
         }
     },
 
