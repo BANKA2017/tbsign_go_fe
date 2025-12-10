@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { reactive } from 'vue'
-import { useMainStore } from '~/stores/main'
 
 const store = useMainStore()
 const runtimeConfig = useRuntimeConfig()

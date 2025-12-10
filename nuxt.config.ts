@@ -41,7 +41,6 @@ export default defineNuxtConfig({
     },
 
     modules: [
-        'nuxt-lodash',
         '@vueuse/nuxt',
         '@nuxtjs/tailwindcss',
         '@unocss/nuxt',
@@ -57,7 +56,7 @@ export default defineNuxtConfig({
     ],
 
     imports: {
-        dirs: ['./stores']
+        dirs: ['./app/stores']
     },
 
     experimental: {
