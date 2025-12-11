@@ -7,7 +7,7 @@
                     <select id="endpoint" class="bg-gray-100 dark:bg-gray-900 rounded-xl" v-model="basePath">
                         <option v-for="endpoint in endpointList" :key="endpoint" :value="endpoint">{{ endpoint }}</option>
                     </select>
-                    <NuxtLink to="add_base_path" class="text-sm underline underline-offset-2">添加端点</NuxtLink>
+                    <NuxtLink to="add-base-path" class="text-sm underline underline-offset-2">添加端点</NuxtLink>
                 </template>
 
                 <label for="email">账号</label>

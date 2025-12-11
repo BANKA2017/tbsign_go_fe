@@ -54,17 +54,17 @@
 </template>
 
 <script setup lang="ts">
-import MainTitle from '~/components/MainTitle'
-import Footer from '~/components/Footer'
-import Loading from '~/components/Loading'
+import MainTitle from '~/components/MainTitle.vue'
+import Footer from '~/components/Footer.vue'
+import Loading from '~/components/Loading.vue'
 import ScrollTo from '~/share/ScrollTo'
 
 const store = useMainStore()
-const account_info = computed(() => store._cache?.accountInfo || {})
+const account_info = computed(() => store._cache?.accountInfo || { uid: 0 })
 
 const router = useRouter()
 
-const isNotLoginPath = computed(() => ['signin', 'signup', 'reset_password', 'add_base_path'].includes(router.currentRoute.value.name?.toString() || ''))
+const isNotLoginPath = computed(() => ['signin', 'signup', 'reset-password', 'add-base-path'].includes(router.currentRoute.value.name?.toString() || ''))
 
 const isLoading = computed(() => !isNotLoginPath.value && Number(account_info.value?.uid || 0) <= 0)
 </script>

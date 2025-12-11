@@ -55,8 +55,8 @@ export default defineNuxtRouteMiddleware((to, from) => {
             validPath = true
         } catch {}
 
-        if ((!store.basePath || (!privateSite && !validPath)) && !['add_base_path'].includes(to.name as string)) {
-            return navigateTo('/add_base_path')
+        if ((!store.basePath || (!privateSite && !validPath)) && !['add-base-path'].includes(to.name as string)) {
+            return navigateTo('/add-base-path')
         }
     }
 
@@ -66,10 +66,10 @@ export default defineNuxtRouteMiddleware((to, from) => {
     const useCookieToken = privateSite && runtimeConfig.public.NUXT_USE_COOKIE_TOKEN && authorization === 'cookie-token'
 
     if (!useCookieToken && (authorization || '').split(':').length !== 3) {
-        if (!['signin', 'signup', 'reset_password', 'add_base_path'].includes(to.name as string)) {
+        if (!['signin', 'signup', 'reset-password', 'add-base-path'].includes(to.name as string)) {
             return navigateTo('/signin')
         }
-    } else if (['signin', 'signup', 'reset_password'].includes(to.name as string)) {
+    } else if (['signin', 'signup', 'reset-password'].includes(to.name as string)) {
         return navigateTo('/')
     }
 
@@ -83,12 +83,12 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
     // init-cache
 
-    if (to.name === 'add_base_path') {
+    if (to.name === 'add-base-path') {
         return
     }
 
     if (!store.basePath) {
-        return navigateTo('/add_base_path')
+        return navigateTo('/add-base-path')
     }
 
     if (!useCookieToken && (authorization || '').split(':').length !== 3) {
@@ -131,7 +131,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
                             }
                             store.updateCache(
                                 'accounts',
-                                (res.data || []).map((account) => ({
+                                (res.data || []).map((account: any[]) => ({
                                     id: account[0],
                                     uid: account[1],
                                     name: account[2],

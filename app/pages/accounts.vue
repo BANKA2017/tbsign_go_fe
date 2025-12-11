@@ -30,15 +30,15 @@ interface ForumListItem {
     index: number
 }
 
-const ForumListArr2Obj: ForumListItem[] = (list = []) =>
+const ForumListArr2Obj = (list: any[][] = []) =>
     list.map((forum, index) => {
         let fl = Object.fromEntries(forum.map((v, i) => [forumListKeys[i], v]))
         fl.index = index
         return fl
-    })
+    }) as ForumListItem[]
 
 const list = ref<ForumListItem[]>([])
-const accounts = computed(() => store.cache?.accounts)
+const accounts = computed(() => store.cache?.accounts || [])
 const pidNameKV = computed(() => store.pidNameKV)
 
 const editMode = ref<boolean>(false)
@@ -93,16 +93,18 @@ const batchModify = (listIndex: number) => {
 }
 
 const batchSelectAllInPage = (pid: number) => {
-    const accountIndex = accounts.value?.findIndex((acc) => acc.id === pid)
-    if (accountIndex <= -1) {
-        return
-    }
-
-    for (const tiebaItem of accountListFilterWrapper(accounts.value[accountIndex].id, accountIndex).slice(
-        onePageItemsCount * (accounts.value[accountIndex].page || 0),
-        onePageItemsCount + onePageItemsCount * (accounts.value[accountIndex].page || 0)
-    )) {
-        batchAdd(pid, tiebaItem.fid)
+    let accountIndex = -1
+    const account = accounts.value?.find((acc, i) => {
+        if (acc.id === pid) {
+            accountIndex = i
+            return true
+        }
+        return false
+    })
+    if (account) {
+        for (const tiebaItem of accountListFilterWrapper(account.id, accountIndex).slice(onePageItemsCount * (account.page || 0), onePageItemsCount + onePageItemsCount * (account.page || 0))) {
+            batchAdd(pid, tiebaItem.fid)
+        }
     }
 }
 
@@ -111,11 +113,11 @@ watch(editMode, () => {
 })
 
 const checkAccountStatus = async () => {
-    if (!accounts.value) {
+    if (accounts.value.length === 0) {
         return
     }
-    for (const accountIndex in accounts.value) {
-        Request(store.basePath + '/account/' + accounts.value[accountIndex].id + '/status', {
+    for (const account of accounts.value) {
+        Request(store.basePath + '/account/' + account.id + '/status', {
             headers: {
                 Authorization: store.authorization
             }
@@ -123,7 +125,7 @@ const checkAccountStatus = async () => {
             if (res.code !== 200) {
                 return
             }
-            accounts.value[accountIndex].status = res.data
+            account.status = res.data
             //console.log(res)
         })
     }
@@ -170,14 +172,17 @@ const tbList = computed(() => {
     if (!list.value || !accounts.value) {
         return {}
     }
-    let _list: { [p in string]: any } = {}
+    let _list: Record<number | string, ForumListItem[]> = {}
     for (const index in list.value) {
         const item = list.value[index]
-        if (!_list[item.pid]) {
-            _list[item.pid] = []
+        if (item) {
+            const pid = item.pid.toString()
+            if (!_list[pid]) {
+                _list[pid] = []
+            }
+            item.index = Number(index)
+            _list[pid].push(item)
         }
-        item.index = Number(index)
-        _list[item.pid].push(item)
     }
     return _list
 })
@@ -186,13 +191,16 @@ const tblistFilter = computed(() => {
     if (Object.keys(tbList.value).length === 0) {
         return {}
     }
-    let _list: { [p in string]: any } = {}
+    let _list: Record<string, { success: number; failed: number; pending: number; ignore: number }> = {}
     for (const pid in tbList.value) {
-        _list[pid] = {
-            success: tbList.value[pid].filter((item) => !item.no && item.status === 0 && new Date().getDate() === item.latest).length,
-            failed: tbList.value[pid].filter((item) => !item.no && item.status !== 0 && new Date().getDate() === item.latest).length,
-            pending: tbList.value[pid].filter((item) => !item.no && new Date().getDate() !== item.latest).length,
-            ignore: tbList.value[pid].filter((item) => item.no).length
+        const pidItem = tbList.value[pid]
+        if (pidItem) {
+            _list[pid] = {
+                success: pidItem.filter((item) => !item.no && item.status === 0 && new Date().getDate() === item.latest).length,
+                failed: pidItem.filter((item) => !item.no && item.status !== 0 && new Date().getDate() === item.latest).length,
+                pending: pidItem.filter((item) => !item.no && new Date().getDate() !== item.latest).length,
+                ignore: pidItem.filter((item) => item.no).length
+            }
         }
     }
     return _list
@@ -247,7 +255,7 @@ const syncTiebaList = async () => {
         })
 }
 
-const updateIgnoreForum = (pid = 0, fid: number | number[] = 0, forumIndex = -1, ignore = null) => {
+const updateIgnoreForum = (pid = 0, fid: number | number[] = 0, forumIndex = -1, ignore: boolean | null = null) => {
     let fidList = []
     let batchMode = false
     let forumInfo
@@ -330,7 +338,7 @@ const getForumList = () => {
         })
 }
 
-const deleteForum = (pid = 0, fid = 0, forumIndex = -1) => {
+const deleteForum = (pid = 0, fid: number | number[] = 0, forumIndex = -1) => {
     let fidList = []
     let batchMode = false
     let forumInfo
@@ -385,7 +393,7 @@ const deleteForum = (pid = 0, fid = 0, forumIndex = -1) => {
         })
 }
 
-const resetForum = (pid = 0, fid = 0, forumIndex = -1) => {
+const resetForum = (pid = 0, fid: number | number[] = 0, forumIndex = -1) => {
     let fidList = []
     let batchMode = false
     let forumInfo
@@ -1063,7 +1071,7 @@ onMounted(() => {
         <template #container>
             <p v-if="!editMode">请点击 “编辑列表” 按钮</p>
             <p v-else-if="Object.keys(batchList).length !== 1">暂不支持多账号批处理</p>
-            <p v-else-if="batchList[batchPid].size === 0">请至少选择一个贴吧</p>
+            <p v-else-if="batchList[batchPid]?.size === 0">请至少选择一个贴吧</p>
             <div v-else>
                 <button class="border-pink-500 hover:border-pink-600 dark:hover:border-pink-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-1" @click="deleteForum(batchPid, [...batchList[batchPid]], -1)">删除</button>
                 <button class="border-gray-500 hover:border-gray-600 dark:hover:border-gray-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-1" @click="updateIgnoreForum(batchPid, [...batchList[batchPid]], -1, false)">忽略</button>

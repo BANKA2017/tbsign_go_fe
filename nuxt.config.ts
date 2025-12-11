@@ -1,9 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 const proxyPath = process.env.NUXT_DEV_API_PROXY_BASE_PATH || ''
-let nuxtRouteRules: { [p in string]: any } = {}
+let proxyRouteRules: Record<string, any> = {}
 if (proxyPath) {
-    nuxtRouteRules['/api/**'] = { proxy: proxyPath + '/**' }
+    proxyRouteRules['/api/**'] = { proxy: proxyPath + '/**' }
 }
 
 export default defineNuxtConfig({
@@ -74,14 +74,15 @@ export default defineNuxtConfig({
 
     routeRules: {
         '/signin': { ssr: true },
-        '/reset_password': { ssr: true },
+        '/reset-password': { ssr: true },
         '/signup': { ssr: true },
-        '/add_base_path': { prerender: true },
+        '/add-base-path': { prerender: true },
         '/': { ssr: false },
         '/settings': { ssr: false },
         '/accounts': { ssr: false },
-        '/user_admin': { ssr: false },
-        '/system_admin': { ssr: false }
+        '/admin/user': { ssr: false },
+        '/admin/system': { ssr: false },
+        ...proxyRouteRules
     },
 
     app: {
@@ -97,8 +98,6 @@ export default defineNuxtConfig({
             ]
         }
     },
-
-    routeRules: nuxtRouteRules,
 
     compatibilityDate: '2024-11-10'
 })

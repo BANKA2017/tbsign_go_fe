@@ -25,19 +25,24 @@ interface MainStoreState {
             stoken: string
             name: string
             portrait: string
+
+            status?: boolean
+            page?: number
         }[]
         plugin_list?: {
-            name: string
-            ver: string
-            status: boolean
-            plugin_name_cn: string
-            plugin_name_cn_short: string
-            plugin_name_fe: string
-            setting_options: {
-                option_name: string
-                option_name_cn: string
-            }[]
-        }[]
+            [p in string]: {
+                name: string
+                ver: string
+                status: boolean
+                plugin_name_cn: string
+                plugin_name_cn_short: string
+                plugin_name_fe: string
+                setting_options: {
+                    option_name: string
+                    option_name_cn: string
+                }[]
+            }
+        }
     }
     icp?: string
     size: {
@@ -66,7 +71,7 @@ export const useMainStore = defineStore('main', {
         authorization(): string {
             return this.config[this._basePath]?.authorization || ''
         },
-        cache(): any {
+        cache(): MainStoreState['_cache'] {
             return this._cache
         },
         basePath(): string {
@@ -99,7 +104,7 @@ export const useMainStore = defineStore('main', {
                 localStorage.setItem('tc_config', JSON.stringify(this.config))
             }
         },
-        updateCache(k: string, v: any) {
+        updateCache(k: keyof MainStoreState['_cache'], v: any) {
             this.$state._cache[k] = v
         },
         logout() {

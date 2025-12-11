@@ -252,7 +252,7 @@ const tenMinutesDelay = ref<boolean>(true)
 const getReleasesList = () => {
     Request('https://api.github.com/repos/banka2017/tbsign_go/releases?per_page=6')
         .then((res) => {
-            releaseList.value = res.sort((a, b) => (a.published_at < b.published_at ? 1 : -1)).filter((x) => x.tag_name.startsWith('tbsign_go.'))
+            releaseList.value = res.sort((a: any, b: any) => (a.published_at < b.published_at ? 1 : -1)).filter((x) => x.tag_name.startsWith('tbsign_go.'))
             const currentIndex = releaseList.value.map((x) => x.tag_name.replace('tbsign_go.', '')).indexOf(fullVersion.value)
             if (currentIndex > -1) {
                 releaseList.value = releaseList.value.filter((_, i) => i <= currentIndex)
@@ -440,7 +440,7 @@ onMounted(() => {
                 <div class="p-3 grid grid-cols-2 gap-2">
                     <div class="col-span-2 md:col-span-1" v-for="(release, i) in releaseList.filter((x) => !tenMinutesDelay || Number(new Date(x.published_at)) + 1000 * 60 * 10 < Date.now())" :key="release.tag_name">
                         <UpdateSystemItem
-                            :item="release.assets.find((x) => x.name.endsWith(Object.values(serverGoStatus).join('-') + (serverGoStatus.os === 'windows' ? '.exe' : '')))"
+                            :item="release.assets.find((x: any) => x.name.endsWith(Object.values(serverGoStatus).join('-') + (serverGoStatus.os === 'windows' ? '.exe' : '')))"
                             :url="release.html_url"
                             :current="fullVersion"
                             :os="serverGoStatus.os"

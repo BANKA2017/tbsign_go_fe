@@ -28,7 +28,7 @@ export const Request = async (input: string | URL | globalThis.Request, init?: R
             if (res.code === 401) {
                 // Notice(res.message, 'error')
                 store.logout()
-                if (['signin', 'signup', 'reset_password', 'add_base_path'].includes(routeName || '')) {
+                if (['signin', 'signup', 'reset-password', 'add-base-path'].includes(routeName || '')) {
                     navigateTo(routeName)
                 } else {
                     navigateTo('/signin')
@@ -79,6 +79,10 @@ export const ReadFileData = async (id = 'uploadFile'): Promise<any> => {
             reject(new Error('File reading failed'))
         }
 
-        fileReader.readAsText(file)
+        if (file) {
+            fileReader.readAsText(file)
+        } else {
+            console.error('invalid file')
+        }
     })
 }

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 const store = useMainStore()
 const runtimeConfig = useRuntimeConfig()
 const showList = ref<boolean>(false)
@@ -17,12 +16,12 @@ const state = reactive<{
         { name: '首页', to: '/', routeName: 'index', active: true, show: true, sort: 0 },
         // { name: '个人设置', to: '/settings', routeName: 'settings', active: false, show: true, sort: 1 },
         { name: '百度账号管理', to: '/accounts', routeName: 'accounts', active: false, show: true, sort: 2 },
-        { name: '用户管理', to: '/user_admin', routeName: 'user_admin', active: false, show: true, sort: 4 },
-        { name: '系统管理', to: '/system_admin', routeName: 'system_admin', active: false, show: true, sort: 5 },
+        { name: '用户管理', to: '/admin/user', routeName: 'admin-user', active: false, show: true, sort: 4 },
+        { name: '系统管理', to: '/admin/system', routeName: 'admin-system', active: false, show: true, sort: 5 },
         { name: '登录', to: '/signin', routeName: 'signin', active: false, show: true, sort: 7 },
         { name: '注册', to: '/signup', routeName: 'signup', active: false, show: true, sort: 8 },
-        { name: '找回密码', to: '/reset_password', routeName: 'reset_password', active: false, show: true, sort: 9 },
-        { name: '接口控制', to: '/add_base_path', routeName: 'add_base_path', active: false, show: true, sort: 10 }
+        { name: '找回密码', to: '/reset-password', routeName: 'reset-password', active: false, show: true, sort: 9 },
+        { name: '接口控制', to: '/add-base-path', routeName: 'add-base-path', active: false, show: true, sort: 10 }
     ]
 })
 
@@ -33,11 +32,11 @@ const updateNavStatus = () => {
     const routeSet = new Set(state.navs.map((n) => n.routeName))
     const tmpNavs = Object.fromEntries(state.navs.map((nav) => [nav.routeName, nav]))
     for (const plugin of Object.values(pluginList.value)) {
-        if (plugin.plugin_name_fe && !routeSet.has(plugin.plugin_name_fe)) {
-            tmpNavs[`plugin_${plugin.plugin_name_fe}`] = {
+        if (plugin?.plugin_name_fe && !routeSet.has(plugin.plugin_name_fe)) {
+            tmpNavs[`plugin-${plugin.plugin_name_fe}`] = {
                 name: plugin.plugin_name_cn_short,
-                to: `/plugin_${plugin.plugin_name_fe}`,
-                routeName: `plugin_${plugin.plugin_name_fe}`,
+                to: `/plugin/${plugin.plugin_name_fe}`,
+                routeName: `plugin-${plugin.plugin_name_fe}`,
                 plugin_name_backend: plugin.name,
                 active: false,
                 show: true,
@@ -47,25 +46,28 @@ const updateNavStatus = () => {
     }
     state.navs = Object.values(tmpNavs).sort((a, b) => (a.sort === b.sort ? (a.routeName > b.routeName ? 1 : -1) : a.sort > b.sort ? 1 : -1))
     for (const i in state.navs) {
+        if (!state.navs[i]) {
+            continue
+        }
         switch (state.navs[i].routeName) {
             case 'signin':
                 state.navs[i].active = authorization.value === ''
                 break
-            case 'add_base_path':
+            case 'add-base-path':
                 state.navs[i].active = authorization.value === '' && runtimeConfig.public.NUXT_BASE_PATH === ''
                 break
             case 'signup':
-                state.navs[i].active = (authorization.value === '' && pageLoginConfig.value?.enabled_signup) || false
+                state.navs[i].active = !!((authorization.value === '' && pageLoginConfig.value?.enabled_signup) || false)
                 break
-            case 'reset_password':
+            case 'reset-password':
                 state.navs[i].active = authorization.value === '' || false
                 break
-            case 'user_admin':
-            case 'system_admin':
+            case 'admin-user':
+            case 'admin-system':
                 state.navs[i].active = authorization.value !== '' && isAdmin.value
                 break
             default:
-                if (state.navs[i].routeName.startsWith('plugin')) {
+                if (state.navs[i].routeName?.startsWith('plugin')) {
                     state.navs[i].active = pluginList.value?.[state.navs[i].plugin_name_backend || '']?.status || false
                 } else {
                     state.navs[i].active = authorization.value !== ''
@@ -80,11 +82,11 @@ watch(pageLoginConfig, updateNavStatus, { deep: true })
 
 useHead({
     title: computed(() => {
-        const tmpIndex = wholeRouteName.value.indexOf(route.name)
+        const tmpIndex = wholeRouteName.value.indexOf(route.name?.toString() || '')
         if (tmpIndex < 0) {
             return route.name || '404'
         } else {
-            return state.navs[tmpIndex].name
+            return state.navs[tmpIndex]?.name || '404'
         }
     })
 })
@@ -93,7 +95,7 @@ updateNavStatus()
 </script>
 
 <template>
-    <div id="side-list" class="select-none" v-show="wholeRouteName.includes(route.name)">
+    <div id="side-list" class="select-none" v-show="wholeRouteName.includes(route.name?.toString() || '')">
         <ClientOnly>
             <div class="md:hidden">
                 <template v-for="nav in activeNavs" :key="nav.routeName">
