@@ -45,9 +45,8 @@ const editMode = ref<boolean>(false)
 
 const batchList = ref<{ [p in number]: Set<number> }>({})
 
-const batchSize = computed(() => {
-    return Object.values(batchList.value).reduce((p, c) => p + c.size, 0)
-})
+const batchAccounts = computed(() => Object.keys(batchList.value).length)
+const batchSize = computed(() => Object.values(batchList.value).reduce((p, c) => p + c.size, 0))
 
 const batchPid = computed(() => {
     return Number(Object.keys(batchList.value)?.[0] || 0)
@@ -1055,8 +1054,8 @@ onMounted(() => {
     </div>
     <Modal
         class="col-span-3 md:col-span-1"
-        :title="'已为 ' + pidNameKV[batchPid] + ' 选择 ' + batchSize + ' 个贴吧'"
-        :aria-label="'已选择 ' + batchSize + ' 个贴吧'"
+        :title="batchAccounts === 1 ? '已为 ' + pidNameKV[batchPid] + ' 选择 ' + batchSize + ' 个贴吧' : '已选择 ' + batchSize + ' 个贴吧'"
+        :aria-label="batchAccounts === 1 ? '已为 ' + pidNameKV[batchPid] + ' 选择 ' + batchSize + ' 个贴吧' : '已选择 ' + batchSize + ' 个贴吧'"
         :active="batchSize > 0"
         :no_modal="true"
         @active-callback="
@@ -1070,8 +1069,8 @@ onMounted(() => {
         <template #default></template>
         <template #container>
             <p v-if="!editMode">请点击 “编辑列表” 按钮</p>
-            <p v-else-if="Object.keys(batchList).length !== 1">暂不支持多账号批处理</p>
-            <p v-else-if="batchList[batchPid]?.size === 0">请至少选择一个贴吧</p>
+            <p v-else-if="batchAccounts !== 1">暂不支持多账号批处理</p>
+            <p v-else-if="batchSize === 0">请至少选择一个贴吧</p>
             <div v-else>
                 <button class="border-pink-500 hover:border-pink-600 dark:hover:border-pink-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-1" @click="deleteForum(batchPid, [...batchList[batchPid]], -1)">删除</button>
                 <button class="border-gray-500 hover:border-gray-600 dark:hover:border-gray-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-1" @click="updateIgnoreForum(batchPid, [...batchList[batchPid]], -1, false)">忽略</button>
