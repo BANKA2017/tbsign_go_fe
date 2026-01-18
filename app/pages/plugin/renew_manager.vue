@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { clamp } from '@vueuse/core'
 import { Eta, getPubDate } from '~/share/Time'
 import { Notice, Request } from '~/share/Tools'
 
@@ -339,10 +340,10 @@ onMounted(() => {
         <template v-else>
             <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3" v-for="task in tasksList" :key="task.pid.toString() + '_' + task.fname">
                 <div class="text-sm progress bg-gray-300 dark:bg-gray-700">
-                    <div :style="{ width: Math.ceil((1 - (task.end - now) / (task.end - task.date)) * 100) + '%' }" class="progress-bar bg-sky-500"></div>
+                    <div :style="{ width: clamp(Math.ceil((1 - (task.end - now) / (task.end - task.date)) * 100), 0, 100) + '%' }" class="progress-bar bg-sky-500"></div>
                     <div
-                        :style="{ width: Math.ceil((1 - (task.end - task.date - tasksSettings.action_interval * 24 * 60 * 60) / (task.end - task.date)) * 100) + '%', overflow: 'hidden' }"
-                        v-show="Math.ceil((1 - (task.end - task.date - tasksSettings.action_interval * 24 * 60 * 60) / (task.end - task.date)) * 100) <= 100"
+                        :style="{ width: clamp(Math.ceil((1 - (task.end - task.date - tasksSettings.action_interval * 24 * 60 * 60) / (task.end - task.date)) * 100), 0, 100) + '%', overflow: 'hidden' }"
+                        v-show="clamp(Math.ceil((1 - (task.end - task.date - tasksSettings.action_interval * 24 * 60 * 60) / (task.end - task.date)) * 100), 0, 100) <= 100"
                         class="progress-checkpoint"
                     ></div>
                     <div class="progress-data">
