@@ -1025,33 +1025,15 @@ onMounted(() => {
             </div>
         </div>
     </div>
-    <div
-        :class="{
-            fixed: true,
-            'right-5': true,
-            'bottom-32': true,
-            'px-3': true,
-            'py-2': true,
-            'cursor-pointer': true,
-            'transition-colors': true,
-            'duration-150': true,
-            'select-none': true,
-            'text-gray-100': true,
-            'bg-sky-500': true,
-            'hover:bg-sky-600': true,
-            'dark:hover:bg-sky-400': true,
-            'rounded-md': true
-        }"
-        style="z-index: 9999"
-        @click="
+    <SyncModule
+        :loading="loading"
+        :callback="
             () => {
                 updateAccoutList()
                 getForumList()
             }
         "
-    >
-        <uno-icon :class="{ 'i-bi:arrow-clockwise': true, 'animate-spin': loading }" />
-    </div>
+    />
     <Modal
         class="col-span-3 md:col-span-1"
         :title="batchAccounts === 1 ? '已为 ' + pidNameKV[batchPid] + ' 选择 ' + batchSize + ' 个贴吧' : '已选择 ' + batchSize + ' 个贴吧'"

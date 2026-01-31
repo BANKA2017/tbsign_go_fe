@@ -21,7 +21,6 @@ export const Request = async (input: string | URL | globalThis.Request, init?: R
     store.updateValue('loading', true)
     return fetch(input, init)
         .then((res) => {
-            store.updateValue('loading', false)
             return res.json()
         })
         .then((res) => {
@@ -37,8 +36,10 @@ export const Request = async (input: string | URL | globalThis.Request, init?: R
             return res
         })
         .catch((e) => {
-            store.updateValue('loading', false)
             throw e
+        })
+        .finally(() => {
+            store.updateValue('loading', false)
         })
 }
 

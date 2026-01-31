@@ -336,28 +336,7 @@ onMounted(() => {
             <li><a :href="_atob('aHR0cHM6Ly90YW5iaS5iYWlkdS5jb20vaDVhcHB0b3BpYy9icm93c2UvbG90dGVyeXZpcDIwMjIxMQ')" target="_blank" class="underline underline-offset-2">签到7天抽奖</a></li>
         </ul>
     </div>
-    <div
-        :class="{
-            fixed: true,
-            'right-5': true,
-            'bottom-32': true,
-            'px-3': true,
-            'py-2': true,
-            'cursor-pointer': true,
-            'transition-colors': true,
-            'duration-150': true,
-            'select-none': true,
-            'text-gray-100': true,
-            'bg-sky-500': true,
-            'hover:bg-sky-600': true,
-            'dark:hover:bg-sky-400': true,
-            'rounded-md': true
-        }"
-        style="z-index: 9999"
-        @click="getTasksList"
-    >
-        <uno-icon :class="{ 'i-bi:arrow-clockwise': true, 'animate-spin': loading }" />
-    </div>
+    <SyncModule :loading="loading" :callback="getTasksList" />
 </template>
 
 <style scoped></style>
