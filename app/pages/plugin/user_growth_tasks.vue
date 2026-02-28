@@ -21,7 +21,7 @@ const tasksList = ref<
     }[]
 >([])
 
-const tasksStatus = <{ [p in string]: any }>ref({})
+const tasksStatus = ref<{ [p in string]: { level_info: any; tmoney: number } }>({})
 
 const canSelectPIDList = computed(() => Object.fromEntries(Object.entries(pidNameKV.value).filter((x) => !tasksList.value.find((y) => y.pid.toString() === x[0]))))
 
@@ -89,7 +89,10 @@ const getStatus = (id = 0) => {
             Notice(res.message, 'error')
             return
         }
-        tasksStatus.value[id] = (res.data?.level_info || []).find((levelInfo) => levelInfo.is_current === 1)
+        tasksStatus.value[id] = {
+            level_info: (res.data?.level_info || []).find((levelInfo) => levelInfo.is_current === 1),
+            tmoney: res.data?.tmoney?.current || 0
+        }
         //console.log(res)
     })
 }
@@ -290,9 +293,21 @@ onMounted(() => {
         <div v-if="loadingTasks" class="w-full h-32 rounded-xl bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
         <template v-else>
             <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-5 my-3 relative" v-for="task in tasksList" :key="task.id">
-                <div v-if="tasksStatus[task.pid]?.level" class="absolute right-4 top-4 group">
-                    <span class="px-2 rounded group-hover:rounded-r-none border-2 border-yellow-500 bg-yellow-500 text-black font-bold">LV{{ tasksStatus[task.pid]?.level }}</span>
-                    <span class="px-2 rounded-r border-2 hidden group-hover:inline border-yellow-500 text-black dark:text-gray-100">{{ tasksStatus[task.pid]?.growth_value }}/{{ tasksStatus[task.pid]?.next_level_value }}</span>
+                <div class="2xs:absolute right-4 top-4">
+                    <div v-if="tasksStatus[task.pid]?.level_info?.level" class="inline-block group bg-gray-100 dark:bg-gray-900" :title="'贴贝 ' + tasksStatus[task.pid]?.tmoney" :aria-label="'贴贝 ' + tasksStatus[task.pid]?.tmoney">
+                        <span class="px-2 rounded group-hover:rounded-r-none font-bold"><uno-icon class="i-fluent-emoji-flat:coin inline-block -mt-0.5" /> {{ tasksStatus[task.pid]?.tmoney }}</span>
+                    </div>
+                    <div
+                        v-if="tasksStatus[task.pid]?.level_info?.level"
+                        class="inline-block group mr-2"
+                        :title="'等级 ' + tasksStatus[task.pid]?.level_info?.level + '，经验 ' + tasksStatus[task.pid]?.level_info?.growth_value"
+                        :aria-label="'等级 ' + tasksStatus[task.pid]?.level_info?.level + '，经验 ' + tasksStatus[task.pid]?.level_info?.growth_value"
+                    >
+                        <span class="px-2 rounded group-hover:rounded-r-none border-2 border-yellow-500 bg-yellow-500 text-black font-bold">LV{{ tasksStatus[task.pid]?.level_info?.level }}</span>
+                        <span class="px-2 rounded-r border-2 hidden group-hover:inline border-yellow-500 text-black dark:text-gray-100 bg-gray-100 dark:bg-gray-900"
+                            >{{ tasksStatus[task.pid]?.level_info?.growth_value }}/{{ tasksStatus[task.pid]?.level_info?.next_level_value }}</span
+                        >
+                    </div>
                 </div>
                 <ul class="marker:text-sky-500 list-disc list-inside">
                     <li>
