@@ -207,7 +207,8 @@ const getRenewTasksList = () => {
 
 const logName = {
     sync: '同步有效期',
-    cacnel_top: '执行续期任务'
+    cacnel_top: '执行续期任务',// TODO typo...delete in future
+    cancel_top: '执行续期任务'
 }
 
 const parseLogs = (log_: string = '') => {
