@@ -177,12 +177,20 @@ const parseLogs = (log_: string = '') => {
             }
             return {
                 date: log.slice(0, 10),
-                ...Object.fromEntries(
-                    log
-                        .slice(12)
-                        .split(',')
-                        .map((kv) => kv.split(':'))
-                )
+                tasks: log
+                    .slice(12)
+                    .split(',')
+                    .map((kvStr) => {
+                        const kv = kvStr.split(':')
+                        if (kv.length === 2) {
+                            return { act_type: kv[0], status: kv[1] }
+                        } else if (kv.length === 4) {
+                            return { task_id: kv[0], name: kv[1], act_type: kv[2], status: kv[3] }
+                        } else {
+                            return null
+                        }
+                    })
+                    .filter((kv) => kv)
             }
         })
         .filter((x) => x)
@@ -348,10 +356,10 @@ onMounted(() => {
                         <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3" v-for="(log_, i) in parseLogs(task.log)" :key="task.id + i">
                             <h5 class="font-bold text-xl">{{ log_.date }}</h5>
                             <div class="grid grid-cols-6">
-                                <span class="col-span-6 md:col-span-3" v-for="(logValue, logKey) in log_" v-show="logKey !== 'date'" :key="task.id + i + logKey">
-                                    <SvgCheck v-if="logValue === '1'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                <span class="col-span-6 md:col-span-3" v-for="logValue in log_.tasks" :key="task.id + i + logValue.task_id || logValue.act_type">
+                                    <SvgCheck v-if="logValue.status === '1'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                                     <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
-                                    <span>{{ getTaskStatusName(logKey) }}</span>
+                                    <span>{{ logValue.name || getTaskStatusName(logValue.act_type) }}</span>
                                 </span>
                             </div>
                         </div>
