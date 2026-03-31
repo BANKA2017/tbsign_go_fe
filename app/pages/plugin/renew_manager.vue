@@ -398,7 +398,7 @@ onMounted(() => {
                             <h5 class="font-bold text-xl">{{ log_.date }}</h5>
                             <div class="grid grid-cols-6">
                                 <span class="col-span-6 md:col-span-3" v-for="(logValue, logKey) in log_" v-show="logKey !== 'date'" :key="task.id + i + logKey">
-                                    <SvgCheck v-if="logValue === 'done'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                    <SvgCheck v-if="logValue === 'done' || logValue === 'skip'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                                     <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                                     <span>{{ logName[logKey] }}</span>
                                 </span>

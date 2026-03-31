@@ -24,6 +24,13 @@ export default defineNuxtConfig({
                     api: 'modern' // or "modern"
                 }
             }
+        },
+        optimizeDeps: {
+            include: [
+                '@vue/devtools-core',
+                '@vue/devtools-kit',
+                'noty' // CJS
+            ]
         }
     },
 
