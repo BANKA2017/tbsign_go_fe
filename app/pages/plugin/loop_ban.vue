@@ -338,7 +338,7 @@ onMounted(() => {
     })
 })
 
-const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一行一个，Portrait 仅支持新版 portrait 的格式，即 tb.1.xxx.xxxxx，粘贴个人页链接会自动处理，用户名 和 贴吧 uid 请使用可视化编辑器添加'
+const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一行一个，Portrait 仅支持新版 portrait 的格式，即 tb.1.xxx.xxxxx，粘贴个人页或头像链接会自动处理，用户名 和 贴吧 uid 请使用可视化编辑器添加'
 </script>
 
 <template>
@@ -368,18 +368,18 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
                     <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="添加封禁账号">添加账号</button>
                 </template>
                 <template #container>
-                    <div class="my-2">
+                    <div class="my-3">
                         <label for="pid-to-froum-manager">吧务账号</label>
-                        <select id="pid-to-froum-manager" v-model="taskToAdd.pid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full my-3 rounded-xl">
+                        <select id="pid-to-froum-manager" v-model="taskToAdd.pid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full mt-1 rounded-xl">
                             <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
                         </select>
                     </div>
 
-                    <div class="my-2">
+                    <div class="my-3">
                         <label for="start-date">开始日期 (留空默认立即开始)</label>
                         <input
                             id="start-date"
-                            class="form-input bg-gray-200 dark:bg-gray-900 dark:[color-scheme:dark] w-full rounded-xl"
+                            class="form-input bg-gray-200 dark:bg-gray-900 dark:[color-scheme:dark] w-full rounded-xl mt-1"
                             :max="taskToAdd.end"
                             type="date"
                             v-model="taskToAdd.start"
@@ -387,27 +387,27 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
                         />
                     </div>
 
-                    <div class="my-2">
+                    <div class="my-3">
                         <label for="end-date">结束日期</label>
-                        <input id="end-date" class="form-input bg-gray-200 dark:bg-gray-900 dark:[color-scheme:dark] w-full rounded-xl" :min="taskToAdd.start" type="date" v-model="taskToAdd.end" placeholder="日期格式：yyyy-mm-dd" />
+                        <input id="end-date" class="form-input bg-gray-200 dark:bg-gray-900 dark:[color-scheme:dark] w-full rounded-xl mt-1" :min="taskToAdd.start" type="date" v-model="taskToAdd.end" placeholder="日期格式：yyyy-mm-dd" />
                     </div>
 
-                    <div class="my-2">
+                    <div class="my-3">
                         <label for="froum-name">贴吧名称</label>
-                        <input id="froum-name" class="form-input bg-gray-200 dark:bg-gray-900 w-full rounded-xl" type="text" v-model="taskToAdd.fname" placeholder="输入贴吧名（不带末尾吧字）" />
+                        <input id="froum-name" class="form-input bg-gray-200 dark:bg-gray-900 w-full rounded-xl mt-1" type="text" v-model="taskToAdd.fname" placeholder="输入贴吧名（不带末尾吧字）" />
                         <span class="text-sm my-1">{{ isManagerMessage }}</span>
                     </div>
 
-                    <div class="my-2">
+                    <div class="my-3">
                         <label for="ban-user-list">封禁列表({{ taskToAdd.ban_list.split('\n').filter((x) => x).length }} / {{ limit - tasksList.length }})</label>
                         <!--TODO limit issue ...-->
-                        <div v-if="isVisualEditor">
+                        <div v-if="isVisualEditor" class="mt-1">
                             <div class="flex w-full rounded-xl mb-3">
                                 <input type="text" class="form-input bg-gray-200 dark:bg-gray-900 grow rounded-l-xl" v-model="visualEditorSearchForm" placeholder="用户名、贴吧UID" />
                                 <button class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl" @click="searchAccount">搜索</button>
                             </div>
                             <div class="border border-sky-500 flex rounded-xl" v-for="user in visualEditorSearchResponse" :key="user.portrait">
-                                <img :alt="`baidu-avatar-` + user.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${user.portrait}`" class="w-10 h-10 sm:w-16 sm:h-16 rounded-l-xl" />
+                                <img :alt="`baidu-avatar-` + user.portrait" :src="`https://himg.bdimg.com/sys/portraitn/item/${user.portrait}`" class="w-10 h-10 sm:w-16 sm:h-16 rounded-l-xl" />
                                 <div class="my-2 mx-5 grow">
                                     <span class="block" :title="user.name + ' [ ' + user.name_show + ' ] ' + user.portrait">{{ user.name }} [ {{ user.name_show }} ]</span>
                                     <span class="hidden sm:block" :title="user.portrait">{{ user.portrait }}</span>
@@ -423,7 +423,7 @@ const banPortraitListPlaceholder = '输入待封禁的用户的 Portrait，一�
                                 <button v-else class="bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 px-3 py-1 transition-colors rounded-r-xl" @click="taskToAdd.ban_list += '\n' + user.portrait">添加</button>
                             </div>
                         </div>
-                        <textarea v-else id="ban-user-list" v-model="taskToAdd.ban_list" class="form-textarea bg-gray-200 dark:bg-gray-900 w-full rounded-xl" rows="10" :placeholder="banPortraitListPlaceholder"></textarea>
+                        <textarea v-else id="ban-user-list" v-model="taskToAdd.ban_list" class="form-textarea bg-gray-200 dark:bg-gray-900 w-full rounded-xl mt-1" rows="10" :placeholder="banPortraitListPlaceholder"></textarea>
                     </div>
 
                     <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 mr-2 transition-colors" @click="isVisualEditor = !isVisualEditor">切换编辑器</button>

@@ -308,20 +308,20 @@ onMounted(() => {
                     <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="添加封禁账号">添加账号</button>
                 </template>
                 <template #container>
-                    <div class="my-2">
+                    <div class="my-3">
                         <label for="pid-to-froum-manager">吧主账号</label>
-                        <select id="pid-to-froum-manager" v-model="taskToAdd.pid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full my-3 rounded-xl">
+                        <select id="pid-to-froum-manager" v-model="taskToAdd.pid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full mt-1 rounded-xl">
                             <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
                         </select>
                     </div>
 
-                    <div class="my-2">
+                    <div class="my-3">
                         <label for="froum-name">贴吧名称</label>
-                        <input id="froum-name" class="form-input bg-gray-200 dark:bg-gray-900 w-full rounded-xl" type="text" v-model="taskToAdd.fname" placeholder="输入贴吧名（不带末尾吧字）" />
+                        <input id="froum-name" class="form-input bg-gray-200 dark:bg-gray-900 w-full rounded-xl mt-1" type="text" v-model="taskToAdd.fname" placeholder="输入贴吧名（不带末尾吧字）" />
                         <span class="text-sm my-1">{{ isManagerMessage }}</span>
                     </div>
 
-                    <div class="my-2">
+                    <div class="my-3">
                         <label for="end-date">帖子 ID</label>
                         <p class="text-sm my-1">
                             通过对
@@ -400,7 +400,7 @@ onMounted(() => {
                                 <span class="col-span-6 md:col-span-3" v-for="(logValue, logKey) in log_" v-show="logKey !== 'date'" :key="task.id + i + logKey">
                                     <SvgCheck v-if="logValue === 'done' || logValue === 'skip'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                                     <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
-                                    <span>{{ logName[logKey] }}</span>
+                                    <span>{{ logName[logKey] + (logKey === 'cancel_top' && logValue === 'skip' ? '（跳过）' : '') }}</span>
                                 </span>
                             </div>
                         </div>

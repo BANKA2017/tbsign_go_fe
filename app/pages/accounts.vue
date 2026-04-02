@@ -824,16 +824,16 @@ onMounted(() => {
                     注意：本站的贴吧同步策略处于 [严格模式]。全部手动添加的贴吧，都将会在下次同步贴吧列表时被移除
                 </div>
 
-                <div class="my-2">
+                <div class="my-3">
                     <label for="pid-to-add">选择账号</label>
-                    <select id="pid-to-add" v-model="addForumValue.pid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full my-3 rounded-xl">
+                    <select id="pid-to-add" v-model="addForumValue.pid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full mt-1 rounded-xl">
                         <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
                     </select>
                 </div>
 
-                <div class="my-2">
+                <div class="my-3">
                     <label for="add-fname">贴吧名称</label>
-                    <input id="add-fname" class="form-input bg-gray-200 dark:bg-gray-900 w-full rounded-xl" type="text" v-model="addForumValue.fname" placeholder="贴吧名字（不带末尾吧字）" />
+                    <input id="add-fname" class="form-input bg-gray-200 dark:bg-gray-900 w-full rounded-xl mt-1" type="text" v-model="addForumValue.fname" placeholder="贴吧名字（不带末尾吧字）" />
                 </div>
                 <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 transition-colors" @click="addForum">保存</button>
             </template>
@@ -848,7 +848,7 @@ onMounted(() => {
             >
                 <div class="flex gap-3">
                     <div :class="{ relative: true, hidden: true, '2xs:block': !(editMode || accounts[index].more), 'xs:block': true }">
-                        <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portrait/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1 bg-gray-300 dark:bg-gray-700" />
+                        <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portraitn/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1 bg-gray-300 dark:bg-gray-700" />
                         <div
                             :class="`h-2 w-2 absolute right-1 bottom-1 rounded-full border ` + (account.status === undefined ? 'bg-gray-500 border-gray-500' : account.status ? 'bg-green-500 border-green-500' : 'bg-pink-500 border-pink-500')"
                             :style="{
@@ -978,7 +978,7 @@ onMounted(() => {
                         </div>
                         <div class="flex gap-2">
                             <button
-                                v-show="editMode"
+                                v-show="editMode && batchSize === 0"
                                 class="transition-colors rounded-full text-pink-500"
                                 @click.stop="deleteForum(tiebaItem.pid, tiebaItem.fid, tiebaItem.index)"
                                 :title="'删除贴吧 ' + account.name + '/' + tiebaItem.tieba"
@@ -1001,7 +1001,7 @@ onMounted(() => {
                                 </div>
                             </div>
                             <button
-                                v-show="editMode"
+                                v-show="editMode && batchSize === 0"
                                 class="transition-colors text-gray-500"
                                 @click.stop="updateIgnoreForum(tiebaItem.pid, tiebaItem.fid, tiebaItem.index)"
                                 :title="(tiebaItem.no ? '(已忽略)' : '(未忽略)') + '忽略签到贴吧 ' + account.name + '/' + tiebaItem.tieba"
@@ -1011,7 +1011,7 @@ onMounted(() => {
                                 <uno-icon v-else class="i-bi:dash-circle-dotted" style="width: 1.5em; height: 1.5em" />
                             </button>
                             <button
-                                v-show="editMode"
+                                v-show="editMode && batchSize === 0"
                                 class="transition-colors text-orange-500"
                                 @click.stop="resetForum(tiebaItem.pid, tiebaItem.fid, tiebaItem.index)"
                                 :title="'重置签到状态 ' + account.name + '/' + tiebaItem.tieba"
@@ -1054,16 +1054,16 @@ onMounted(() => {
             <p v-else-if="batchAccounts !== 1">暂不支持多账号批处理</p>
             <p v-else-if="batchSize === 0">请至少选择一个贴吧</p>
             <div v-else>
-                <button class="border-pink-500 hover:border-pink-600 dark:hover:border-pink-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-1" @click="deleteForum(batchPid, [...batchList[batchPid]], -1)">删除</button>
-                <button class="border-gray-500 hover:border-gray-600 dark:hover:border-gray-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-1" @click="updateIgnoreForum(batchPid, [...batchList[batchPid]], -1, false)">忽略</button>
+                <button class="border-pink-500 hover:border-pink-600 dark:hover:border-pink-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-2" @click="deleteForum(batchPid, [...batchList[batchPid]], -1)">删除</button>
+                <button class="border-gray-500 hover:border-gray-600 dark:hover:border-gray-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-2" @click="updateIgnoreForum(batchPid, [...batchList[batchPid]], -1, false)">忽略</button>
                 <button
-                    class="border-gray-500 hover:border-gray-600 dark:hover:border-gray-400 border-2 border-dotted hover:border-dashed px-3 py-1 rounded-lg transition-colors mr-3 mb-1"
+                    class="border-gray-500 hover:border-gray-600 dark:hover:border-gray-400 border-2 border-dotted hover:border-dashed px-3 py-1 rounded-lg transition-colors mr-3 mb-2"
                     @click="updateIgnoreForum(batchPid, [...batchList[batchPid]], -1, true)"
                 >
                     取消忽略
                 </button>
-                <button class="border-orange-500 hover:border-orange-600 dark:hover:border-orange-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-1" @click="resetForum(batchPid, [...batchList[batchPid]], -1)">重置</button>
-                <button class="border-sky-500 hover:border-sky-600 dark:hover:border-sky-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-1" @click="batchSelectAllInPage(batchPid)">全选</button>
+                <button class="border-orange-500 hover:border-orange-600 dark:hover:border-orange-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-2" @click="resetForum(batchPid, [...batchList[batchPid]], -1)">重置</button>
+                <button class="border-sky-500 hover:border-sky-600 dark:hover:border-sky-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-2" @click="batchSelectAllInPage(batchPid)">全选</button>
             </div>
         </template>
     </Modal>

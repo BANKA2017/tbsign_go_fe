@@ -248,21 +248,22 @@ onMounted(() => {
                 <button class="rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="添加添加账号">添加账号</button>
             </template>
             <template #container>
-                <div class="my-2">
+                <div class="my-3">
                     <label for="pid-to-add">选择账号</label>
-                    <select id="pid-to-add" v-model="newTaskSettings.selectedPID" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl block w-full my-3">
+                    <select id="pid-to-add" v-model="newTaskSettings.selectedPID" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl block w-full mt-1">
                         <option v-for="(name, pid) in canSelectPIDList" :key="pid" :value="pid">{{ name }}</option>
                     </select>
                 </div>
 
-                <div class="my-2" v-show="settings.vip_matrix === '1'">
-                    <label for="select-day">VIP 兑换日</label>
-                    <select id="select-day" v-model="newTaskSettings.day" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl block w-full my-3">
+                <div class="my-3" v-show="settings.vip_matrix === '1'">
+                    <label for="select-day" class="block">VIP 兑换日</label>
+                    <label class="text-sm block" for="select-day">账号在这天可以领取 VIP</label>
+                    <select id="select-day" v-model="newTaskSettings.day" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl block w-full mt-1">
                         <option v-for="(day, i) in ['自动选择', ...DayList]" :key="day" :value="i">{{ day }}</option>
                     </select>
                 </div>
 
-                <div class="my-2" v-show="newTaskSettings.day !== 0">
+                <div class="my-3" v-show="newTaskSettings.day !== 0">
                     <input type="checkbox" class="form-checkbox bg-gray-100 dark:bg-gray-900 dark:checked:bg-blue-500" v-model="newTaskSettings.autoBreak" id="auto-break" /><label class="ml-2" for="auto-break"
                         >调整首次签到 （第一次兑换日时暂停一次签到调整周期）</label
                     >

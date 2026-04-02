@@ -30,10 +30,10 @@
                 <img
                     v-for="tbaccount in tbaccounts"
                     :key="tbaccount.portrait"
-                    :src="'https://himg.bdimg.com/sys/portrait/item/' + tbaccount.portrait"
+                    :src="'https://himg.bdimg.com/sys/portraitn/item/' + tbaccount.portrait"
                     :alt="'avatar-' + tbaccount.name + '-' + tbaccount.portrait"
                     :title="tbaccount.name + '的头像'"
-                    class="w-14 h-14 transition-all -ml-5 hover:mr-7 rounded-2xl my-1 inline-block ring-2 ring-gray-400 dark:ring-gray-600 bg-gray-300 dark:bg-gray-700"
+                    class="w-14 h-14 transition-all -ml-5 hover:mr-7 rounded-2xl my-1 inline-block ring-2 ring-gray-550 bg-gray-300 dark:bg-gray-700"
                     loading="lazy"
                 />
             </div>
@@ -82,8 +82,8 @@
                         <hr class="border-gray-400 dark:border-gray-600 px-3 my-3" />
 
                         <label class="my-1 flex justify-between" for="bark-key"> Bark key </label>
-                        <details role="button">
-                            <summary class="text-sm">关于Bark</summary>
+                        <details role="button" class="text-sm">
+                            <summary>关于Bark</summary>
                             <ul role="list" class="mb-3 marker:text-sky-500 list-disc list-inside">
                                 <li>Bark 仅支持 <a href="https://apps.apple.com/us/app/bark-customed-notifications/id1403753865" target="_blank" class="underline underline-offset-2">iOS/iPadOS 操作系统</a></li>
                                 <li>
@@ -99,8 +99,8 @@
                             v-model="settingsValue.bark_key"
                         />
                         <label class="my-1 flex justify-between" for="ntfy-topic"> Ntfy topic </label>
-                        <details role="button">
-                            <summary class="text-sm">关于Ntfy</summary>
+                        <details role="button" class="text-sm">
+                            <summary>关于Ntfy</summary>
                             <ul role="list" class="mb-3 marker:text-sky-500 list-disc list-inside">
                                 <li><a href="https://ntfy.sh" target="_blank" class="underline underline-offset-2">Ntfy.sh</a> 支持 Android/iOS/iPadOS/网页推送</li>
                                 <li>
@@ -123,8 +123,8 @@
                         />
 
                         <label class="my-1 flex justify-between" for="pushdeer-key"> PushDeer key </label>
-                        <details role="button">
-                            <summary class="text-sm">关于 Pushdeer</summary>
+                        <details role="button" class="text-sm">
+                            <summary>关于 Pushdeer</summary>
                             <ul role="list" class="mb-3 marker:text-sky-500 list-disc list-inside">
                                 <li><a href="https://www.pushdeer.com/" target="_blank" class="underline underline-offset-2">PushDeer</a> 支持多种客户端</li>
                                 <li>
@@ -221,7 +221,7 @@
                         </form>
 
                         <form v-else-if="backupStatus === 'import'" class="flex flex-col gap-2" v-if="accountInfo">
-                            <ul role="list" class="my-1 marker:text-pink-500 list-disc list-inside">
+                            <ul role="list" class="my-1 marker:text-pink-500 list-disc list-inside text-sm">
                                 <li>批量导入数据时不会检查百度账号有效性，请自行提前检查</li>
                                 <li>目前只支持导入百度账号和贴吧列表</li>
                                 <li>如果百度账号已经存在，程序只会以<span class="font-bold">仅新增</span>的模式合并贴吧列表</li>
@@ -280,6 +280,42 @@
                     </div>
                 </template>
             </Modal>
+            <Modal
+                title="重置插件"
+                class="inline-block"
+                @active-callback="
+                    () => {
+                        resetPluginName = ''
+                        resetPid = 0
+                    }
+                "
+            >
+                <template #default>
+                    <button class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-orange-400 bg-orange-500 text-gray-100 py-2">重置插件</button>
+                </template>
+                <template #container>
+                    <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside text-sm">
+                        <li>确认后将会清空本账号对应插件本日的签到状态，稍后将会自动重签。</li>
+                        <li>短时间内频繁提交可能会导致对应的账号被封禁，请谨慎使用本功能。</li>
+                        <li>部分插件无需重置状态，会一直返回成功</li>
+                    </ul>
+
+                    <label for="user-reset-plugin" class="font-bold">选择插件</label>
+                    <select id="user-reset-plugin" v-model="resetPluginName" class="rounded-xl bg-gray-100 dark:bg-gray-800 dark:text-gray-100 form-select block w-full mt-2 mb-3">
+                        <option v-for="(pluginInfo, pluginName) in pluginList" :key="pluginName" :value="pluginName">{{ pluginInfo.plugin_name_cn }}</option>
+                    </select>
+
+                    <div class="my-3">
+                        <label for="pid-to-froum-manager">账号</label>
+                        <select id="pid-to-froum-manager" v-model="resetPid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full mt-1 rounded-xl">
+                            <option :key="0" :value="0">全选</option>
+                            <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
+                        </select>
+                    </div>
+
+                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="resetPluginStatus(resetPluginName)">确认</button>
+                </template>
+            </Modal>
             <NuxtLink role="button" class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-pink-600 dark:hover:bg-pink-400 bg-pink-500 text-gray-100 py-2" to="/signin" @click="logout"> 登出 </NuxtLink>
         </div>
     </div>
@@ -291,7 +327,9 @@ import { Notice, Request, DownloadFile, ReadFileData } from '~/share/Tools'
 const store = useMainStore()
 
 const accountInfo = computed(() => store.cache?.accountInfo)
+const pidNameKV = computed(() => store.pidNameKV)
 const tbaccounts = computed(() => store.cache?.accounts || [])
+const pluginList = computed(() => store.cache?.plugin_list || {})
 const notifications = ref<string>('')
 const runtimeConfig = useRuntimeConfig()
 
@@ -565,5 +603,33 @@ const importAccount = (password = '') => {
         .catch((e) => {
             Notice('导出失败: ' + e, 'error')
         })
+}
+
+const resetPluginName = ref<string>('')
+const resetPid = ref<number>(0)
+const resetPluginStatus = () => {
+    if (!resetPluginName.value) {
+        Notice('请选择一个插件', 'error')
+    }
+
+    const pluginInfo = pluginList.value[resetPluginName.value]
+    if (!pluginInfo) {
+        return
+    }
+    Request(store.basePath + '/passport/plugin/' + resetPluginName.value + '/reset/' + resetPid.value, {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'POST'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            //console.log(res)
+            return
+        }
+
+        Notice('已重置插件 ' + pluginInfo.plugin_name_cn, 'success')
+        //console.log(res)
+    })
 }
 </script>

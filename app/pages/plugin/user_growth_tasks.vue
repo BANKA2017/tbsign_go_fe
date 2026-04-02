@@ -238,20 +238,20 @@ onMounted(() => {
                 </template>
                 <template #container>
                     <div v-if="Object.keys(settings.ext_tasks).length > 0">
-                        <div v-for="(v, act_type) in settings.ext_tasks" :key="act_type" class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3">
+                        <div v-for="(v, act_type) in settings.ext_tasks" :key="act_type" class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3 relative">
                             <label :for="'act-type-name-' + act_type" class="mb-2 font-mono">ActType: {{ act_type }}</label>
                             <p class="w-full mb-2">
                                 <span class="font-mono">Name: </span><input :id="'act-type-name-' + act_type" class="form-input bg-gray-200 dark:bg-gray-900 rounded-xl text-sm" type="text" v-model="settings.ext_tasks[act_type]" placeholder="Name" />
                             </p>
                             <button
-                                class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100"
+                                class="text-pink-500 hover:text-pink-600 absolute right-3 top-3 rounded-full transition-colors"
                                 @click="
                                     () => {
                                         delete settings.ext_tasks[act_type]
                                     }
                                 "
                             >
-                                删除
+                                <uno-icon class="i-bi:x-circle-fill" style="width: 1.5em; height: 1.5em" />
                             </button>
                         </div>
 

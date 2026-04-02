@@ -382,12 +382,12 @@ onMounted(() => {
                                 <option v-for="(actionName, actionID) in actionList" :key="actionID" :value="actionID">{{ actionName }}</option>
                             </select>
                             <template v-if="activeAction === 'delete'">
-                                <p class="mb-3">注意！确认后将会彻底删除对应账号所有数据！此操作不可逆！</p>
-                                <div class="mb-2">
+                                <p class="text-sm">注意！确认后将会彻底删除对应账号所有数据！此操作不可逆！</p>
+                                <div class="mb-2 text-sm">
                                     <input type="checkbox" class="form-checkbox bg-gray-100 dark:bg-gray-800 dark:checked:bg-blue-500 my-4" v-model="deleteAccountDoubleCheck" :id="'upgrade-double-check-:' + listItem.id" /><label
                                         class="ml-2 break-all"
                                         :for="'upgrade-double-check-:' + listItem.id"
-                                        >确认删除平台账号 <span class="break-all font-bold mr-2 text-gray-100 bg-gray-800 py-1 px-2 rounded-lg select-all text-sm">@{{ listItem.name }}</span></label
+                                        >确认删除平台账号 <span class="break-all font-bold mr-2 text-gray-100 bg-gray-800 py-1 px-2 rounded-lg">@{{ listItem.name }}</span></label
                                     >
                                 </div>
                                 <button
@@ -400,12 +400,12 @@ onMounted(() => {
                             </template>
                             <button v-else-if="activeAction === 'kick'" class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="kickDown(listItem.id)">下线</button>
                             <template v-else-if="activeAction === 'empty_account'">
-                                <p class="mb-3">注意：确认后将会清空对应账号的所有本站贴吧账号绑定！</p>
+                                <p class="mb-3 text-sm">注意：确认后将会清空对应账号的所有本站贴吧账号绑定！</p>
                                 <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteTiebaAccounts(listItem.id)">确认</button>
                             </template>
 
                             <template v-else-if="activeAction === 'reset_checkin_status'">
-                                <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside">
+                                <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside text-sm">
                                     <li>确认后将会清空对应本站账号的所有贴吧账号本日的签到状态，会导致重签。</li>
                                     <li>短时间内频繁签到会导致对应的贴吧账号被封禁，请谨慎使用本功能。</li>
                                 </ul>
@@ -418,7 +418,7 @@ onMounted(() => {
                             </template>
 
                             <template v-else-if="activeAction === 'reset_plugin_status'">
-                                <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside">
+                                <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside text-sm">
                                     <li>确认后将会清空该账号对应插件本日的签到状态，稍后将会自动重签。</li>
                                     <li>短时间内频繁提交可能会导致对应的账号被封禁，请谨慎使用本功能。</li>
                                     <li>部分插件无需重置状态，会一直返回成功</li>
@@ -433,11 +433,11 @@ onMounted(() => {
                             </template>
 
                             <template v-else-if="activeAction === 'get_code'">
-                                <ul class="mb-3 col-span-2 md:col-span-1 marker:text-pink-500 list-disc list-inside">
+                                <ul class="mb-3 col-span-2 md:col-span-1 marker:text-pink-500 list-disc list-inside text-sm">
                                     <li>请管理员协助用户获取验证码前先确认申请者身份</li>
                                 </ul>
                                 <div v-if="resetPasswordCodeStruct.value">
-                                    <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside">
+                                    <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside text-sm">
                                         <li>
                                             验证码：<span class="break-word whitespace-pre-wrap font-mono mx-2 text-gray-100 bg-gray-800 px-2 rounded-lg select-all">{{ resetPasswordCodeStruct.value }}</span>
                                         </li>
