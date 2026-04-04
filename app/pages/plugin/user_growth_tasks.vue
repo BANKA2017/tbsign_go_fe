@@ -218,21 +218,24 @@ onMounted(() => {
         <h4 class="text-lg mb-4">设置</h4>
 
         <div class="my-5">
-            <p class="my-2">默认只做签到任务，选择全部任务将会尝试完成所有日常任务</p>
-            <select v-model="settings.sign_only" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
+            <h5 class="my-2 text-lg">任务类型</h5>
+            <p class="my-2 text-sm">默认只做签到任务，选择全部任务将会尝试完成所有日常任务</p>
+            <select v-model="settings.sign_only" class="mb-3 bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
                 <option value="0">仅签到</option>
                 <option value="1">全部任务</option>
                 <option value="2">全部任务+自定义任务</option>
             </select>
 
-            <p class="my-2">印记任务开关，完成印记任务可能会导致账号的 IP 归属地更变为签到服务的服务器所在地</p>
-            <select v-model="settings.break_icon_tasks" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
+            <h5 class="my-2 text-lg">印记任务 <SvgPushPin height="1.2em" width="1.2em" class="inline-block -mt-0.5" /></h5>
+            <p class="my-2 text-sm">完成印记任务可能会导致账号的 IP 归属地更变为签到服务的服务器所在地</p>
+            <select v-model="settings.break_icon_tasks" class="mb-3 bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
                 <option value="0">不跳过印记任务</option>
                 <option value="1">跳过印记任务</option>
             </select>
 
-            <p class="my-2">自定义任务</p>
-            <Modal class="inline-block mr-1" title="编辑自定义任务" aria-label="编辑自定义任务">
+            <h5 class="my-2 text-lg">自定义任务 <SvgPencil height="1.2em" width="1.2em" class="inline-block -mt-0.5" /></h5>
+            <p class="my-2 text-sm">自定义任务不会确认是否完成</p>
+            <Modal class="inline-block mr-1 mb-3" title="编辑自定义任务" aria-label="编辑自定义任务">
                 <template #default>
                     <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors">编辑任务</button>
                 </template>
@@ -331,7 +334,9 @@ onMounted(() => {
                         <span class="font-bold">状态 : </span>
                         <ul v-if="task.status && task.status.startsWith('[')" class="grid grid-cols-6 gap-x-5 marker:text-sky-500 list-disc list-inside">
                             <li class="ml-5 col-span-6 md:col-span-3 lg:col-span-2" v-for="taskStatus in JSON.parse(task.status).sort((a, b) => (a?.act_type > b?.act_type ? 1 : -1))" :key="task.pid + '_' + taskStatus.name">
-                                <SvgCheck v-if="taskStatus.status" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                <SvgPencil v-if="settings.ext_tasks[taskStatus.act_type] && taskStatus.status" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                <SvgPushPin v-else-if="taskStatus.act_type === 'active' && taskStatus.status" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                <SvgCheck v-else-if="taskStatus.status" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                                 <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                                 <span class="font-bold">{{ taskStatus.name }}</span>
                             </li>
@@ -357,7 +362,9 @@ onMounted(() => {
                             <h5 class="font-bold text-xl">{{ log_.date }}</h5>
                             <div class="grid grid-cols-6">
                                 <span class="col-span-6 md:col-span-3" v-for="logValue in log_.tasks" :key="task.id + i + logValue.task_id || logValue.act_type">
-                                    <SvgCheck v-if="logValue.status === '1'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                    <SvgPencil v-if="settings.ext_tasks[logValue.act_type] && logValue.status === '1'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                    <SvgPushPin v-else-if="logValue.act_type === 'active' && logValue.status === '1'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
+                                    <SvgCheck v-else-if="logValue.status === '1'" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                                     <SvgCross v-else height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                                     <span>{{ logValue.name || getTaskStatusName(logValue.act_type) }}</span>
                                 </span>
