@@ -5,7 +5,7 @@
                 <slot>展开</slot>
             </div>
 
-            <div role="button" class="rounded-full h-4 text-gray-900 dark:text-gray-100 transition-colors size-5 my-1" title="展开设置列表" aria-label="展开设置列表">
+            <div :class="{ 'rounded-full text-gray-900 dark:text-gray-100 transition-all mt-0.5 py-1': true, 'rotate-180': expand }" title="展开设置列表" aria-label="展开设置列表">
                 <uno-icon v-if="expand" class="i-bi:arrows-collapse" />
                 <uno-icon v-else class="i-bi:arrows-expand" />
             </div>

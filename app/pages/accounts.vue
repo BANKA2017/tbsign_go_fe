@@ -130,7 +130,9 @@ const checkAccountStatus = async () => {
     }
 }
 
-const deleteAccount = async (id: string) => {
+const toDeletePid = ref<number>(0)
+
+const deleteAccount = async (id: number) => {
     Request(store.basePath + '/account/' + id, {
         headers: {
             Authorization: store.authorization
@@ -928,10 +930,21 @@ onMounted(() => {
                             <option value="ignore">忽略</option>
                         </select>
                     </div>
-                    <button v-show="editMode" @click="deleteAccount(account.id)" class="rounded-full h-10 text-pink-500 hover:text-pink-600 dark:hover:text-pink-400 transition-colors my-1" title="删除贴吧账号" aria-label="删除贴吧账号">
+                    <button
+                        v-show="editMode"
+                        @click="toDeletePid = account.id"
+                        class="rounded-full h-10 text-pink-500 hover:text-pink-600 dark:hover:text-pink-400 transition-colors my-1"
+                        :title="'删除贴吧账号 ' + pidNameKV[account.id]"
+                        :aria-label="'删除贴吧账号 ' + pidNameKV[account.id]"
+                    >
                         <uno-icon class="i-bi:x-circle-fill" style="width: 1.5em; height: 1.5em" />
                     </button>
-                    <button @click="accounts[index].more = !accounts[index].more" class="rounded-full h-10 text-gray-900 dark:text-gray-100 transition-colors my-1" title="展开贴吧列表" aria-label="展开贴吧列表">
+                    <button
+                        @click="accounts[index].more = !accounts[index].more"
+                        :class="{ 'rounded-full h-10 text-gray-900 dark:text-gray-100 transition-all my-1': true, 'rotate-180': accounts[index].more }"
+                        title="展开贴吧列表"
+                        aria-label="展开贴吧列表"
+                    >
                         <uno-icon v-if="accounts[index].more" class="i-bi:arrows-collapse" style="width: 1.5em; height: 1.5em" />
                         <uno-icon v-else class="i-bi:arrows-expand" style="width: 1.5em; height: 1.5em" />
                     </button>
@@ -1065,6 +1078,24 @@ onMounted(() => {
                 <button class="border-orange-500 hover:border-orange-600 dark:hover:border-orange-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-2" @click="resetForum(batchPid, [...batchList[batchPid]], -1)">重置</button>
                 <button class="border-sky-500 hover:border-sky-600 dark:hover:border-sky-400 border-2 px-3 py-1 rounded-lg transition-colors mr-3 mb-2" @click="batchSelectAllInPage(batchPid)">全选</button>
             </div>
+        </template>
+    </Modal>
+    <Modal
+        class="col-span-3 md:col-span-1"
+        title="删除贴吧账号"
+        aria-label="删除贴吧账号"
+        :active="toDeletePid > 0"
+        @active-callback="
+            (c) => {
+                if (!c) {
+                    toDeletePid = 0
+                }
+            }
+        "
+    >
+        <template #container>
+            <p class="mb-3">注意：确认后将会删除账号 {{ pidNameKV[toDeletePid] || '' }} 并清空贴吧列表！</p>
+            <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="deleteAccount(toDeletePid)">确认删除</button>
         </template>
     </Modal>
 </template>

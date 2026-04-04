@@ -274,19 +274,20 @@ onMounted(() => {
     <div class="px-3 py-2">
         <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2">如果账号在检查期间进行了有效的吧务操作，系统将<span class="font-bold">不会</span>执行任何操作</div>
 
-        <h4 class="text-lg mb-4">设置</h4>
+        <h3 class="text-2xl mb-4">设置</h3>
 
         <button :class="{ 'bg-sky-500': !tasksSwitch, 'bg-pink-500': tasksSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-gray-100': true, 'transition-colors': true }" @click="updateTasksSwitch">
             {{ tasksSwitch ? '已开启' : '已停止' }}
         </button>
 
         <div class="my-5">
-            <p class="my-2">是否添加到每日报告</p>
+            <h4 class="my-2 text-xl">添加到每日报告</h4>
             <select v-model="tasksSettings.report_switch" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
-                <option :value="true">是</option>
-                <option :value="false">否</option>
+                <option :value="true">添加</option>
+                <option :value="false">不添加</option>
             </select>
-            <p class="my-2">检查间隔（天），默认每天检查，可以适当调大间隔避免吧务后台操作记录刷屏</p>
+            <h4 class="my-2 text-xl">检查间隔（天）</h4>
+            <p class="my-2">默认每天检查，适当调大间隔可以避免吧务后台操作记录刷屏</p>
             <input
                 type="number"
                 min="1"
@@ -300,7 +301,7 @@ onMounted(() => {
     </div>
 
     <div class="px-3 py-2">
-        <h4 class="text-lg">任务列表</h4>
+        <h4 class="text-xl">任务列表</h4>
 
         <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
             <Modal class="col-span-6 sm:col-span-3 lg:col-span-1" title="添加考核任务">

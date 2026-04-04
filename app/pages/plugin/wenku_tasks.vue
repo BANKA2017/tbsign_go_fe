@@ -211,15 +211,17 @@ onMounted(() => {
         <a :href="_atob('aHR0cHM6Ly90YW5iaS5iYWlkdS5jb20vaDVhcHB0b3BpYy9icm93c2UvbG90dGVyeXZpcDIwMjIxMQ')" target="_blank" class="underline underline-offset-2">签到7天抽奖</a> 抽取 VIP
     </div>
     <div class="px-3 py-2">
-        <h4 class="text-lg mb-4">设置</h4>
+        <h3 class="text-2xl mb-4">设置</h3>
 
         <div class="my-5">
+            <h4 class="my-2 text-xl">任务类型</h4>
             <p class="my-2">默认只做签到任务，选择全部任务将会尝试完成所有任务</p>
-            <select v-model="settings.checkin_only" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
+            <select v-model="settings.checkin_only" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl mb-3">
                 <option value="1">仅签到</option>
                 <option value="0">全部任务</option>
             </select>
-            <p class="my-2">构建文库 VIP 账号组。账号不足会导致 VIP 无法覆盖每一天，建议至少准备 7 个账号（当前账号数量：{{ tasksList.length }}）</p>
+            <h4 class="my-2 text-xl">构建文库 VIP 账号组</h4>
+            <p class="my-2">至少准备 7 个账号（当前账号数量：{{ tasksList.length }}），以确保每天都有 VIP 可用</p>
             <select v-model="settings.vip_matrix" class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
                 <option value="1">启用 VIP 账号组</option>
                 <option value="0">禁用 VIP 账号组</option>
@@ -230,7 +232,7 @@ onMounted(() => {
     </div>
 
     <div class="px-3 py-2">
-        <h4 class="text-lg">任务列表</h4>
+        <h4 class="text-xl">任务列表</h4>
 
         <Modal
             class="col-span-6 sm:col-span-3 lg:col-span-1 my-2"

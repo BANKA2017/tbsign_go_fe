@@ -81,14 +81,14 @@ onMounted(() => {
 
 <template>
     <div class="px-3 py-2">
-        <h4 class="text-lg mb-4">设置</h4>
+        <h3 class="text-2xl mb-4">设置</h3>
         <button :class="{ 'bg-sky-500': !lotterySwitch, 'bg-pink-500': lotterySwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-gray-100': true, 'transition-colors': true }" @click="updateTasksSwitch">
             {{ lotterySwitch ? '已开启抽奖' : '已停止抽奖' }}
         </button>
     </div>
 
     <div class="px-3 py-2">
-        <h4 class="text-lg">最近 30 天抽奖记录</h4>
+        <h4 class="text-xl">最近 30 天抽奖记录</h4>
         <select id="pid-to-knows-lottery" v-model="activePID" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select w-full md:w-auto block my-3 rounded-xl">
             <option v-for="(name, pid) in pidNameKV" :key="pid" :value="Number(pid)">{{ name }}</option>
         </select>

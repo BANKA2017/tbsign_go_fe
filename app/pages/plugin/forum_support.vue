@@ -189,14 +189,14 @@ onMounted(() => {
 
 <template>
     <div class="px-3 py-2">
-        <h4 class="text-lg mb-4">设置</h4>
+        <h3 class="text-2xl mb-4">设置</h3>
         <button :class="{ 'bg-sky-500': !tasksSwitch, 'bg-pink-500': tasksSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-gray-100': true, 'transition-colors': true }" @click="updateTasksSwitch">
             {{ tasksSwitch ? '已开启助攻' : '已停止助攻' }}
         </button>
     </div>
 
     <div class="px-3 py-2">
-        <h4 class="text-lg">任务列表</h4>
+        <h4 class="text-xl">任务列表</h4>
 
         <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
             <Modal class="col-span-6 sm:col-span-3 lg:col-span-1" title="编辑名人堂任务">

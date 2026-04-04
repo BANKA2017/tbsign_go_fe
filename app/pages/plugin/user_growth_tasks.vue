@@ -215,10 +215,10 @@ onMounted(() => {
 
 <template>
     <div class="px-3 py-2">
-        <h4 class="text-lg mb-4">设置</h4>
+        <h3 class="text-2xl mb-4">设置</h3>
 
         <div class="my-5">
-            <h5 class="my-2 text-lg">任务类型</h5>
+            <h4 class="my-2 text-xl">任务类型</h4>
             <p class="my-2 text-sm">默认只做签到任务，选择全部任务将会尝试完成所有日常任务</p>
             <select v-model="settings.sign_only" class="mb-3 bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
                 <option value="0">仅签到</option>
@@ -226,14 +226,14 @@ onMounted(() => {
                 <option value="2">全部任务+自定义任务</option>
             </select>
 
-            <h5 class="my-2 text-lg">印记任务 <SvgPushPin height="1.2em" width="1.2em" class="inline-block -mt-0.5" /></h5>
+            <h4 class="my-2 text-xl">印记任务 <SvgPushPin height="1.2em" width="1.2em" class="inline-block -mt-0.5" /></h4>
             <p class="my-2 text-sm">完成印记任务可能会导致账号的 IP 归属地更变为签到服务的服务器所在地</p>
             <select v-model="settings.break_icon_tasks" class="mb-3 bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
                 <option value="0">不跳过印记任务</option>
                 <option value="1">跳过印记任务</option>
             </select>
 
-            <h5 class="my-2 text-lg">自定义任务 <SvgPencil height="1.2em" width="1.2em" class="inline-block -mt-0.5" /></h5>
+            <h4 class="my-2 text-xl">自定义任务 <SvgPencil height="1.2em" width="1.2em" class="inline-block -mt-0.5" /></h4>
             <p class="my-2 text-sm">自定义任务不会确认是否完成</p>
             <Modal class="inline-block mr-1 mb-3" title="编辑自定义任务" aria-label="编辑自定义任务">
                 <template #default>
