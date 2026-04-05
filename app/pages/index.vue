@@ -26,7 +26,8 @@
                     </div>
                 </div>
             </div>
-            <div v-if="tbaccounts.length > 0" class="mt-3 ml-5">
+            <!--see u avatar wall-->
+            <!--<div v-if="tbaccounts.length > 0" class="mt-3 ml-5">
                 <img
                     v-for="tbaccount in tbaccounts"
                     :key="tbaccount.portrait"
@@ -36,13 +37,40 @@
                     class="w-14 h-14 transition-all -ml-5 hover:mr-7 rounded-2xl my-1 inline-block ring-2 ring-gray-550 bg-gray-300 dark:bg-gray-700"
                     loading="lazy"
                 />
+            </div>-->
+        </div>
+        <div class="p-3">
+            <h3 class="text-xl mb-3">签到状态</h3>
+            <div class="grid grid-cols-2 gap-2">
+                <ul class="col-span-2 md:col-span-1 list-disc list-inside">
+                    <li class="marker:text-green-500">
+                        <span class="font-bold">成功：</span><span class="font-mono">{{ checkinStatus.success || 0 }}</span>
+                    </li>
+                    <li class="marker:text-pink-500">
+                        <span class="font-bold">失败：</span><span class="font-mono">{{ checkinStatus.failed || 0 }}</span>
+                    </li>
+                    <li class="marker:text-orange-500">
+                        <span class="font-bold">等待：</span><span class="font-mono">{{ checkinStatus.waiting || 0 }}</span>
+                    </li>
+                    <li class="marker:text-gray-600 dark:marker:text-gray-400">
+                        <span class="font-bold">忽略：</span><span class="font-mono">{{ checkinStatus.ignore || 0 }}</span>
+                    </li>
+                </ul>
+                <ul class="col-span-2 md:col-span-1 list-disc list-inside">
+                    <li class="marker:text-sky-500">
+                        <span class="font-bold">账号数量：</span><span class="font-mono">{{ tbaccounts.length || 0 }}</span>
+                    </li>
+                    <li class="marker:text-sky-500">
+                        <span class="font-bold">贴吧数量：</span><span class="font-mono">{{ checkinStatus.forum_count || 0 }}</span>
+                    </li>
+                </ul>
             </div>
         </div>
-        <hr class="border-gray-400 dark:border-gray-600 px-3" />
+        <hr class="border-gray-400 dark:border-gray-600 px-3 my-3" />
         <div class="inline-block md:block">
             <Modal class="inline-block" title="个人设置">
                 <template #default>
-                    <button class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-sky-400 bg-sky-500 text-gray-100 py-2">个人设置</button>
+                    <button class="inline-block my-1 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-sky-400 bg-sky-500 text-gray-100 py-2">个人设置</button>
                 </template>
                 <template #container>
                     <form class="p-3 flex flex-col gap-2" v-if="accountInfo">
@@ -188,7 +216,7 @@
                 "
             >
                 <template #default>
-                    <button class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-sky-400 bg-sky-500 text-gray-100 py-2">备份</button>
+                    <button class="inline-block my-1 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-sky-400 bg-sky-500 text-gray-100 py-2">备份</button>
                 </template>
                 <template #container>
                     <div v-if="accountInfo">
@@ -291,7 +319,7 @@
                 "
             >
                 <template #default>
-                    <button class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-orange-400 bg-orange-500 text-gray-100 py-2">重置插件</button>
+                    <button class="inline-block my-1 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-orange-400 bg-orange-500 text-gray-100 py-2">重置插件</button>
                 </template>
                 <template #container>
                     <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside text-sm">
@@ -316,7 +344,7 @@
                     <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="resetPluginStatus(resetPluginName)">确认</button>
                 </template>
             </Modal>
-            <NuxtLink role="button" class="inline-block my-5 px-5 mx-1 rounded-full transition-colors hover:bg-pink-600 dark:hover:bg-pink-400 bg-pink-500 text-gray-100 py-2" to="/signin" @click="logout"> 登出 </NuxtLink>
+            <NuxtLink role="button" class="inline-block my-1 px-5 mx-1 rounded-full transition-colors hover:bg-pink-600 dark:hover:bg-pink-400 bg-pink-500 text-gray-100 py-2" to="/signin" @click="logout"> 登出 </NuxtLink>
         </div>
     </div>
 </template>
@@ -367,20 +395,39 @@ const settingsValue = reactive<{
     daily_report: '0'
 })
 
+const checkinStatus = ref({})
+
+const GetNotifications = () =>
+    Request(store.basePath + '/notifications', {
+        headers: {
+            Authorization: store.authorization
+        }
+    }).then((res) => {
+        if (res.code !== 200) {
+            return
+        }
+        notifications.value = res.data || '没有公告'
+        //console.log(res)
+    })
+
+const GetCheckinStatus = () =>
+    Request(store.basePath + '/list/status', {
+        headers: {
+            Authorization: store.authorization
+        }
+    }).then((res) => {
+        if (res.code !== 200) {
+            return
+        }
+        checkinStatus.value = res.data || {}
+        //console.log(res)
+    })
+
 onMounted(async () => {
     // get account info
     if (store.rawAuthorization !== '') {
-        Request(store.basePath + '/notifications', {
-            headers: {
-                Authorization: store.authorization
-            }
-        }).then((res) => {
-            if (res.code !== 200) {
-                return
-            }
-            notifications.value = res.data || '没有公告'
-            //console.log(res)
-        })
+        await GetNotifications()
+        await GetCheckinStatus()
 
         settingsValue.email = accountInfo.value?.email || ''
         settingsValue.username = accountInfo.value?.name || ''

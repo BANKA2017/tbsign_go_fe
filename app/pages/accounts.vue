@@ -710,7 +710,7 @@ onMounted(() => {
 
 <template>
     <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5">
-        共有 {{ tbStatus.accountCount }} 个账号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，忽略
+        共有 {{ tbStatus.accountCount }} 个账号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，已忽略
         <span class="text-gray-600 dark:text-gray-400">{{ tbStatus.ignore }}</span> 个，还有 <span class="text-orange-500">{{ tbStatus.pending }}</span> 个贴吧等待签到
     </div>
     <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
@@ -850,7 +850,7 @@ onMounted(() => {
             >
                 <div class="flex gap-3">
                     <div :class="{ relative: true, hidden: true, '2xs:block': !(editMode || accounts[index].more), 'xs:block': true }">
-                        <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portraitn/item/${account.portrait}`" class="w-10 h-10 rounded-full my-1 bg-gray-300 dark:bg-gray-700" />
+                        <img :alt="`baidu-avatar-` + account.portrait" :src="`https://himg.bdimg.com/sys/portraitn/item/${account.portrait}`" loading="lazy" class="w-10 h-10 rounded-full my-1 bg-gray-300 dark:bg-gray-700" />
                         <div
                             :class="`h-2 w-2 absolute right-1 bottom-1 rounded-full border ` + (account.status === undefined ? 'bg-gray-500 border-gray-500' : account.status ? 'bg-green-500 border-green-500' : 'bg-pink-500 border-pink-500')"
                             :style="{
@@ -877,20 +877,20 @@ onMounted(() => {
                         >
                         <div
                             :class="{ 'text-sm': true, flex: true, 'flex-col': accounts[index].more, 'flex-row': !accounts[index].more, 'xs:flex-row': true }"
-                            :title="(tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.pending || 0) + '等待，' + (tblistFilter[account.id]?.failed || 0) + '失败，' + (tblistFilter[account.id]?.ignore || 0) + '忽略'"
+                            :title="(tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.pending || 0) + '失败，' + (tblistFilter[account.id]?.ignore || 0) + '等待，' + (tblistFilter[account.id]?.failed || 0) + '忽略'"
                             :aria-label="
-                                (tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.pending || 0) + '等待，' + (tblistFilter[account.id]?.failed || 0) + '失败，' + (tblistFilter[account.id]?.ignore || 0) + '忽略'
+                                (tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.pending || 0) + '失败，' + '等待，' + (tblistFilter[account.id]?.failed || 0) + (tblistFilter[account.id]?.ignore || 0) + '忽略'
                             "
                         >
                             <div v-if="loadingList" class="w-20 h-4 rounded bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
                             <template v-else>
                                 <div>
                                     <span class="text-green-500">{{ tblistFilter[account.id]?.success || 0 }}</span
-                                    ><span class="mx-0.5">/</span><span class="text-orange-500">{{ tblistFilter[account.id]?.pending || 0 }}</span
+                                    ><span class="mx-0.5">/</span><span class="text-pink-500">{{ tblistFilter[account.id]?.failed || 0 }}</span
                                     ><span class="mx-0.5">/</span>
                                 </div>
                                 <div>
-                                    <span class="text-pink-500">{{ tblistFilter[account.id]?.failed || 0 }}</span
+                                    <span class="text-orange-500">{{ tblistFilter[account.id]?.pending || 0 }}</span
                                     ><span class="mx-0.5">/</span><span class="text-gray-600 dark:text-gray-400">{{ tblistFilter[account.id]?.ignore || 0 }}</span>
                                 </div>
                             </template>
