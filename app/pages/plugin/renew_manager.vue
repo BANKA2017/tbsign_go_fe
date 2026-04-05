@@ -272,7 +272,12 @@ onMounted(() => {
 
 <template>
     <div class="px-3 py-2">
-        <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2">如果账号在检查期间进行了有效的吧务操作，系统将<span class="font-bold">不会</span>执行任何操作</div>
+        <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2">
+            <ul class="col-span-2 md:col-span-1 list-disc list-inside marker:text-pink-500">
+                <li>如果账号在检查期间进行了有效的吧务操作，系统将<span class="font-bold">不会</span>执行任何操作</li>
+                <li>每天 <span class="text-pink-500 font-mono">2:00~2:30</span> 停止运行</li>
+            </ul>
+        </div>
 
         <h3 class="text-2xl mb-4">设置</h3>
 
