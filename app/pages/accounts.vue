@@ -877,9 +877,9 @@ onMounted(() => {
                         >
                         <div
                             :class="{ 'text-sm': true, flex: true, 'flex-col': accounts[index].more, 'flex-row': !accounts[index].more, 'xs:flex-row': true }"
-                            :title="(tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.pending || 0) + '失败，' + (tblistFilter[account.id]?.ignore || 0) + '等待，' + (tblistFilter[account.id]?.failed || 0) + '忽略'"
+                            :title="(tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.failed || 0) + '失败，' + (tblistFilter[account.id]?.pending || 0) + '等待，' + (tblistFilter[account.id]?.ignore || 0) + '忽略'"
                             :aria-label="
-                                (tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.pending || 0) + '失败，' + '等待，' + (tblistFilter[account.id]?.failed || 0) + (tblistFilter[account.id]?.ignore || 0) + '忽略'
+                                (tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.failed || 0) + '失败，' + (tblistFilter[account.id]?.pending || 0) + '等待，' + (tblistFilter[account.id]?.ignore || 0) + '忽略'
                             "
                         >
                             <div v-if="loadingList" class="w-20 h-4 rounded bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
