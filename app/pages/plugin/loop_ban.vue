@@ -307,7 +307,7 @@ const parseLogs = (log_: string = '') => {
                 error: error?.split(' ') || []
             }
         })
-        .filter((x) => x)
+        .filter((x) => x).reverse()
 }
 
 onMounted(() => {
