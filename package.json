@@ -22,7 +22,6 @@
         "@unocss/nuxt": "^66.6.8",
         "@unocss/preset-icons": "^66.6.8",
         "@vueuse/core": "^14.2.1",
-        "@vueuse/head": "^2.0.0",
         "@vueuse/nuxt": "^14.2.1",
         "noty": "^3.2.0-beta-deprecated",
         "nuxt": "4.4.2",
