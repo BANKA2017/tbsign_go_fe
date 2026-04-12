@@ -91,7 +91,12 @@ const resignStatus = computed(() => {
     return tmpStatus.lastdo + `/${tmpStatus.num}`
 })
 
-const settingsGroup = ref({
+const settingsGroup = ref<{
+    [p in string]: {
+        name: string
+        data: { [q in string]: string }
+    }
+}>({
     system: {
         name: '系统',
         data: { ann: '公告', icp: '备案号', system_url: '地址' } //, system_name: '网站名称', system_keywords: '关键词', system_description: '简介' }
@@ -140,7 +145,9 @@ const initPluginSettingsGroup = () => {
     // ver4_ban_limit: '...'
 
     for (const plugin of Object.values(pluginList.value)) {
-        for (const setting_option of plugin?.setting_options || []) settingsGroup.value.plugin.data[setting_option['option_name']] = `${setting_option['option_name_cn']}（${plugin.plugin_name_cn}）`
+        if (plugin.status) {
+            for (const setting_option of plugin?.setting_options || []) settingsGroup.value.plugin.data[setting_option['option_name']] = `${setting_option['option_name_cn']}（${plugin.plugin_name_cn}）`
+        }
     }
 }
 
@@ -457,19 +464,22 @@ onMounted(() => {
             </div>
             <div class="p-3 bg-gray-200 dark:bg-gray-800 rounded-xl">
                 <template v-for="(value, pluginName, index) in pluginList" :key="pluginName">
-                    <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-1" />
-                    <div class="flex justify-between">
-                        <div>
+                    <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-2" />
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="col-span-2 2xs:col-span-1 2xs:py-1.5">
                             <span class="px-1.5 rounded bg-sky-500 dark:bg-sky-700 text-sm text-gray-100 mr-2">{{ value?.ver ? (value?.ver !== '-1' ? value.ver : 'und') : 'dev' }}</span>
                             <span class="font-bold">{{ pluginGroup[pluginName] || pluginName }}</span>
                         </div>
-                        <div class="inline-block">
-                            <button :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true, rounded: true }" @click="pluginSwitch(pluginName)">
+                        <div class="col-span-2 2xs:col-span-1 2xs:text-end">
+                            <button
+                                :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true, rounded: true, 'inline-block': true, 'm-0.5': true }"
+                                @click="pluginSwitch(pluginName)"
+                            >
                                 {{ value.status ? '已开启' : value.ver === '-1' ? '未安装' : '已关闭' }}
                             </button>
                             <Modal class="inline-block" :title="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + ' ？'" :aria-label="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + ' ？'" v-if="value.ver !== '-1'">
                                 <template #default>
-                                    <button class="ml-2 px-3 py-1 bg-pink-500 text-gray-100 transition-colors rounded">卸载</button>
+                                    <button class="m-0.5 px-3 py-1 bg-pink-500 text-gray-100 transition-colors rounded">卸载</button>
                                 </template>
                                 <template #container>
                                     <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="pluginDelete(pluginName)">确认卸载 {{ pluginGroup[pluginName] }} ({{ pluginName }})</button>
