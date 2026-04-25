@@ -17,13 +17,15 @@ const pluginList = computed({
 const serverStatus = ref<
     {
         build: { [key: string]: string }
+        upgrade: { [key: string]: string }
         variables: { [key: string]: string | boolean }
     } & {
         [key: string]: string | number | boolean | { [key: string]: string | boolean } | { [key: string]: string }
     }
 >({
     build: {},
-    variables: {}
+    variables: {},
+    upgrade: {}
 })
 
 const isSupportVersion = (os = '', arch = '') => {
@@ -132,27 +134,7 @@ const settingsGroup = ref<{
     push: {
         name: '推送',
         data: { go_bark_addr: 'Bark 推送地址', go_ntfy_addr: 'ntfy 推送地址', go_pushdeer_addr: 'PushDeer 推送地址', go_daily_report_hour: '每日签到报告推送时间（填写 0~23 时或 -1 关闭推送）' }
-    },
-    plugin: {
-        name: '插件',
-        data: {}
     }
-})
-
-const initPluginSettingsGroup = () => {
-    // String(key || '').endsWith('_action_limit')
-    // ver4_ban_break_check: '跳过吧务权限检查（循环封禁）',
-    // ver4_ban_limit: '...'
-
-    for (const plugin of Object.values(pluginList.value)) {
-        if (plugin.status) {
-            for (const setting_option of plugin?.setting_options || []) settingsGroup.value.plugin.data[setting_option['option_name']] = `${setting_option['option_name_cn']}（${plugin.plugin_name_cn}）`
-        }
-    }
-}
-
-watch(pluginList, () => {
-    initPluginSettingsGroup()
 })
 
 const SaveSettings = (e: Event) => {
@@ -164,6 +146,62 @@ const SaveSettings = (e: Event) => {
         },
         method: 'POST',
         body: new URLSearchParams(serverSettings.value).toString()
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            //console.log(res)
+            return
+        }
+
+        if (res.message !== 'OK') {
+            const savedKeys = Object.keys(res.data)
+            Notice((savedKeys.length ? '部分设置已保存:<br />' + savedKeys.join(', ') + '<br /><br />' : '') + '以下设置未保存:<br />' + res.message.split('\n').join('<br /><br />'), 'error', 5000)
+            console.error(res.message)
+        } else {
+            Notice('设置已保存', 'success')
+        }
+        //console.log(res)
+    })
+}
+
+// String(key || '').endsWith('_action_limit')
+// ver4_ban_break_check: '跳过吧务权限检查（循环封禁）',
+// ver4_ban_limit: '...'
+const pluginSettings = ref<{
+    [p in string]: {
+        [q in string]: {
+            option_name: string
+            option_name_cn: string
+            value: string
+        }
+    }
+}>({})
+
+const activePluginSettingsModal = ref<string>('')
+const GetPluginSettings = () => {
+    Request(store.basePath + '/admin/plugin/' + activePluginSettingsModal.value + '/settings', {
+        headers: {
+            Authorization: store.authorization
+        }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        pluginSettings.value[activePluginSettingsModal.value] = res.data
+        //console.log(res)
+    })
+}
+
+const SavePluginSettings = (e: Event) => {
+    e.preventDefault()
+    Request(store.basePath + '/admin/plugin/' + activePluginSettingsModal.value + '/settings', {
+        headers: {
+            Authorization: store.authorization,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        method: 'POST',
+        body: new URLSearchParams(Object.fromEntries(Object.entries(pluginSettings.value?.[activePluginSettingsModal.value] || {}).map((setting) => [setting[0], setting[1].value]))).toString()
     }).then((res) => {
         if (res.code !== 200) {
             Notice(res.message, 'error')
@@ -257,7 +295,7 @@ const releaseList = ref<any[]>([])
 const tenMinutesDelay = ref<boolean>(true)
 
 const getReleasesList = () => {
-    Request('https://api.github.com/repos/banka2017/tbsign_go/releases?per_page=6')
+    Request((serverStatus.value.upgrade.list || 'https://api.github.com/repos/banka2017/tbsign_go/releases') + '?per_page=6')
         .then((res) => {
             releaseList.value = res.sort((a: any, b: any) => (a.published_at < b.published_at ? 1 : -1)).filter((x) => x.tag_name.startsWith('tbsign_go.'))
             const currentIndex = releaseList.value.map((x) => x.tag_name.replace('tbsign_go.', '')).indexOf(fullVersion.value)
@@ -300,7 +338,6 @@ onMounted(() => {
         serverSettings.value = res.data
         //console.log(res)
     })
-    initPluginSettingsGroup()
 })
 </script>
 
@@ -383,6 +420,10 @@ onMounted(() => {
                     <li>
                         <span class="font-bold">发布类型 : </span><span class="font-mono">{{ serverStatus.build.publish_type }}</span>
                     </li>
+                    <li>
+                        <span class="font-bold"><abbr :title="serverStatus.build['vcs.modified'] ? '构建此版本时，源码有本地修改未提交' : '构建时源码无本地修改'">源码状态</abbr> : </span
+                        ><span class="font-mono">{{ serverStatus.build['vcs.modified'] ? 'dirty' : 'clean' }}</span>
+                    </li>
                 </ul>
                 <ul class="col-span-2 md:col-span-1 marker:text-teal-500 list-disc list-inside">
                     <li>
@@ -409,7 +450,7 @@ onMounted(() => {
             </div>
         </div>
 
-        <div class="my-2 rounded-2xl">
+        <div class="my-2 rounded-2xl mb-5">
             <div class="px-3 py-2">
                 <h2 class="text-xl font-bold">软件更新</h2>
             </div>
@@ -430,10 +471,7 @@ onMounted(() => {
                 <uno-icon class="i-bi:cpu-fill -mt-0.5 inline-block" />
                 {{ (serverGoStatus.os || '').toLowerCase() + '-' + (serverGoStatus.arch || '').toLowerCase() }} 不支持网页更新
             </p>
-            <div v-else-if="releaseList.length == 0">
-                <button class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg ml-3 px-3 py-1 hover:text-gray-100 transition-colors" title="检查更新" aria-label="检查更新" @click="getReleasesList">检查更新</button>
-            </div>
-            <div v-if="releaseList.length > 0">
+            <div v-else>
                 <ul role="list" class="px-3 my-2 marker:text-sky-500 list-disc list-inside">
                     <li>
                         如果下面列表中没有一项的右上角有<SvgCheck height="1.2em" width="1.2em" class="inline-block mx-0.5 -mt-0.5" />，说明当前版本过于老旧，或者属于拥有严重 BUG 被撤回的版本，建议前往
@@ -442,9 +480,46 @@ onMounted(() => {
                     <li>无法保证直接升级一定能够成功，升级前请提前备份数据库</li>
                     <li @click="tenMinutesDelay = false" role="button">最后更新会有 10 分钟的延迟</li>
                     <li>不支持自动降级</li>
+                    <li>
+                        <span class="rounded-full mr-1">
+                            <span class="rounded-l-full pl-2 pr-1 text-sm border-2 bg-sky-500 border-sky-500 text-gray-100">{{ serverGoStatus.os }}</span>
+                            <span class="rounded-r-full pr-2 pl-1 text-sm border-2 border-sky-500">{{ serverGoStatus.arch }}</span> </span
+                        >是正式版，
+                        <span class="rounded-full mr-1">
+                            <span class="rounded-l-full pl-2 pr-1 text-sm border-2 bg-yellow-500 border-yellow-500 text-gray-900 font-semibold">{{ serverGoStatus.os }}</span>
+                            <span class="rounded-r-full pr-2 pl-1 text-sm border-2 border-yellow-500">{{ serverGoStatus.arch }}</span> </span
+                        >是 Pre-release 版
+                    </li>
+                    <li>
+                        <Modal class="inline-block" title="更新来源" aria-label="更新来源">
+                            <template #default> <span class="cursor-pointer">点击查看更新来源</span> </template>
+                            <template #container>
+                                <label for="upgrade-list" class="block text-sm font-medium mb-1 mt-3">更新列表</label>
+                                <input
+                                    id="upgrade-list"
+                                    type="text"
+                                    disabled
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                    :value="serverStatus.upgrade?.list || 'https://api.github.com/repos/banka2017/tbsign_go/releases'"
+                                />
+                                <label for="upgrade-list" class="block text-sm font-medium mb-1 mt-3">下载地址</label>
+                                <input
+                                    id="upgrade-list"
+                                    type="text"
+                                    disabled
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                    :value="serverStatus.upgrade?.asset_base || 'https://github.com/BANKA2017/tbsign_go/releases/download'"
+                                />
+                            </template>
+                        </Modal>
+                    </li>
                 </ul>
 
-                <div class="p-3 grid grid-cols-2 gap-2">
+                <button v-if="releaseList.length == 0" class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg ml-3 mt-3 px-3 py-1 hover:text-gray-100 transition-colors" title="检查更新" aria-label="检查更新" @click="getReleasesList">
+                    检查更新
+                </button>
+
+                <div class="p-3 grid grid-cols-2 gap-2" v-else-if="releaseList.length > 0">
                     <div class="col-span-2 md:col-span-1" v-for="(release, i) in releaseList.filter((x) => !tenMinutesDelay || Number(new Date(x.published_at)) + 1000 * 60 * 10 < Date.now())" :key="release.tag_name">
                         <UpdateSystemItem
                             :item="release.assets.find((x: any) => x.name.endsWith(Object.values(serverGoStatus).join('-') + (serverGoStatus.os === 'windows' ? '.exe' : '')))"
@@ -452,6 +527,8 @@ onMounted(() => {
                             :current="fullVersion"
                             :os="serverGoStatus.os"
                             :arch="serverGoStatus.arch"
+                            :base="serverStatus.upgrade.asset_base"
+                            :prerelease="release.prerelease"
                         />
                     </div>
                 </div>
@@ -460,29 +537,104 @@ onMounted(() => {
 
         <div class="my-2 rounded-2xl">
             <div class="px-3 py-2">
-                <h2 class="text-xl font-bold">插件总开关</h2>
+                <h2 class="text-xl font-bold">插件</h2>
             </div>
             <div class="p-3 bg-gray-200 dark:bg-gray-800 rounded-xl">
                 <template v-for="(value, pluginName, index) in pluginList" :key="pluginName">
                     <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-2" />
                     <div class="grid grid-cols-2 gap-3">
-                        <div class="col-span-2 2xs:col-span-1 2xs:py-1.5">
+                        <div class="col-span-2 xs:col-span-1 xs:py-1.5">
                             <span class="px-1.5 rounded bg-sky-500 dark:bg-sky-700 text-sm text-gray-100 mr-2">{{ value?.ver ? (value?.ver !== '-1' ? value.ver : 'und') : 'dev' }}</span>
                             <span class="font-bold">{{ pluginGroup[pluginName] || pluginName }}</span>
                         </div>
-                        <div class="col-span-2 2xs:col-span-1 2xs:text-end">
+                        <div class="col-span-2 xs:col-span-1 xs:text-end">
                             <button
-                                :class="{ 'px-3': true, 'py-1': true, 'bg-sky-500': value.status, 'bg-pink-500': !value.status, 'text-gray-100': true, 'transition-colors': true, rounded: true, 'inline-block': true, 'm-0.5': true }"
+                                :class="{
+                                    'px-3': true,
+                                    'py-1': true,
+                                    'bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400': value.status,
+                                    'bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400': !value.status,
+                                    'text-gray-100': true,
+                                    'transition-colors': true,
+                                    rounded: true,
+                                    'inline-block': true,
+                                    'm-0.5': true
+                                }"
                                 @click="pluginSwitch(pluginName)"
                             >
                                 {{ value.status ? '已开启' : value.ver === '-1' ? '未安装' : '已关闭' }}
                             </button>
-                            <Modal class="inline-block" :title="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + ' ？'" :aria-label="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + ' ？'" v-if="value.ver !== '-1'">
+                            <Modal class="inline-block text-start" :title="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + ' ？'" :aria-label="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + ' ？'" v-if="value.ver !== '-1'">
                                 <template #default>
-                                    <button class="m-0.5 px-3 py-1 bg-pink-500 text-gray-100 transition-colors rounded">卸载</button>
+                                    <button class="m-0.5 px-3 py-1 bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 text-gray-100 transition-colors rounded">卸载</button>
                                 </template>
                                 <template #container>
                                     <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="pluginDelete(pluginName)">确认卸载 {{ pluginGroup[pluginName] }} ({{ pluginName }})</button>
+                                </template>
+                            </Modal>
+                            <Modal
+                                class="inline-block text-start"
+                                :title="pluginGroup[pluginName] || pluginName"
+                                :aria-label="'设置' + (pluginGroup[pluginName] || pluginName)"
+                                v-if="value.ver !== '-1'"
+                                @active-callback="
+                                    (c) => {
+                                        if (!c) {
+                                            activePluginSettingsModal = ''
+                                        }
+                                    }
+                                "
+                            >
+                                <template #default>
+                                    <button
+                                        :class="{
+                                            'm-0.5 px-3 py-1 text-gray-100 transition-colors rounded': true,
+                                            'bg-gray-500 hover:bg-gray-600 dark:hover:bg-gray-400': (pluginList[pluginName]?.setting_options || []).length > 0,
+                                            'cursor-not-allowed bg-gray-400 dark:bg-gray-600': (pluginList[pluginName]?.setting_options || []).length === 0
+                                        }"
+                                        :disabled="(pluginList[pluginName]?.setting_options || []).length === 0"
+                                        @click="
+                                            () => {
+                                                activePluginSettingsModal = pluginName
+                                                GetPluginSettings()
+                                            }
+                                        "
+                                    >
+                                        设置
+                                    </button>
+                                </template>
+                                <template #container>
+                                    <form autocomplete="off">
+                                        <template v-for="(pluginSetting, index) in pluginSettings?.[pluginName] || []" :key="pluginSetting.option_name">
+                                            <label :for="'input-' + pluginSetting.option_name" class="block text-sm font-medium mb-1 mt-3">{{ pluginSetting.option_name_cn }}</label>
+                                            <input
+                                                :id="'input-' + pluginSetting.option_name"
+                                                v-if="['ver4_ban_limit', 'ver4_ref_interval'].includes(pluginSetting.option_name) || String(pluginSetting.option_name || '').endsWith('_action_limit')"
+                                                type="number"
+                                                min="0"
+                                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                                v-model="pluginSettings[pluginName][index].value"
+                                            />
+                                            <select
+                                                :id="'input-' + pluginSetting.option_name"
+                                                v-else-if="pluginSetting.option_name === 'ver4_ban_break_check'"
+                                                class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                                v-model="pluginSettings[pluginName][index].value"
+                                            >
+                                                <option value="0">否</option>
+                                                <option value="1">是</option>
+                                            </select>
+                                            <input
+                                                :id="'input-' + pluginSetting.option_name"
+                                                v-else
+                                                type="text"
+                                                class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                                v-model="pluginSettings[pluginName][index].value"
+                                            />
+                                        </template>
+
+                                        <input type="submit" role="button" class="text-gray-100 text-lg bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded mt-5 px-5 py-1 transition-colors" @click="SavePluginSettings" value="保存" />
+                                    </form>
                                 </template>
                             </Modal>
                         </div>

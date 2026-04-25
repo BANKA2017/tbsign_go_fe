@@ -8,7 +8,9 @@ const props = defineProps({
     current: String,
     url: String,
     os: String,
-    arch: String
+    arch: String,
+    base: String,
+    prerelease: Boolean
 })
 
 const store = useMainStore()
@@ -16,7 +18,7 @@ const store = useMainStore()
 const targetVersion = computed(() => props.item.name.replace('tbsign_go.', '').replace(`.${props.os}-${props.arch}`, '').replace(/.exe/g, ''))
 const isCurrent = computed(() => targetVersion.value === props.current)
 
-const targetLink = computed(() => 'https://github.com/BANKA2017/tbsign_go/releases/download/tbsign_go.' + targetVersion.value + '/' + props.item.name)
+const targetLink = computed(() => (props.base || 'https://github.com/BANKA2017/tbsign_go/releases/download') + '/tbsign_go.' + targetVersion.value + '/' + props.item.name)
 
 const flowStep = ref<number>(0)
 
@@ -53,12 +55,12 @@ const refreshPage = () => {
     <div class="border-4 border-gray-400 dark:border-gray-700 rounded-xl p-3 my-2">
         <div class="flex justify-between">
             <span class="rounded-full">
-                <span class="rounded-l-full pl-2 pr-1 text-sm border-2 bg-sky-500 border-sky-500 text-gray-100">{{ os }}</span>
-                <span class="rounded-r-full pr-2 pl-1 text-sm border-2 border-sky-500">{{ arch }}</span>
+                <span :class="{ 'rounded-l-full pl-2 pr-1 text-sm border-2': true, 'bg-sky-500 border-sky-500 text-gray-100': !prerelease, 'bg-yellow-500 border-yellow-500 text-gray-900 font-semibold': prerelease }">{{ os }}</span>
+                <span :class="{ 'rounded-r-full pr-2 pl-1 text-sm border-2': true, 'border-sky-500': !prerelease, 'border-yellow-500': prerelease }">{{ arch }}</span>
             </span>
             <span v-if="isCurrent" title="当前版本"><SvgCheck height="1.2em" width="1.2em" class="inline-block -mt-1" /></span>
         </div>
-        <ul role="list" class="my-2 marker:text-sky-500 list-disc list-inside">
+        <ul role="list" class="my-2 marker:text-sky-500 list-disc list-inside text-sm">
             <li>
                 上传时间 : <code>{{ getPubDate(new Date(item.created_at)) }}</code>
             </li>
@@ -73,7 +75,7 @@ const refreshPage = () => {
             </li>
         </ul>
 
-        <div class="flex justify-start gap-2">
+        <div class="flex justify-start gap-2 text-sm">
             <Modal class="col-span-3 md:col-span-1" title="软件更新" aria-label="软件更新" v-if="!isCurrent">
                 <template #default>
                     <button class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg px-3 py-1 hover:text-gray-100 transition-colors" title="软件更新" aria-label="软件更新">软件更新</button>
