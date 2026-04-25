@@ -625,7 +625,7 @@ const submitQRLogin = () => {
                 Notice('已添加 @' + res.data?.name || res.data?.portrait, 'success')
                 accounts.value.push(res.data)
                 if (!(pluginList.value?.['ver4_ref']?.status || false)) {
-                    Notice('注意：当前站点未开启自动同步贴吧列表插件，请手动同步贴吧列表', 'info', 0)
+                    Notice('注意：当前站点未启用贴吧列表自动同步，请手动同步', 'info', 0)
                 }
                 return
             } else if (res.code === 200) {
@@ -634,7 +634,7 @@ const submitQRLogin = () => {
                         Notice('更新 BDUSS 信息成功 @' + res.data.name || res.data.portrait, 'success')
                         accounts.value[accountIndex] = res.data
                         if (!(pluginList.value?.['ver4_ref']?.status || false)) {
-                            Notice('注意：当前站点未开启自动同步贴吧列表插件，请手动同步贴吧列表', 'info', 0)
+                            Notice('注意：当前站点未启用贴吧列表自动同步，请手动同步', 'info', 0)
                         }
                         //console.log('find', accountIndex)
                         return

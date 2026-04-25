@@ -185,12 +185,13 @@ const parseLogs = (log_: string = '') => {
                         if (kv.length === 2) {
                             return { act_type: kv[0], status: kv[1] }
                         } else if (kv.length === 4) {
-                            return { task_id: kv[0], name: kv[1], act_type: kv[2], status: kv[3] }
+                            return { task_id: Number(kv[0]), name: kv[1], act_type: kv[2], status: kv[3] }
                         } else {
                             return null
                         }
                     })
                     .filter((kv) => kv)
+                    .sort((a, b) => (a?.task_id === 0) - (b?.task_id === 0) || (a?.act_type > b?.act_type ? 1 : -1))
             }
         })
         .filter((x) => x)
@@ -333,7 +334,11 @@ onMounted(() => {
                     <li>
                         <span class="font-bold">状态 : </span>
                         <ul v-if="task.status && task.status.startsWith('[')" class="grid grid-cols-6 gap-x-5 marker:text-sky-500 list-disc list-inside">
-                            <li class="ml-5 col-span-6 md:col-span-3 lg:col-span-2" v-for="taskStatus in JSON.parse(task.status).sort((a, b) => (a?.act_type > b?.act_type ? 1 : -1))" :key="task.pid + '_' + taskStatus.name">
+                            <li
+                                class="ml-5 col-span-6 md:col-span-3 lg:col-span-2"
+                                v-for="taskStatus in JSON.parse(task.status).sort((a, b) => (a?.task_id === 0) - (b?.task_id === 0) || (a?.act_type > b?.act_type ? 1 : -1))"
+                                :key="task.pid + '_' + taskStatus.name"
+                            >
                                 <SvgPencil v-if="settings.ext_tasks[taskStatus.act_type] && taskStatus.status" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                                 <SvgPushPin v-else-if="taskStatus.act_type === 'active' && taskStatus.status" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
                                 <SvgCheck v-else-if="taskStatus.status" height="1em" width="1em" class="inline-block -mt-0.5 mr-1" />
