@@ -421,8 +421,8 @@ onMounted(() => {
                         <span class="font-bold">发布类型 : </span><span class="font-mono">{{ serverStatus.build.publish_type }}</span>
                     </li>
                     <li>
-                        <span class="font-bold"><abbr :title="serverStatus.build['vcs.modified'] ? '构建此版本时，源码有本地修改未提交' : '构建时源码无本地修改'">源码状态</abbr> : </span
-                        ><span class="font-mono">{{ serverStatus.build['vcs.modified'] ? 'dirty' : 'clean' }}</span>
+                        <span class="font-bold"><abbr :title="serverStatus.build['vcs.modified'] === '1' ? '构建此版本时，源码有本地修改未提交' : '构建时源码无本地修改'">源码状态</abbr> : </span
+                        ><span class="font-mono">{{ serverStatus.build['vcs.modified'] === '1' ? 'dirty' : 'clean' }}</span>
                     </li>
                 </ul>
                 <ul class="col-span-2 md:col-span-1 marker:text-teal-500 list-disc list-inside">
