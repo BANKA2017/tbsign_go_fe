@@ -126,30 +126,28 @@ updateNavStatus()
                     </NuxtLink>
                 </template>
             </div>
-            <div class="hidden md:block" v-for="nav in activeNavs" :key="nav.routeName" v-show="nav.show">
-                <NuxtLink
+            <NuxtLink class="hidden md:block group w-full" v-for="nav in activeNavs" :key="nav.routeName" v-show="nav.show" :to="nav.to">
+                <div
                     :class="{
                         'max-w-full': true,
                         'inline-block': true,
                         'my-1': true,
                         'px-5': true,
                         'mx-1': true,
-                        'md:-mx-5': true,
                         'rounded-full': true,
                         'transition-colors': true,
-                        'hover:bg-sky-500': true,
+                        'group-hover:bg-sky-500': true,
                         'bg-sky-500': route.name === nav.routeName,
                         'text-black': route.name !== nav.routeName,
-                        'hover:text-gray-100': true,
+                        'group-hover:text-gray-100': true,
                         'dark:text-gray-100': true,
                         'text-gray-100': route.name === nav.routeName,
                         'py-2': true
                     }"
-                    :to="nav.to"
                 >
                     <div class="inline-bolck truncate">{{ nav.name }}</div>
-                </NuxtLink>
-            </div>
+                </div>
+            </NuxtLink>
         </ClientOnly>
     </div>
 </template>
@@ -159,8 +157,8 @@ updateNavStatus()
     max-height: 0;
     opacity: 0;
     transition:
-        max-height 0.1s ease-out,
-        opacity 0.1s ease-out;
+        max-height 0.1s linear,
+        opacity 0.1s linear;
     overflow: hidden;
 }
 
@@ -168,8 +166,13 @@ updateNavStatus()
     max-height: 2.5rem;
     opacity: 1;
     transition:
-        max-height 0.1s ease-in,
-        opacity 0.1s ease-in;
+        max-height 0.1s linear,
+        opacity 0.1s linear;
     overflow: hidden;
+}
+
+.sidelist-in,
+.sidelist-out {
+    will-change: opacity, transform;
 }
 </style>

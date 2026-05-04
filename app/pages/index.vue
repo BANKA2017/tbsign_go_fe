@@ -319,7 +319,7 @@
                 "
             >
                 <template #default>
-                    <button class="inline-block my-1 px-5 mx-1 rounded-full transition-colors hover:bg-sky-600 dark:hover:bg-orange-400 bg-orange-500 text-gray-100 py-2">重置插件</button>
+                    <button class="inline-block my-1 px-5 mx-1 rounded-full transition-colors hover:bg-orange-600 dark:hover:bg-orange-400 bg-orange-500 text-gray-100 py-2">重置插件</button>
                 </template>
                 <template #container>
                     <ul class="mb-3 col-span-2 md:col-span-1 marker:text-sky-500 list-disc list-inside text-sm">

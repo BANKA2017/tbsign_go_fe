@@ -120,7 +120,7 @@ const modalSwitch = (value: Event | boolean) => {
     animation-fill-mode: forwards;
     animation-name: modal-roll-in;
     animation-timing-function: linear;
-    animation-duration: 100ms;
+    animation-duration: 150ms;
     animation-iteration-count: 1;
 }
 
@@ -128,7 +128,7 @@ const modalSwitch = (value: Event | boolean) => {
     animation-fill-mode: forwards;
     animation-name: modal-roll-out;
     animation-timing-function: linear;
-    animation-duration: 100ms;
+    animation-duration: 150ms;
     animation-iteration-count: 1;
 }
 </style>
