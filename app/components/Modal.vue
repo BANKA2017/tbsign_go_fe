@@ -83,7 +83,7 @@ const modalSwitch = (value: Event | boolean) => {
                         <uno-icon class="i-bi:x-lg" style="height: 1rem; width: 1rem" />
                     </button>
                 </h5>
-                <slot name="container">这里什么都没有~</slot>
+                <slot name="container" v-if="!nested_modal || activeModal">这里什么都没有~</slot>
             </div>
         </div>
     </div>

@@ -138,22 +138,40 @@ const deleteAccount = async (id: number) => {
             Authorization: store.authorization
         },
         method: 'DELETE'
-    }).then((res) => {
-        if (res.code !== 200) {
-            Notice(res.message, 'error')
-            return
-        }
-        Notice('已删除 pid:' + id, 'success')
-        store.updateCache(
-            'accounts',
-            accounts.value.filter((item) => item.id !== res.data.pid)
-        )
-        //console.log(res)
     })
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            Notice('已删除 pid:' + id, 'success')
+            store.updateCache(
+                'accounts',
+                accounts.value.filter((item) => item.id !== res.data.pid)
+            )
+            //console.log(res)
+        })
+        .finally(() => {
+            toDeletePid.value = 0
+        })
 }
 
+const resetPid = ref<number>(0)
 const cleanTiebaList = async () => {
-    Request(store.basePath + '/list', {
+    const pid = Number(resetPid.value)
+
+    if (pid < 0 || (pid > 0 && !pidNameKV.value[pid.toString()])) {
+        Notice('账号不存在', 'error')
+        return
+    }
+
+    const resetPidMode = pid > 0 && pidNameKV.value[pid.toString()]
+    let resetURL = store.basePath + '/list'
+    if (resetPidMode) {
+        resetURL = store.basePath + '/list/' + pid
+    }
+
+    Request(resetURL, {
         headers: {
             Authorization: store.authorization
         },
@@ -163,8 +181,14 @@ const cleanTiebaList = async () => {
             Notice(res.message, 'error')
             return
         }
-        Notice('已清空账号', 'success')
-        list.value = []
+
+        if (resetPidMode) {
+            list.value = list.value.filter((forum) => forum.pid !== pid)
+            Notice(pidNameKV.value[pid.toString()] + ' 贴吧列表已清空', 'success')
+        } else {
+            list.value = []
+            Notice('已清空账号', 'success')
+        }
         //console.log(res)
     })
 }
@@ -225,14 +249,28 @@ const tbStatus = computed(() => {
 })
 
 const syncList = ref<boolean>(false)
-
-const syncTiebaList = async () => {
+const syncPid = ref<number>(0)
+const syncTiebaList = () => {
     if (syncList.value) {
         Notice('已有一个进行中的同步任务', 'error')
         return
     }
     syncList.value = true
-    Request(store.basePath + '/list/sync?array_mode=1', {
+
+    const pid = Number(syncPid.value)
+
+    if (pid < 0 || (pid > 0 && !pidNameKV.value[pid.toString()])) {
+        Notice('账号不存在', 'error')
+        return
+    }
+
+    const syncPidMode = pid > 0 && pidNameKV.value[pid.toString()]
+    let syncURL = store.basePath + '/list/sync?array_mode=1'
+    if (syncPidMode) {
+        syncURL = store.basePath + '/list/' + pid + '/sync?array_mode=1'
+    }
+
+    Request(syncURL, {
         headers: {
             Authorization: store.authorization
         },
@@ -243,8 +281,14 @@ const syncTiebaList = async () => {
                 Notice(res.message, 'error')
                 return
             }
-            Notice('列表已同步', 'success')
-            list.value = ForumListArr2Obj(res.data)
+
+            if (syncPidMode) {
+                list.value = list.value.filter((forum) => forum.pid !== pid).concat(ForumListArr2Obj(res.data))
+                Notice(pidNameKV.value[pid.toString()] + ' 列表已同步', 'success')
+            } else {
+                list.value = ForumListArr2Obj(res.data)
+                Notice('列表已同步', 'success')
+            }
             //console.log(res)
         })
         .catch((e) => {
@@ -795,7 +839,16 @@ onMounted(() => {
                 <button class="w-full rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="从贴吧拉取列表，更新数据库" aria-label="从贴吧拉取列表，更新数据库">同步列表</button>
             </template>
             <template #container>
-                <p class="mb-3">注意：同步贴吧列表可能需要较长时间，请等到右上角圈圈消失并弹出“列表已同步”消息后再关闭本窗口！</p>
+                <p class="mb-3 text-sm">注意：同步贴吧列表可能需要较长时间，请等到右上角圈圈消失并弹出“列表已同步”消息后再关闭本窗口！</p>
+
+                <div class="my-3">
+                    <label for="pid-to-sync">选择要同步账号</label>
+                    <select id="pid-to-sync" v-model="syncPid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full mt-1 rounded-xl">
+                        <option :key="0" :value="0">全选</option>
+                        <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
+                    </select>
+                </div>
+
                 <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="syncTiebaList">确认同步</button>
             </template>
         </Modal>
@@ -805,6 +858,15 @@ onMounted(() => {
             </template>
             <template #container>
                 <p class="mb-3">注意：确认后将会清空贴吧列表！</p>
+
+                <div class="my-3">
+                    <label for="pid-to-delete-forum-list">选择要清空账号</label>
+                    <select id="pid-to-delete-forum-list" v-model="resetPid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full mt-1 rounded-xl">
+                        <option :key="0" :value="0">全选</option>
+                        <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
+                    </select>
+                </div>
+
                 <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="cleanTiebaList">确认清空</button>
             </template>
         </Modal>

@@ -72,4 +72,8 @@ const isLoading = computed(() => !isNotLoginPath.value && Number(account_info.va
         opacity 0.1s ease-in;
     overflow: hidden;
 }
+
+:root {
+    @apply overflow-y-scroll;
+}
 </style>

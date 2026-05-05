@@ -21,7 +21,9 @@
                         <span class="text-sm max-w-[250px] overflow-hidden truncate">{{ accountInfo.email }}</span>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <div class="dark:text-gray-100 border-l-4 border-l-sky-500 dark:border-l-sky-800 px-3 py-0.5 mx-1 uppercase font-bold text-sm">{{ accountInfo.role }}</div>
+                        <div class="dark:text-gray-100 border-l-4 border-l-sky-500 dark:border-l-sky-800 px-3 py-0.5 mx-1 uppercase font-bold text-sm">
+                            {{ accountInfo.role }}
+                        </div>
                         <div class="text-sm border-l-4 dark:text-gray-100 border-l-green-600 dark:border-l-green-800 px-3 py-0.5 mx-1 uppercase font-bold">uid: {{ accountInfo.uid }}</div>
                     </div>
                 </div>
@@ -200,7 +202,7 @@
                             @click="saveSettings"
                             value="保存"
                         />
-                        <button v-else role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-400 dark:bg-gray-500 text-xl transition-colors" disabled>填写当前密码后保存</button>
+                        <button v-else role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-400 dark:bg-gray-500 text-xl transition-colors" disabled>请填写密码</button>
                     </form>
                 </template>
             </Modal>
@@ -221,11 +223,39 @@
                 <template #container>
                     <div v-if="accountInfo">
                         <div class="my-1">
-                            <button v-if="accountInfo?.system_settings?.allow_export_personal_data === '1'" :class="'mr-1 rounded px-2 ' + (backupStatus === 'export' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'export'">导出</button>
-                            <button v-if="accountInfo?.system_settings?.allow_import_personal_data === '1'" :class="'mr-1 rounded px-2 ' + (backupStatus === 'import' ? 'bg-sky-500 text-gray-200' : '')" @click="backupStatus = 'import'">导入</button>
+                            <button
+                                v-if="accountInfo?.system_settings?.allow_export_personal_data === '1'"
+                                :class="'mr-1 rounded px-2 hover:bg-sky-500 hover:text-gray-200 transition-colors ' + (backupStatus === 'export' ? 'bg-sky-500 text-gray-200' : '')"
+                                @click="backupStatus = 'export'"
+                            >
+                                导出
+                            </button>
+                            <button
+                                v-if="accountInfo?.system_settings?.allow_import_personal_data === '1'"
+                                :class="'mr-1 rounded px-2 hover:bg-sky-500 hover:text-gray-200 transition-colors ' + (backupStatus === 'import' ? 'bg-sky-500 text-gray-200' : '')"
+                                @click="backupStatus = 'import'"
+                            >
+                                导入
+                            </button>
                         </div>
                         <form v-if="backupStatus === 'export'" class="flex flex-col gap-2 mt-3">
+                            <!--<label for="user-export-plugin" class="font-bold">选择插件</label>
+                            <select
+                                id="user-export-plugin"
+                                multiple
+                                v-model="resetPluginName"
+                                class="form-multiselect placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 rounded-xl bg-gray-100 dark:bg-gray-800 dark:text-gray-100 form-select block w-full mt-2 mb-3 h-48"
+                            >
+                                <option v-for="(pluginInfo, pluginName) in pluginList" :key="pluginName" :value="pluginName">{{ pluginInfo.plugin_name_cn }}</option>
+                            </select>-->
+                            <ul role="list" class="my-1 marker:text-pink-500 list-disc list-inside text-sm">
+                                <li>导出数据包括网站设置，百度账号和贴吧，以及插件设置和记录</li>
+                                <li>所有内容都会以明文导出，请注意数据安全</li>
+                            </ul>
+                            <hr class="border-gray-400 dark:border-gray-600 my-1" />
+                            <label class="block" for="export-backup-password">密码</label>
                             <input
+                                id="export-backup-password"
                                 type="password"
                                 placeholder="当前密码"
                                 autocomplete="current-password"
@@ -245,17 +275,102 @@
                                 "
                                 value="确认导出"
                             />
-                            <button v-else role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-400 dark:bg-gray-500 text-xl transition-colors" disabled>填写当前密码后导出</button>
+                            <button v-else role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-400 dark:bg-gray-500 text-xl transition-colors" disabled>请填写密码</button>
                         </form>
 
                         <form v-else-if="backupStatus === 'import'" class="flex flex-col gap-2" v-if="accountInfo">
                             <ul role="list" class="my-1 marker:text-pink-500 list-disc list-inside text-sm">
                                 <li>批量导入数据时不会检查百度账号有效性，请自行提前检查</li>
-                                <li>目前只支持导入百度账号和贴吧列表</li>
-                                <li>如果百度账号已经存在，程序只会以<span class="font-bold">仅新增</span>的模式合并贴吧列表</li>
-                                <li>导入的顺序可能会改变</li>
+                                <li>导入失败可能不会有提示</li>
+                                <li>导入程序使用<span class="font-bold">仅新增</span>模式合并贴吧列表</li>
+                                <li>如果相关项目有容量上限，会丢弃超出的部分</li>
+                                <li>备份内容会覆盖个人设置</li>
+                                <li>导入后的顺序可能会有变化</li>
                             </ul>
                             <hr class="border-gray-400 dark:border-gray-600 my-1" />
+                            <label class="block" for="upload-backup-data">
+                                <span>备份文件</span>
+                                <div
+                                    :class="{
+                                        'my-2 border-4 rounded-xl transition-all h-full min-h-10 text-center cursor-pointer border-gray-400 ': true,
+                                        'hover:bg-gray-100 hover:dark:bg-gray-900 hover:border-dotted ': true,
+                                        'bg-gray-100 dark:bg-gray-900 border-dotted ': dragStatus,
+                                        'border-dashed': !dragStatus
+                                    }"
+                                    @dragenter="dragEvent"
+                                    @dragleave="dragEvent"
+                                    @dragover="dragEvent"
+                                    @drop="dropEvent"
+                                >
+                                    <div class="py-8 pointer-events-none select-none">
+                                        <div class="text-xl">{{ dragStatus ? '释放以读取备份文件' : Object.keys(backupFileData).length > 0 ? '点击，或拖动备份文件到这里更新' : '点击，或拖动备份文件到这里释放' }}</div>
+                                    </div>
+                                </div>
+
+                                <input
+                                    type="file"
+                                    class="sr-only"
+                                    accept="application/json"
+                                    id="upload-backup-data"
+                                    lang="zh"
+                                    @change="
+                                        async (e) => {
+                                            e.preventDefault()
+                                            loadingBackupData()
+                                        }
+                                    "
+                                />
+                            </label>
+                            <div v-if="backupFileKeys.length > 0">
+                                <span>已读取的备份</span>
+                                <div class="my-2 rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3 relative" v-for="backupTableName in backupFileKeys" :key="backupTableName">
+                                    <h5 class="font-bold text-xl" :title="priorityOrder[backupTableName] !== undefined ? '核心备份' : '插件备份'">
+                                        {{ backupTableName }}
+                                        <uno-icon v-if="priorityOrder[backupTableName] !== undefined" class="i-fluent-emoji-flat:high-voltage inline-block -mt-1" style="width: 1em; height: 1em" />
+                                    </h5>
+                                    <Modal class="inline-block" :title="'表 ' + backupTableName" :nested_modal="true">
+                                        <template #default>
+                                            <span class="hover:underline underline-offset-1 cursor-pointer">{{ (backupFileData[backupTableName] || []).length }} 条记录</span>
+                                        </template>
+                                        <template #container>
+                                            <div class="rounded-lg bg-gray-300 dark:bg-gray-800 px-5 py-3 mb-3 relative" v-for="(backupItem, index) in backupFileData[backupTableName] || []" :key="backupItem.id">
+                                                <h5 class="font-bold text-xl">
+                                                    ID: {{ backupItem.id }}
+                                                    <SvgCheck v-if="backupTableName === 'tc_baiduid' && tbPortraits.includes(backupItem.portrait)" height="0.9em" width="0.9em" class="inline-block -mt-1 ml-2" title="账号已存在" />
+                                                </h5>
+                                                <ul role="list" class="my-1 marker:text-sky-500 list-disc list-inside transition-all">
+                                                    <li v-for="(v, k) in backupItem" :key="backupTableName" class="truncate w-full">
+                                                        <span class="font-bold">{{ k }}: </span><span class="font-mono">{{ v }}</span>
+                                                    </li>
+                                                </ul>
+                                                <button
+                                                    class="text-pink-500 hover:text-pink-600 absolute right-3 top-3 rounded-full transition-colors"
+                                                    @click="
+                                                        (e) => {
+                                                            e.preventDefault()
+                                                            backupFileData[backupTableName] = [...backupFileData[backupTableName].slice(0, index), ...backupFileData[backupTableName].slice(index + 1)]
+                                                        }
+                                                    "
+                                                >
+                                                    <uno-icon class="i-bi:x-circle-fill" style="width: 1.5em; height: 1.5em" />
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </Modal>
+                                    <button
+                                        v-if="backupTableName !== 'tc_baiduid'"
+                                        class="text-pink-500 hover:text-pink-600 absolute right-3 top-3 rounded-full transition-colors"
+                                        @click="
+                                            (e) => {
+                                                e.preventDefault()
+                                                deleteBackupTable(backupTableName)
+                                            }
+                                        "
+                                    >
+                                        <uno-icon class="i-bi:x-circle-fill" style="width: 1.5em; height: 1.5em" />
+                                    </button>
+                                </div>
+                            </div>
                             <label class="block" for="restore-backup-password">密码</label>
                             <input
                                 id="restore-backup-password"
@@ -265,29 +380,6 @@
                                 class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                                 v-model="settingsValue.password"
                             />
-                            <label class="block" for="upload-backup-data">备份文件</label>
-                            <input
-                                type="file"
-                                class="placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-300 file:text-gray-700 hover:file:bg-gray-400 dark:file:bg-gray-600 dark:file:text-gray-100 dark:hover:file:bg-gray-500"
-                                id="upload-backup-data"
-                                lang="zh"
-                                @change="
-                                    async (e) => {
-                                        e.preventDefault()
-                                        loadingBackupData()
-                                    }
-                                "
-                                accept="application/json"
-                            />
-                            <div v-if="Object.keys(backupFileData).length > 0">
-                                <label>已读取备份</label>
-                                <ul role="list" class="my-1 marker:text-sky-500 list-disc list-inside">
-                                    <li v-for="(backupData, backupTableName) in backupFileData" :key="backupTableName">
-                                        <span class="font-bold">{{ backupTableName }}: </span><span class="font-mono">{{ (backupData || []).length }}</span>
-                                    </li>
-                                </ul>
-                            </div>
-
                             <input
                                 v-if="settingsValue.password !== ''"
                                 type="submit"
@@ -301,7 +393,7 @@
                                 "
                                 value="确认导入"
                             />
-                            <button v-else-if="Object.keys(backupFileData).length > 0" role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-400 dark:bg-gray-500 text-xl transition-colors" disabled>填写当前密码后导入</button>
+                            <button v-else-if="backupFileKeys.length > 0" role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-400 dark:bg-gray-500 text-xl transition-colors" disabled>请填写密码</button>
                             <button v-else role="button" class="text-gray-100 mt-3 rounded-lg px-3 py-1 bg-gray-400 dark:bg-gray-500 text-xl transition-colors" disabled>备份数据无效</button>
                         </form>
                         <div v-else>本网站不支持备份</div>
@@ -334,8 +426,8 @@
                     </select>
 
                     <div class="my-3">
-                        <label for="pid-to-froum-manager">账号</label>
-                        <select id="pid-to-froum-manager" v-model="resetPid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full mt-1 rounded-xl">
+                        <label for="pid-to-plugin-reset">账号</label>
+                        <select id="pid-to-plugin-reset" v-model="resetPid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full mt-1 rounded-xl">
                             <option :key="0" :value="0">全选</option>
                             <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
                         </select>
@@ -360,6 +452,8 @@ const tbaccounts = computed(() => store.cache?.accounts || [])
 const pluginList = computed(() => store.cache?.plugin_list || {})
 const notifications = ref<string>('')
 const runtimeConfig = useRuntimeConfig()
+
+const tbPortraits = computed(() => tbaccounts.value.map((tba) => tba.portrait))
 
 watch(accountInfo, () => {
     settingsValue.email = accountInfo.value?.email || ''
@@ -564,43 +658,76 @@ const updateAccoutList = () => {
 const backupStatus = ref<string>('export') // import
 const backupFileData = ref<{ [p in string]: any }>({})
 
+const priorityOrder: Record<string, number> = {
+    tc_baiduid: 0,
+    tc_tieba: 1,
+    tc_users_options: 2
+}
+
+const backupFileKeys = computed(() => {
+    return Object.keys(backupFileData.value).sort((a, b) => {
+        const pa = priorityOrder[a]
+        const pb = priorityOrder[b]
+
+        const aHas = pa !== undefined
+        const bHas = pb !== undefined
+
+        if (aHas && bHas) return pa - pb
+        if (aHas) return -1
+        if (bHas) return 1
+
+        return a.localeCompare(b)
+    })
+})
+
+const deleteBackupTable = (tableName: string) => {
+    if (tableName === 'tc_baiduid') {
+        Notice('不能删除表 tc_baiduid', 'error')
+    } else {
+        delete backupFileData.value[tableName]
+    }
+}
+
 const loadingBackupData = () => {
     backupFileData.value = {}
     ReadFileData('upload-backup-data')
         .then((res) => {
             for (const table in res) {
                 if (table.startsWith('tc_')) {
-                    switch (table) {
-                        case 'tc_baiduid':
-                            if (!res[table].some((t) => !(t.portrait && t.stoken && t.bduss && t.id && t.id > 0))) {
-                                backupFileData.value.tc_baiduid = res.tc_baiduid.map((t) => ({
-                                    portrait: String(t.portrait),
-                                    stoken: String(t.stoken),
-                                    bduss: String(t.bduss),
-                                    name: String(t.name || ''),
-                                    label: Number(t.id)
-                                }))
-                            }
-                            break
-                        case 'tc_tieba':
-                            if (!res[table].some((t) => !(t.tieba && t.fid && backupFileData.value.tc_baiduid.find((bdid) => bdid.label === t.pid)))) {
-                                backupFileData.value.tc_tieba = res.tc_tieba.map((t) => ({
-                                    tieba: String(t.tieba),
-                                    fid: Number(t.fid || 0),
-                                    label: Number(t.pid || 0),
-                                    no: !!(t.no || false),
-                                    latest: Number(t.latest || 0),
-                                    status: Number(t.status || 0),
-                                    last_error: String(t.last_error || '')
-                                }))
-                            }
-                            break
-                    }
+                    backupFileData.value[table] = res[table]
+                    // switch (table) {
+                    //     case 'tc_baiduid':
+                    //         if (!res[table].some((t) => !(t.portrait && t.stoken && t.bduss && t.id && t.id > 0))) {
+                    //             backupFileData.value.tc_baiduid = res.tc_baiduid.map((t) => ({
+                    //                 portrait: String(t.portrait),
+                    //                 stoken: String(t.stoken),
+                    //                 bduss: String(t.bduss),
+                    //                 name: String(t.name || ''),
+                    //                 id: Number(t.id)
+                    //             }))
+                    //         }
+                    //         break
+                    //     case 'tc_tieba':
+                    //         if (!res[table].some((t) => !(t.tieba && t.fid && backupFileData.value.tc_baiduid.find((bdid) => bdid.id === t.pid)))) {
+                    //             backupFileData.value.tc_tieba = res.tc_tieba.map((t) => ({
+                    //                 tieba: String(t.tieba),
+                    //                 fid: Number(t.fid || 0),
+                    //                 pid: Number(t.pid || 0),
+                    //                 no: !!(t.no || false),
+                    //                 latest: Number(t.latest || 0),
+                    //                 status: Number(t.status || 0),
+                    //                 last_error: String(t.last_error || '')
+                    //             }))
+                    //         }
+                    //         break
+                    // }
                 }
             }
             document.getElementById('upload-backup-data').value = ''
         })
-        .catch((err) => {})
+        .catch((err) => {
+            console.error(err)
+        })
 }
 
 const exportAccount = (password = '') => {
@@ -644,11 +771,12 @@ const importAccount = (password = '') => {
                 Notice('导入失败: ' + res.message, 'error')
                 return
             }
-            Notice(`导入完成，本次导入百度账号 ${res.data.tc_baiduid} 个，贴吧 ${res.data.tc_tieba} 个，请刷新网页`, 'success')
+            Notice('导入完成', 'success')
             updateAccoutList()
+            GetCheckinStatus()
         })
         .catch((e) => {
-            Notice('导出失败: ' + e, 'error')
+            Notice('导入失败: ' + e, 'error')
         })
 }
 
@@ -663,20 +791,92 @@ const resetPluginStatus = () => {
     if (!pluginInfo) {
         return
     }
-    Request(store.basePath + '/passport/plugin/' + resetPluginName.value + '/reset/' + resetPid.value, {
+
+    const pid = Number(resetPid.value)
+
+    if (pid < 0 || !pidNameKV.value[pid.toString()]) {
+        Notice('账号不存在', 'error')
+        return
+    }
+
+    Request(store.basePath + '/passport/plugin/' + resetPluginName.value + '/reset/' + pid, {
         headers: {
             Authorization: store.authorization
         },
         method: 'POST'
-    }).then((res) => {
-        if (res.code !== 200) {
-            Notice(res.message, 'error')
+    })
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                //console.log(res)
+                return
+            }
+
+            if (pid > 0) {
+                Notice('已为 ' + pidNameKV.value[pid] + ' 重置插件 ' + pluginInfo.plugin_name_cn, 'success')
+            } else {
+                Notice('已重置插件 ' + pluginInfo.plugin_name_cn, 'success')
+            }
             //console.log(res)
-            return
+        })
+        .finally(() => {
+            resetPid.value = 0
+        })
+}
+
+const dragStatus = ref<boolean>(false)
+
+const dragEvent = (e: Event) => {
+    e.preventDefault()
+    switch (e.type) {
+        case 'dragenter':
+            dragStatus.value = true
+            break
+        case 'dragleave':
+            //case 'dragend':
+            dragStatus.value = false
+            break
+    }
+}
+
+const dropEvent = async (e: DragEvent) => {
+    e.preventDefault()
+    dragStatus.value = false
+    for (const item of e.dataTransfer.items) {
+        let text = ''
+        switch (item.kind) {
+            case 'file':
+                const entry = await item.getAsFileSystemHandle()
+                if (entry.name.endsWith('.json')) {
+                    const file = await entry.getFile()
+                    text = await file.text()
+                } else {
+                    Notice('请选择正确的 json 备份文件', 'error')
+                    return
+                }
+                break
+            // case 'string':
+            //     item.getAsString((str) => {
+            //         text = str
+            //     })
+            //     break
+            default:
+                Notice('请选择正确的 json 备份文件', 'error')
+                return
         }
 
-        Notice('已重置插件 ' + pluginInfo.plugin_name_cn, 'success')
-        //console.log(res)
-    })
+        try {
+            const data = JSON.parse(text)
+            for (const table in data) {
+                if (table.startsWith('tc_')) {
+                    backupFileData.value[table] = data[table]
+                }
+            }
+            return
+        } catch (err) {
+            Notice('请选择正确的 json 备份文件', 'error')
+            console.error('JSON parse error:', err)
+        }
+    }
 }
 </script>
