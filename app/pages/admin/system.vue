@@ -295,7 +295,7 @@ const releaseList = ref<any[]>([])
 const tenMinutesDelay = ref<boolean>(true)
 
 const getReleasesList = () => {
-    Request((serverStatus.value.upgrade.list || 'https://api.github.com/repos/banka2017/tbsign_go/releases') + '?per_page=6')
+    Request((serverStatus.value.upgrade.api_base || 'https://api.github.com/repos/banka2017/tbsign_go') + '/releases?per_page=6')
         .then((res) => {
             releaseList.value = res.sort((a: any, b: any) => (a.published_at < b.published_at ? 1 : -1)).filter((x) => x.tag_name.startsWith('tbsign_go.'))
             const currentIndex = releaseList.value.map((x) => x.tag_name.replace('tbsign_go.', '')).indexOf(fullVersion.value)
@@ -494,13 +494,13 @@ onMounted(() => {
                         <Modal class="inline-block" title="更新来源" aria-label="更新来源">
                             <template #default> <span class="cursor-pointer">点击查看更新来源</span> </template>
                             <template #container>
-                                <label for="upgrade-list" class="block text-sm font-medium mb-1 mt-3">更新列表</label>
+                                <label for="upgrade-list" class="block text-sm font-medium mb-1 mt-3">API</label>
                                 <input
                                     id="upgrade-list"
                                     type="text"
                                     disabled
                                     class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                                    :value="serverStatus.upgrade?.list || 'https://api.github.com/repos/banka2017/tbsign_go/releases'"
+                                    :value="serverStatus.upgrade?.api_base || 'https://api.github.com/repos/banka2017/tbsign_go'"
                                 />
                                 <label for="upgrade-list" class="block text-sm font-medium mb-1 mt-3">下载地址</label>
                                 <input
