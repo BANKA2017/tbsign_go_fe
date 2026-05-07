@@ -1,6 +1,6 @@
 type darkModeType = '0' | '1' | '2'
 
-const switchDarkMode = (darkMode: darkModeType = '0'): darkModeType => {
+const switchDarkMode = (darkMode: darkModeType = '0'): { darkMode: darkModeType; currentScheme: 'dark' | 'light' } => {
     switch (darkMode) {
         case '0':
             darkMode = '1'
@@ -12,9 +12,9 @@ const switchDarkMode = (darkMode: darkModeType = '0'): darkModeType => {
             darkMode = '0'
             break
     }
-    switchDarkModeAction(darkMode)
+    const currentScheme = switchDarkModeAction(darkMode)
     localStorage.darkMode = darkMode
-    return darkMode
+    return { darkMode, currentScheme }
 }
 
 function setColorScheme(content: string) {
@@ -27,7 +27,8 @@ function setColorScheme(content: string) {
     meta.content = content
 }
 
-const switchDarkModeAction = (darkMode: darkModeType = '0'): void => {
+const switchDarkModeAction = (darkMode: darkModeType = '0'): 'dark' | 'light' => {
+    let colorScheme: 'dark' | 'light' = 'light'
     switch (darkMode) {
         case '0':
             if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -35,6 +36,7 @@ const switchDarkModeAction = (darkMode: darkModeType = '0'): void => {
                     document.documentElement.classList.add('dark')
                     setColorScheme('dark')
                 }
+                colorScheme = 'dark'
             } else {
                 document.documentElement.classList.remove('dark')
                 setColorScheme('light')
@@ -51,8 +53,11 @@ const switchDarkModeAction = (darkMode: darkModeType = '0'): void => {
                 document.documentElement.classList.add('dark')
                 setColorScheme('dark')
             }
+            colorScheme = 'dark'
             break
     }
+
+    return colorScheme
 }
 
 export { switchDarkMode, switchDarkModeAction }

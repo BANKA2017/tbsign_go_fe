@@ -34,3 +34,16 @@ export const Eta = (now: number = Date.now() / 1000, end: number = 0) => {
 }
 
 export const DayList = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+
+export const Before = (current: Date | string, target: Date | string): boolean => {
+    if (typeof current === 'string') {
+        current = new Date(current.replaceAll('-', '/').replace('T', ' '))
+    }
+
+    if (typeof target === 'string') {
+        target = new Date(target.replaceAll('-', '/').replace('T', ' '))
+    }
+    console.log(Number(target) > Number(current), Number(target), Number(current))
+
+    return Number(target) > Number(current)
+}

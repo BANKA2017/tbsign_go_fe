@@ -842,27 +842,13 @@ const dragEvent = (e: Event) => {
 const dropEvent = async (e: DragEvent) => {
     e.preventDefault()
     dragStatus.value = false
-    for (const item of e.dataTransfer.items) {
+    for (const file of e.dataTransfer?.files || []) {
         let text = ''
-        switch (item.kind) {
-            case 'file':
-                const entry = await item.getAsFileSystemHandle()
-                if (entry.name.endsWith('.json')) {
-                    const file = await entry.getFile()
-                    text = await file.text()
-                } else {
-                    Notice('请选择正确的 json 备份文件', 'error')
-                    return
-                }
-                break
-            // case 'string':
-            //     item.getAsString((str) => {
-            //         text = str
-            //     })
-            //     break
-            default:
-                Notice('请选择正确的 json 备份文件', 'error')
-                return
+        if (file.name.endsWith('.json')) {
+            text = await file.text()
+        } else {
+            Notice('请选择正确的 json 备份文件', 'error')
+            return
         }
 
         try {
@@ -872,11 +858,12 @@ const dropEvent = async (e: DragEvent) => {
                     backupFileData.value[table] = data[table]
                 }
             }
-            return
         } catch (err) {
             Notice('请选择正确的 json 备份文件', 'error')
             console.error('JSON parse error:', err)
         }
+
+        return
     }
 }
 </script>

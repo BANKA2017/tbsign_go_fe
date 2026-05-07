@@ -17,7 +17,7 @@ const pluginList = computed({
 const serverStatus = ref<
     {
         build: { [key: string]: string }
-        upgrade: { [key: string]: string }
+        upgrade: { [key: string]: string | boolean }
         variables: { [key: string]: string | boolean }
     } & {
         [key: string]: string | number | boolean | { [key: string]: string | boolean } | { [key: string]: string }
@@ -515,6 +515,8 @@ onMounted(() => {
                     </li>
                 </ul>
 
+                <UploadBinary v-if="serverStatus.upgrade?.allow_upload" :os="serverGoStatus.os" :arch="serverGoStatus.arch" :current-build-date="serverStatus.build.date" />
+
                 <button v-if="releaseList.length == 0" class="border-pink-500 hover:bg-pink-500 border-2 rounded-lg ml-3 mt-3 px-3 py-1 hover:text-gray-100 transition-colors" title="检查更新" aria-label="检查更新" @click="getReleasesList">
                     检查更新
                 </button>
@@ -527,7 +529,7 @@ onMounted(() => {
                             :current="fullVersion"
                             :os="serverGoStatus.os"
                             :arch="serverGoStatus.arch"
-                            :base="serverStatus.upgrade.asset_base"
+                            :base="serverStatus.upgrade.asset_base?.toString()"
                             :prerelease="release.prerelease"
                         />
                     </div>

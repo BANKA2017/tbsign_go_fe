@@ -21,16 +21,21 @@ if (!inject('darkMode', false)) {
     vueApp.provide('darkMode', readonly(darkMode))
 }
 
+const store = useMainStore()
+
 onMounted(() => {
     //get data from storage
     if (localStorage.darkMode) {
         darkMode.value = localStorage.darkMode
     }
-    switchDarkModeAction(darkMode.value)
+    const dark = switchDarkModeAction(darkMode.value) === 'dark'
+    store.updateValue('dark', dark)
 })
 
 const switchDarkModeProxy = () => {
-    darkMode.value = switchDarkMode(darkMode.value)
+    const dm = switchDarkMode(darkMode.value)
+    darkMode.value = dm.darkMode
+    store.updateValue('dark', dm.currentScheme === 'dark')
     localStorage.darkMode = darkMode.value
 }
 </script>
