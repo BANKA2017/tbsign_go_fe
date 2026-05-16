@@ -45,6 +45,10 @@ interface MainStoreState {
         }
     }
     icp?: string
+    system_name?: undefined
+    system_keywords?: undefined
+    system_description?: undefined
+    footer?: undefined
     size: {
         innerHeight: number
         innerWidth: number
@@ -59,6 +63,10 @@ export const useMainStore = defineStore('main', {
         _basePath: '',
         _cache: {},
         icp: undefined,
+        system_name: undefined,
+        system_keywords: undefined,
+        system_description: undefined,
+        footer: undefined,
         size: {
             innerHeight: 0,
             innerWidth: 0

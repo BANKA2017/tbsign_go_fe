@@ -5,13 +5,25 @@
 </template>
 
 <script setup lang="ts">
-useHead({
-    titleTemplate: (titleChunk) => {
-        return titleChunk ? `${titleChunk} - 贴吧云签到` : '贴吧云签到'
+const store = useMainStore()
+const systemKeyWords = computed(() => store.system_keywords)
+const systemDescription = computed(() => store.system_description)
+
+const useHeadMeta = computed(() => {
+    const useHeadMetaData = []
+    if (systemKeyWords.value) {
+        useHeadMetaData.push({ name: 'keywords', content: systemKeyWords.value })
     }
+    if (systemDescription.value) {
+        useHeadMetaData.push({ name: 'description', content: systemDescription.value })
+    }
+
+    return useHeadMetaData
 })
 
-const store = useMainStore()
+useHeadSafe({
+    meta: useHeadMeta
+})
 
 onMounted(() => {
     store.updateSize()

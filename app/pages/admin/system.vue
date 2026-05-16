@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Collapse from '~/components/Collapse.vue'
 import UpdateSystemItem from '~/components/UpdateSystemItem.vue'
+import { buffer_to_base64 } from '~/share/crypto'
 import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
@@ -65,6 +66,7 @@ const fullVersion = computed(() => {
 })
 
 const serverSettings = ref<{ [p in string]: any }>({})
+const serverSettingsSaved = ref<{ [p in string]: any }>({})
 const now = ref<number>(Date.now())
 setInterval(() => {
     now.value = Date.now()
@@ -101,7 +103,7 @@ const settingsGroup = ref<{
 }>({
     system: {
         name: '系统',
-        data: { ann: '公告', icp: '备案号', system_url: '地址' } //, system_name: '网站名称', system_keywords: '关键词', system_description: '简介' }
+        data: { ann: '公告', icp: '备案号', system_url: '地址', system_name: '网站名称（SEO）', system_keywords: '关键词（SEO）', system_description: '简介（SEO）', go_favicon: '/favicon.ico', go_robots_txt: '/robots.txt' }
     },
     account: {
         name: '账号',
@@ -129,7 +131,7 @@ const settingsGroup = ref<{
     },
     mail: {
         name: '邮件',
-        data: { mail_name: '发件人邮箱', mail_yourname: '发件人名称', mail_host: 'SMTP服务器地址', mail_port: 'SMTP服务器端口', mail_secure: '加密方式', mail_auth: '需要身份验证', mail_smtpname: 'SMTP用户名', mail_smtppw: 'SMTP密码' }
+        data: { mail_name: '发件人邮箱', mail_yourname: '发件人名称', mail_host: 'SMTP服务器地址', mail_port: 'SMTP服务器端口', mail_secure: '加密方式', mail_auth: '需要身份验证', mail_smtpname: 'SMTP用户名', mail_smtppw: 'SMTP密码（留空不换）' }
     },
     push: {
         name: '推送',
@@ -137,15 +139,73 @@ const settingsGroup = ref<{
     }
 })
 
+const dragStatus = ref<boolean>(false)
+
+const dragEvent = (e: Event) => {
+    e.preventDefault()
+    switch (e.type) {
+        case 'dragenter':
+            dragStatus.value = true
+            break
+        case 'dragleave':
+            //case 'dragend':
+            dragStatus.value = false
+            break
+    }
+}
+
+const dropEvent = async (e: DragEvent) => {
+    e.preventDefault()
+    dragStatus.value = false
+    handleFiles(e.dataTransfer?.files || [])
+}
+
+const handleFiles = async (files: FileList = []) => {
+    let icoStatus = false
+    for (const file of files) {
+        if (!icoStatus) {
+            if (file.size === 0 || file.type !== 'image/x-icon') {
+                continue
+            }
+
+            const reader = new FileReader()
+            reader.onload = () => {
+                const buffer = reader.result as ArrayBuffer | null
+
+                if (buffer) {
+                    serverSettings.value['go_favicon'] = 'data:image/x-icon;base64,' + buffer_to_base64(buffer)
+                }
+
+                icoStatus = true
+            }
+
+            reader.readAsArrayBuffer(file)
+        }
+
+        if (icoStatus) {
+            return
+        }
+    }
+    // Notice('没有符合的 .ico 文件', 'error')
+}
+
 const SaveSettings = (e: Event) => {
     e.preventDefault()
+
+    let diffSettings: { [p in string]: string } = {}
+    for (const k in serverSettingsSaved.value) {
+        if (serverSettingsSaved.value[k] !== serverSettings.value[k]) {
+            diffSettings[k] = serverSettings.value[k]
+        }
+    }
+
     Request(store.basePath + '/admin/settings', {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         method: 'POST',
-        body: new URLSearchParams(serverSettings.value).toString()
+        body: new URLSearchParams(diffSettings).toString()
     }).then((res) => {
         if (res.code !== 200) {
             Notice(res.message, 'error')
@@ -160,6 +220,16 @@ const SaveSettings = (e: Event) => {
         } else {
             Notice('设置已保存', 'success')
         }
+
+        for (const k in res.data) {
+            if (['go_favicon', 'mail_smtppw'].includes(k)) {
+                delete serverSettingsSaved.value[k]
+            } else {
+                serverSettingsSaved.value[k] = res.data[k]
+            }
+        }
+
+        serverSettings.value = JSON.parse(JSON.stringify(serverSettingsSaved.value))
         //console.log(res)
     })
 }
@@ -335,7 +405,8 @@ onMounted(() => {
             Notice(res.message, 'error')
             return
         }
-        serverSettings.value = res.data
+        serverSettings.value = JSON.parse(JSON.stringify(res.data))
+        serverSettingsSaved.value = JSON.parse(JSON.stringify(res.data))
         //console.log(res)
     })
 })
@@ -589,11 +660,7 @@ onMounted(() => {
                             >
                                 <template #default>
                                     <button
-                                        :class="{
-                                            'm-0.5 px-3 py-1 text-gray-100 transition-colors rounded': true,
-                                            'bg-gray-500 hover:bg-gray-600 dark:hover:bg-gray-400': (pluginList[pluginName]?.setting_options || []).length > 0,
-                                            'cursor-not-allowed bg-gray-400 dark:bg-gray-600': (pluginList[pluginName]?.setting_options || []).length === 0
-                                        }"
+                                        class="m-0.5 px-3 py-1 text-gray-100 transition-colors rounded bg-gray-500 hover:bg-gray-600 dark:hover:bg-gray-400 disabled:cursor-not-allowed disabled:bg-gray-400 dark:disabled:bg-gray-600"
                                         :disabled="(pluginList[pluginName]?.setting_options || []).length === 0"
                                         @click="
                                             () => {
@@ -660,9 +727,54 @@ onMounted(() => {
                         <template #container>
                             <template v-for="(name, key) in _set.data" :key="key">
                                 <label :for="'input-' + key" class="block text-sm font-medium mb-1 mt-3">{{ name }}</label>
+                                <div v-if="['go_favicon'].includes(key)" class="flex w-full rounded-xl">
+                                    <label
+                                        :for="'input-' + key"
+                                        :class="{ 'grow block cursor-pointer select-none rounded-l-xl': true, 'border-gray-400 border-dashed border-2': !serverSettings[key], 'border-gray-400 dark:border-gray-600 border-2': serverSettings[key] }"
+                                    >
+                                        <div @dragenter="dragEvent" @dragleave="dragEvent" @dragover="dragEvent" @drop="dropEvent">
+                                            <div class="pointer-events-none py-1 rounded-lg px-2">
+                                                <img alt="当前 favicon" :src="serverSettings[key] ? serverSettings[key] : '/favicon.ico'" class="w-[32px] h-[32px]" />
+                                                <input
+                                                    type="file"
+                                                    class="sr-only"
+                                                    :id="'input-' + key"
+                                                    lang="zh"
+                                                    multiple
+                                                    @change="
+                                                        async (e) => {
+                                                            e.preventDefault()
+                                                            handleFiles(e.target?.files || [])
+                                                            if (e?.target?.value) {
+                                                                e.target.value = ''
+                                                            }
+                                                        }
+                                                    "
+                                                />
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <button
+                                        type="button"
+                                        :class="{
+                                            'inline-block px-3 py-1 rounded-r-xl border  transition-colors disabled:cursor-not-allowed': true,
+                                            'border-pink-500 hover:bg-pink-500 hover:text-gray-100': serverSettings[key],
+                                            'border-slate-500 hover:bg-gray-300 hover:text-gray-900': !serverSettings[key]
+                                        }"
+                                        @click="
+                                            (e) => {
+                                                e.preventDefault()
+                                                delete serverSettings[key]
+                                            }
+                                        "
+                                        :disabled="!serverSettings[key]"
+                                    >
+                                        {{ dragStatus ? '待释放' : serverSettings[key] ? '删除' : '未修改' }}
+                                    </button>
+                                </div>
                                 <textarea
                                     :id="'input-' + key"
-                                    v-if="['system_description', 'ann'].includes(key)"
+                                    v-else-if="['system_description', 'ann', 'go_robots_txt'].includes(key)"
                                     class="form-textarea placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                                     rows="8"
                                     v-model="serverSettings[key]"
@@ -761,15 +873,17 @@ onMounted(() => {
                                 <input
                                     :id="'input-' + key"
                                     v-else-if="key === 'mail_smtppw' && serverSettings[key] !== undefined"
-                                    type="password"
-                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
+                                    type="text"
+                                    :disabled="!['1', '2'].includes(serverSettings['mail_auth'])"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl disabled:cursor-not-allowed"
                                     v-model="serverSettings[key]"
                                 />
                                 <input
                                     :id="'input-' + key"
                                     v-else-if="key === 'mail_smtpname' && serverSettings[key] !== undefined"
                                     type="text"
-                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                    :disabled="!['1', '2'].includes(serverSettings['mail_auth'])"
+                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl disabled:cursor-not-allowed"
                                     v-model="serverSettings[key]"
                                 />
                                 <div v-else-if="['go_bark_addr', 'go_ntfy_addr', 'go_pushdeer_addr'].includes(key)" class="flex w-full">

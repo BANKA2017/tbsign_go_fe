@@ -43,14 +43,32 @@ import Footer from '~/components/Footer.vue'
 import Loading from '~/components/Loading.vue'
 import ScrollTo from '~/share/ScrollTo'
 
+const config = useRuntimeConfig()
 const store = useMainStore()
 const account_info = computed(() => store._cache?.accountInfo || { uid: 0 })
+const undefinedICP = computed(() => typeof store.icp === 'undefined')
 
 const router = useRouter()
 
 const isNotLoginPath = computed(() => ['signin', 'signup', 'reset-password', 'add-base-path'].includes(router.currentRoute.value.name?.toString() || ''))
 
 const isLoading = computed(() => !isNotLoginPath.value && Number(account_info.value?.uid || 0) <= 0)
+
+onMounted(async () => {
+    if (config.public.NUXT_BASE_PATH && undefinedICP.value) {
+        window.__GetConfig = (data: any) => {
+            store.updateValue('icp', data?.icp || '')
+            store.updateValue('system_name', data?.system_name || '')
+            store.updateValue('system_keywords', data?.system_keywords || '')
+            store.updateValue('system_description', data?.system_description || '')
+            store.updateValue('footer', data?.footer || '')
+        }
+
+        const script = document.createElement('script')
+        script.src = '/api/site.jsonp?t=' + Date.now()
+        document.body.appendChild(script)
+    }
+})
 </script>
 
 <style>

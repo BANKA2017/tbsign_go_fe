@@ -7,6 +7,7 @@ const isAdmin = computed(() => store.admin)
 const authorization = computed(() => store.rawAuthorization)
 const pluginList = computed(() => store.cache?.plugin_list || {})
 const pageLoginConfig = computed(() => store.cache?.config_page_login)
+const systemName = computed(() => store.system_name || '贴吧云签到')
 
 const route = useRoute()
 const state = reactive<{
@@ -79,13 +80,13 @@ watch([isAdmin, authorization], updateNavStatus)
 watch(pluginList, updateNavStatus, { deep: true })
 watch(pageLoginConfig, updateNavStatus, { deep: true })
 
-useHead({
+useHeadSafe({
     title: computed(() => {
         const tmpIndex = wholeRouteName.value.indexOf(route.name?.toString() || '')
         if (tmpIndex < 0) {
-            return route.name || '404'
+            return (route.name || '404')?.toString() + ' - ' + systemName.value
         } else {
-            return state.navs[tmpIndex]?.name || '404'
+            return (state.navs[tmpIndex]?.name || '404') + ' - ' + systemName.value
         }
     })
 })

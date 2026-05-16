@@ -19,29 +19,12 @@ const config = useRuntimeConfig()
 
 const basePath = computed(() => store.basePath)
 const icp = computed(() => store.icp)
-const undefinedICP = computed(() => typeof icp.value === 'undefined')
 
 const parsedBasePath = computed(() => {
     try {
         return new URL(basePath.value)
     } catch {
         return {}
-    }
-})
-
-onMounted(async () => {
-    if (config.public.NUXT_BASE_PATH && undefinedICP.value) {
-        window.__GetICP = (data: any) => {
-            if (data?.icp) {
-                store.updateValue('icp', data.icp)
-            } else {
-                store.updateValue('icp', '')
-            }
-        }
-
-        const script = document.createElement('script')
-        script.src = '/icp.jsonp?t=' + Date.now()
-        document.body.appendChild(script)
     }
 })
 </script>
