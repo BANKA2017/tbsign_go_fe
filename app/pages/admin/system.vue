@@ -103,7 +103,17 @@ const settingsGroup = ref<{
 }>({
     system: {
         name: '系统',
-        data: { ann: '公告', icp: '备案号', system_url: '地址', system_name: '网站名称（SEO）', system_keywords: '关键词（SEO）', system_description: '简介（SEO）', go_favicon: '/favicon.ico', go_robots_txt: '/robots.txt' }
+        data: {
+            ann: '公告',
+            icp: '备案号',
+            system_url: '地址',
+            system_name: '网站名称（SEO）',
+            system_keywords: '关键词（SEO）',
+            system_description: '简介（SEO）',
+            footer: '自定义底部信息（支持 HTML）',
+            go_favicon: '/favicon.ico',
+            go_robots_txt: '/robots.txt'
+        }
     },
     account: {
         name: '账号',
@@ -425,7 +435,9 @@ const getReleasesList = () => {
         })
 }
 
-onMounted(() => {
+const loading = ref<boolean>(false)
+const syncStatus = () => {
+    loading.value = true
     Request(store.basePath + '/admin/server/status', {
         headers: {
             Authorization: store.authorization
@@ -456,6 +468,11 @@ onMounted(() => {
         serverSettingsSaved.value = JSON.parse(JSON.stringify(res.data))
         //console.log(res)
     })
+    loading.value = false
+}
+
+onMounted(() => {
+    syncStatus()
 })
 </script>
 
@@ -778,7 +795,7 @@ onMounted(() => {
                                     <label
                                         :for="'input-' + key"
                                         :class="{
-                                            'grow cursor-pointer select-none rounded-l-xl': true,
+                                            'bg-gray-100 dark:bg-gray-900 grow cursor-pointer select-none rounded-l-xl': true,
                                             'border-gray-400 border-dashed hover:border-dotted border-2': !serverSettings[key],
                                             'border-gray-400 dark:border-gray-600 border-2': serverSettings[key]
                                         }"
@@ -823,7 +840,7 @@ onMounted(() => {
                                 </div>
                                 <textarea
                                     :id="'input-' + key"
-                                    v-else-if="['system_description', 'ann', 'go_robots_txt'].includes(key)"
+                                    v-else-if="['system_description', 'ann', 'go_robots_txt', 'footer'].includes(key)"
                                     class="form-textarea placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
                                     rows="8"
                                     v-model="serverSettings[key]"
@@ -982,6 +999,7 @@ onMounted(() => {
                 <input type="submit" role="button" class="text-gray-100 text-lg bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded-xl ml-3 px-5 py-1 transition-colors" @click="SaveSettings" value="保存" />
             </form>
         </div>
+        <SyncModule :loading="loading" :callback="syncStatus" />
     </div>
 </template>
 

@@ -43,6 +43,19 @@
 
 请参考 [BANKA2017/tbsign_go#嵌入式前端](https://github.com/BANKA2017/tbsign_go?tab=readme-ov-file#%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%89%8D%E7%AB%AF)
 
+部分前端信息可以被动态替换，默认值都是 `""`（空字符串），非嵌入式前端请直接 patch 源码而不是使用这种 hack 方式
+
+| option name        | danger? | description                                                                                                                                                                                                                   |
+| :----------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| icp                |         | 备案号，显示在页面右下角                                                                                                                                                                                                      |
+| system_url         |         | 网站地址，目前没什么用                                                                                                                                                                                                        |
+| system_name        |         | 网站名称，用于替换页面左上角的网站名称以及标签页信息                                                                                                                                                                          |
+| system_keywords    |         | 网站关键词                                                                                                                                                                                                                    |
+| system_description |         | 网站简介                                                                                                                                                                                                                      |
+| footer             | ✅       | 自定义底部信息，支持 HTML（包括 `<script>` 和 `<style>` 标签），[不保证内容安全](https://vuejs.org/guide/best-practices/security.html#rule-no-1-never-use-non-trusted-templates)，需要后端启用 `danger=true`/`tc_danger=true` |
+| go_favicon         |         | 替换默认的网站图标，文件类型必须是 `image/x-icon`                                                                                                                                                                             |
+| go_robots_txt      |         | 替换默认的 `robots.txt`                                                                                                                                                                                                       |
+
 ## 限制
 
 部分功能需要后端支持才会启用

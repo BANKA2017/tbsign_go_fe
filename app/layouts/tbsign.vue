@@ -18,6 +18,9 @@
                                     加载中……
                                 </div>
                                 <slot v-else />
+                                <template v-show="!isLoading">
+                                    <div ref="footer_ref"></div>
+                                </template>
                             </div>
                         </div>
                     </main>
@@ -47,12 +50,21 @@ const config = useRuntimeConfig()
 const store = useMainStore()
 const account_info = computed(() => store._cache?.accountInfo || { uid: 0 })
 const undefinedICP = computed(() => typeof store.icp === 'undefined')
+const footer = computed(() => store.footer || '')
 
 const router = useRouter()
 
 const isNotLoginPath = computed(() => ['signin', 'signup', 'reset-password', 'add-base-path'].includes(router.currentRoute.value.name?.toString() || ''))
 
 const isLoading = computed(() => !isNotLoginPath.value && Number(account_info.value?.uid || 0) <= 0)
+
+const footer_ref = ref(null)
+
+watch([footer, footer_ref], () => {
+    if (footer.value && footer_ref.value) {
+        footer_ref.value.innerHTML = footer.value
+    }
+})
 
 onMounted(async () => {
     if (config.public.NUXT_BASE_PATH && undefinedICP.value) {
