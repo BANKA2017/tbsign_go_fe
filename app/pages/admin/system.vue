@@ -131,13 +131,15 @@ const settingsGroup = ref<{
     },
     mail: {
         name: '邮件',
-        data: { mail_name: '发件人邮箱', mail_yourname: '发件人名称', mail_host: 'SMTP服务器地址', mail_port: 'SMTP服务器端口', mail_secure: '加密方式', mail_auth: '需要身份验证', mail_smtpname: 'SMTP用户名', mail_smtppw: 'SMTP密码（留空不换）' }
+        data: { mail_name: '发件人邮箱', mail_yourname: '发件人名称', mail_host: 'SMTP服务器地址', mail_port: 'SMTP服务器端口', mail_secure: '加密方式', mail_auth: '需要身份验证', mail_smtpname: 'SMTP用户名', mail_smtppw: 'SMTP密码（留空不更改）' }
     },
     push: {
         name: '推送',
         data: { go_bark_addr: 'Bark 推送地址', go_ntfy_addr: 'ntfy 推送地址', go_pushdeer_addr: 'PushDeer 推送地址', go_daily_report_hour: '每日签到报告推送时间（填写 0~23 时或 -1 关闭推送）' }
     }
 })
+
+const settingKeysEmptyNoChange = ['go_favicon', 'mail_smtppw']
 
 const dragStatus = ref<boolean>(false)
 
@@ -165,7 +167,8 @@ const handleFiles = async (files: FileList = []) => {
     for (const file of files) {
         if (!icoStatus) {
             if (file.size === 0 || file.type !== 'image/x-icon') {
-                continue
+                Notice('没有符合的 .ico 文件', 'error')
+                return
             }
 
             const reader = new FileReader()
@@ -186,14 +189,16 @@ const handleFiles = async (files: FileList = []) => {
             return
         }
     }
-    // Notice('没有符合的 .ico 文件', 'error')
 }
+
+const lastUpdated = ref<number>(Date.now())
 
 const SaveSettings = (e: Event) => {
     e.preventDefault()
 
     let diffSettings: { [p in string]: string } = {}
     for (const k in serverSettingsSaved.value) {
+        // console.log(k,serverSettingsSaved.value[k] , serverSettings.value[k])
         if (serverSettingsSaved.value[k] !== serverSettings.value[k]) {
             diffSettings[k] = serverSettings.value[k]
         }
@@ -222,8 +227,45 @@ const SaveSettings = (e: Event) => {
         }
 
         for (const k in res.data) {
-            if (['go_favicon', 'mail_smtppw'].includes(k)) {
-                delete serverSettingsSaved.value[k]
+            if (settingKeysEmptyNoChange.includes(k)) {
+                res.data[k] = ''
+                if (k === 'go_favicon') {
+                    lastUpdated.value = Date.now()
+                }
+            } else {
+                serverSettingsSaved.value[k] = res.data[k]
+            }
+        }
+
+        serverSettings.value = JSON.parse(JSON.stringify(serverSettingsSaved.value))
+        //console.log(res)
+    })
+}
+
+const ResetSetting = (name = '') => {
+    if (!serverSettings.value[name] && !settingKeysEmptyNoChange.includes(name)) {
+        return
+    }
+
+    Request(store.basePath + '/admin/settings/' + name + '/reset', {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'POST'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            //console.log(res)
+            return
+        }
+        Notice(name + ' 已重置', 'success')
+
+        for (const k in res.data) {
+            if (settingKeysEmptyNoChange.includes(k)) {
+                res.data[k] = ''
+                if (k === 'go_favicon') {
+                    lastUpdated.value = Date.now()
+                }
             } else {
                 serverSettingsSaved.value[k] = res.data[k]
             }
@@ -405,6 +447,11 @@ onMounted(() => {
             Notice(res.message, 'error')
             return
         }
+
+        for (const key of settingKeysEmptyNoChange) {
+            res.data[key] = ''
+        }
+
         serverSettings.value = JSON.parse(JSON.stringify(res.data))
         serverSettingsSaved.value = JSON.parse(JSON.stringify(res.data))
         //console.log(res)
@@ -730,17 +777,20 @@ onMounted(() => {
                                 <div v-if="['go_favicon'].includes(key)" class="flex w-full rounded-xl">
                                     <label
                                         :for="'input-' + key"
-                                        :class="{ 'grow block cursor-pointer select-none rounded-l-xl': true, 'border-gray-400 border-dashed border-2': !serverSettings[key], 'border-gray-400 dark:border-gray-600 border-2': serverSettings[key] }"
+                                        :class="{
+                                            'grow cursor-pointer select-none rounded-l-xl': true,
+                                            'border-gray-400 border-dashed hover:border-dotted border-2': !serverSettings[key],
+                                            'border-gray-400 dark:border-gray-600 border-2': serverSettings[key]
+                                        }"
                                     >
                                         <div @dragenter="dragEvent" @dragleave="dragEvent" @dragover="dragEvent" @drop="dropEvent">
                                             <div class="pointer-events-none py-1 rounded-lg px-2">
-                                                <img alt="当前 favicon" :src="serverSettings[key] ? serverSettings[key] : '/favicon.ico'" class="w-[32px] h-[32px]" />
+                                                <img alt="当前 favicon" :src="serverSettings[key] ? serverSettings[key] : '/favicon.ico?_=' + lastUpdated" class="w-[32px] h-[32px]" />
                                                 <input
                                                     type="file"
-                                                    class="sr-only"
+                                                    class="sr-only h-0"
                                                     :id="'input-' + key"
                                                     lang="zh"
-                                                    multiple
                                                     @change="
                                                         async (e) => {
                                                             e.preventDefault()
@@ -756,20 +806,19 @@ onMounted(() => {
                                     </label>
                                     <button
                                         type="button"
-                                        :class="{
-                                            'inline-block px-3 py-1 rounded-r-xl border  transition-colors disabled:cursor-not-allowed': true,
-                                            'border-pink-500 hover:bg-pink-500 hover:text-gray-100': serverSettings[key],
-                                            'border-slate-500 hover:bg-gray-300 hover:text-gray-900': !serverSettings[key]
-                                        }"
+                                        class="inline-block px-3 py-1 rounded-r-xl border transition-colors border-gray-500 hover:bg-pink-500 hover:text-gray-100"
                                         @click="
                                             (e) => {
                                                 e.preventDefault()
-                                                delete serverSettings[key]
+                                                if (serverSettings[key]) {
+                                                    serverSettings[key] = ''
+                                                } else {
+                                                    ResetSetting(key)
+                                                }
                                             }
                                         "
-                                        :disabled="!serverSettings[key]"
                                     >
-                                        {{ dragStatus ? '待释放' : serverSettings[key] ? '删除' : '未修改' }}
+                                        {{ dragStatus ? '待释放' : serverSettings[key] ? '删除' : '重置' }}
                                     </button>
                                 </div>
                                 <textarea

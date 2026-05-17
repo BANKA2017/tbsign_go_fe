@@ -65,7 +65,7 @@ onMounted(async () => {
         }
 
         const script = document.createElement('script')
-        script.src = '/api/site.jsonp?t=' + Date.now()
+        script.src = '/site.jsonp?t=' + Date.now()
         document.body.appendChild(script)
     }
 })
