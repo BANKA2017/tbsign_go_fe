@@ -239,7 +239,7 @@ const tbStatus = computed(() => {
     const ignoreCount = tmpData.reduce((p, c) => p + c.ignore, 0)
 
     return {
-        accountCount: tmpData.length,
+        accountCount: accounts.value.length,
         success: successCount,
         failed: failedCount,
         pending: pendingCount,
@@ -766,7 +766,9 @@ onMounted(() => {
             </template>
             <template #container>
                 <div>
-                    <template v-if="!isAdmin && accountInfo?.system_settings?.bduss_num !== '0' && Number(accountInfo?.system_settings?.bduss_num || -1) > Object.keys(pidNameKV).length"> 无法添加更多账号，请删除一些账号再试</template>
+                    <template v-if="!isAdmin && !['', '0', undefined].includes(accountInfo?.system_settings?.bduss_num) && Number(accountInfo?.system_settings?.bduss_num || -1) > Object.keys(pidNameKV).length">
+                        无法添加更多账号，请删除一些账号再试</template
+                    >
                     <template v-else>
                         <div v-if="qrLoginData.done" class="w-full">
                             <button @click="getQRCode" class="col-span-2 md:col-span-1 px-2 py-1 my-1 w-full rounded-xl border-4 border-sky-500 bg-sky-500 text-gray-100">再次添加</button>
