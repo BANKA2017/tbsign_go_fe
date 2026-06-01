@@ -742,7 +742,10 @@ onMounted(() => {
                                             <label :for="'input-' + pluginSetting.option_name" class="block text-sm font-medium mb-1 mt-3">{{ pluginSetting.option_name_cn }}</label>
                                             <input
                                                 :id="'input-' + pluginSetting.option_name"
-                                                v-if="['ver4_ban_limit', 'ver4_ref_interval'].includes(pluginSetting.option_name) || String(pluginSetting.option_name || '').endsWith('_action_limit')"
+                                                v-if="
+                                                    ['ver4_ban_limit', 'ver4_ref_interval', 'kd_forum_like_forum_limit_each_uid', 'kd_forum_like_cooldown_time_pid', 'kd_forum_like_cooldown_time_fname'].includes(pluginSetting.option_name) ||
+                                                    String(pluginSetting.option_name || '').endsWith('_action_limit')
+                                                "
                                                 type="number"
                                                 min="0"
                                                 class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
