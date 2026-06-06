@@ -94,6 +94,29 @@ const taskToAdd = ref<{
     fname: ''
 })
 
+watch(
+    taskToAdd,
+    () => {
+        const forumListRemain = tasksConfig.limit - (taskGroup.value?.[taskToAdd.value.pid]?.tasks?.length || 0)
+        taskToAdd.value.fname = [
+            ...new Set(
+                taskToAdd.value.fname
+                    .split('\n')
+                    .map((tmpStr: string, index: number, list: string[]) => {
+                        tmpStr = tmpStr.trim()
+                        if ((tmpStr.length === 0 && list.length - 1 > index) || index >= forumListRemain) {
+                            return null
+                        }
+
+                        return tmpStr
+                    })
+                    .filter((x: string | null) => x !== null)
+            )
+        ].join('\n')
+    },
+    { deep: true }
+)
+
 const deleteTask = (pid = 0, tid = 0) => {
     if (pid <= 0 || tid < 0) {
         return
@@ -295,23 +318,23 @@ const resetTask = (pid = 0, tid = 0) => {
     })
 }
 
-// const tasksSwitch = ref<boolean>(false)
+const tasksSwitch = ref<boolean>(false)
 
-// const updateTasksSwitch = () => {
-//     Request(store.basePath + '/plugins/kd_forum_like/switch', {
-//         headers: {
-//             Authorization: store.authorization
-//         },
-//         method: 'POST'
-//     }).then((res) => {
-//         if (res.code !== 200) {
-//             Notice(res.message, 'error')
-//             return
-//         }
-//         tasksSwitch.value = res.data
-//         //console.log(res)
-//     })
-// }
+const updateTasksSwitch = () => {
+    Request(store.basePath + '/plugins/kd_forum_like/switch', {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'POST'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksSwitch.value = res.data
+        //console.log(res)
+    })
+}
 
 const tasksConfig = reactive<{
     limit: number
@@ -370,18 +393,18 @@ onMounted(() => {
     getSettings()
     getLikeTasksList()
 
-    // Request(store.basePath + '/plugins/kd_forum_like/switch', {
-    //     headers: {
-    //         Authorization: store.authorization
-    //     }
-    // }).then((res) => {
-    //     if (res.code !== 200) {
-    //         Notice(res.message, 'error')
-    //         return
-    //     }
-    //     tasksSwitch.value = res.data
-    //     //console.log(res)
-    // })
+    Request(store.basePath + '/plugins/kd_forum_like/switch', {
+        headers: {
+            Authorization: store.authorization
+        }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksSwitch.value = res.data
+        //console.log(res)
+    })
 
     nowIntervalHandle = setInterval(() => {
         now.value = Date.now() / 1000
@@ -399,34 +422,25 @@ onBeforeUnmount(() => {
     <div class="px-3 py-2">
         <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2">
             <ul class="col-span-2 md:col-span-1 list-disc list-inside marker:text-pink-500">
-                <li>短期内频繁关注可能会导致账号被永久封禁，请注意风险</li>
-                <li>
-                    同一贴吧账号连续两次关注至少间隔 <span class="text-pink-500 font-mono">{{ tasksConfig.pid_cooldown_time }}</span> 秒
-                </li>
-                <li>
-                    同一贴吧被任意账号连续两次关注至少间隔 <span class="text-pink-500 font-mono">{{ tasksConfig.fname_cooldown_time }}</span> 秒
-                </li>
+                <li>短期内关注过多会导致账号被永久封禁</li>
                 <li>删除或重置任务会影响冷却时间，建议在没有待关注贴吧时再操作</li>
             </ul>
         </div>
 
-        <!--<h3 class="text-2xl mb-4">设置</h3>
+        <h3 class="text-2xl mb-4">设置</h3>
 
         <button :class="{ 'bg-sky-500': !tasksSwitch, 'bg-pink-500': tasksSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-gray-100': true, 'transition-colors': true }" @click="updateTasksSwitch">
             {{ tasksSwitch ? '已开启' : '已停止' }}
-        </button>-->
+        </button>
     </div>
 
     <div class="px-3 py-2">
-        <h4 class="text-xl">任务列表 ({{ tasksList.length }}/{{ tasksConfig.limit }})</h4>
-
-        <p v-show="tasksList.length >= tasksConfig.limit" class="text-sm">注：任务数已达到或超出上限</p>
+        <h4 class="text-xl">任务列表</h4>
 
         <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
             <Modal
                 class="col-span-3 sm:col-span-2 lg:col-span-1"
                 :title="'添加贴吧' + (isCloneMode ? ' [ 克隆 ]' : '')"
-                v-show="tasksList.length < tasksConfig.limit"
                 @active-callback="
                     () => {
                         taskToAdd.pid = 0
@@ -441,7 +455,18 @@ onBeforeUnmount(() => {
                 </template>
                 <template #container>
                     <ul class="col-span-2 md:col-span-1 list-disc list-inside marker:text-pink-500 text-sm">
-                        <li>超出容量限制的贴吧会被忽略（{{ tasksList.length }}/{{ tasksConfig.limit }}）</li>
+                        <li>
+                            超出容量限制的贴吧会被忽略<span v-if="taskToAdd.pid"
+                                >（还可以添加<span class="text-pink-500 font-mono mx-1">{{ tasksConfig.limit - (taskGroup?.[taskToAdd.pid]?.tasks?.length || 0) - (taskToAdd.fname ? taskToAdd.fname.split('\n').length : 0) }}</span
+                                >个贴吧）</span
+                            >
+                        </li>
+                        <li>
+                            同一贴吧账号连续两次关注至少间隔 <span class="text-pink-500 font-mono">{{ tasksConfig.pid_cooldown_time }}</span> 秒
+                        </li>
+                        <li>
+                            同一贴吧被任意账号连续两次关注至少间隔 <span class="text-pink-500 font-mono">{{ tasksConfig.fname_cooldown_time }}</span> 秒
+                        </li>
                     </ul>
 
                     <div class="my-3">

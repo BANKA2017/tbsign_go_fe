@@ -743,7 +743,7 @@ onMounted(() => {
                                             <input
                                                 :id="'input-' + pluginSetting.option_name"
                                                 v-if="
-                                                    ['ver4_ban_limit', 'ver4_ref_interval', 'kd_forum_like_forum_limit_each_uid', 'kd_forum_like_cooldown_time_pid', 'kd_forum_like_cooldown_time_fname'].includes(pluginSetting.option_name) ||
+                                                    ['ver4_ban_limit', 'ver4_ref_interval', 'kd_forum_like_forum_limit_each_pid', 'kd_forum_like_cooldown_time_pid', 'kd_forum_like_cooldown_time_fname'].includes(pluginSetting.option_name) ||
                                                     String(pluginSetting.option_name || '').endsWith('_action_limit')
                                                 "
                                                 type="number"
