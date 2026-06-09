@@ -2,6 +2,7 @@
 import Collapse from '~/components/Collapse.vue'
 import UpdateSystemItem from '~/components/UpdateSystemItem.vue'
 import { buffer_to_base64 } from '~/share/crypto'
+import { getPubDate } from '~/share/Time'
 import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
@@ -68,9 +69,8 @@ const fullVersion = computed(() => {
 const serverSettings = ref<{ [p in string]: any }>({})
 const serverSettingsSaved = ref<{ [p in string]: any }>({})
 const now = ref<number>(Date.now())
-setInterval(() => {
-    now.value = Date.now()
-}, 1000)
+
+let nowIntervalHandle: any = null
 const uptime = computed(() => Math.round((now.value - (serverStatus.value?.start_time || now.value)) / 1000 / 60))
 
 const pluginGroup = computed(() => Object.fromEntries(Object.values(pluginList.value).map((plugin) => [plugin.name, plugin.plugin_name_cn])))
@@ -436,49 +436,202 @@ const getReleasesList = () => {
 }
 
 const loading = ref<boolean>(false)
+
+const syncSettings = () => {
+    loading.value = true
+    Request(store.basePath + '/admin/settings', {
+        headers: {
+            Authorization: store.authorization
+        }
+    })
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+
+            for (const key of settingKeysEmptyNoChange) {
+                res.data[key] = ''
+            }
+
+            serverSettings.value = JSON.parse(JSON.stringify(res.data))
+            serverSettingsSaved.value = JSON.parse(JSON.stringify(res.data))
+            //console.log(res)
+        })
+        .finally(() => {
+            loading.value = false
+        })
+}
+
 const syncStatus = () => {
     loading.value = true
     Request(store.basePath + '/admin/server/status', {
         headers: {
             Authorization: store.authorization
         }
-    }).then((res) => {
-        if (res.code !== 200) {
-            Notice(res.message, 'error')
-            return
-        }
-        serverStatus.value = res.data
-        //console.log(res)
     })
-    Request(store.basePath + '/admin/settings', {
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            serverStatus.value = res.data
+            //console.log(res)
+        })
+        .finally(() => {
+            loading.value = false
+        })
+}
+
+const cronJobs = ref<
+    {
+        id: string
+        name: string
+        tags: string[]
+        last_start_at: number
+        last_completed_at: number
+        next_time: number
+        running: boolean
+    }[]
+>([])
+
+const activeCronJobs = computed(() =>
+    cronJobs.value.filter((job) => {
+        if (job.tags.length === 1) {
+            return true
+        } else if (job.tags.length >= 2 && job.tags[0] === 'plugin' && pluginGroup.value[job.tags[1]?.replace('plugin:', '') || '']) {
+            return pluginList.value[job.tags[1]?.replace('plugin:', '') || '']?.status
+        }
+        return true
+    })
+)
+
+const syncCron = () => {
+    loading.value = true
+    Request(store.basePath + '/admin/server/cron', {
         headers: {
             Authorization: store.authorization
         }
-    }).then((res) => {
-        if (res.code !== 200) {
-            Notice(res.message, 'error')
-            return
-        }
-
-        for (const key of settingKeysEmptyNoChange) {
-            res.data[key] = ''
-        }
-
-        serverSettings.value = JSON.parse(JSON.stringify(res.data))
-        serverSettingsSaved.value = JSON.parse(JSON.stringify(res.data))
-        //console.log(res)
     })
-    loading.value = false
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            cronJobs.value = res.data
+            //console.log(res)
+        })
+        .finally(() => {
+            loading.value = false
+        })
+}
+
+const doCronJob = (id: string) => {
+    const job = cronJobs.value.find((job) => job.id === id)
+    if (!job) {
+        Notice('任务不存在', 'error')
+    }
+
+    loading.value = true
+    Request(store.basePath + '/admin/server/cron/' + id + '/run', {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'POST'
+    })
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            Notice('已完成：' + job.name, 'success')
+            setTimeout(syncCron, 2000)
+            //console.log(res)
+        })
+        .finally(() => {
+            loading.value = false
+        })
+}
+
+const autoSync = () => {
+    switch (activeComponent.value) {
+        case 'status':
+            syncStatus()
+            break
+        case 'cron':
+            syncCron()
+            break
+        case 'setting':
+            syncSettings()
+            break
+    }
 }
 
 onMounted(() => {
     syncStatus()
+    syncCron()
+    syncSettings()
+    nowIntervalHandle = setInterval(() => {
+        now.value = Date.now()
+    }, 500)
 })
+
+onBeforeUnmount(() => {
+    if (nowIntervalHandle) {
+        clearInterval(nowIntervalHandle)
+    }
+})
+
+const activeComponent = ref<'status' | 'update' | 'plugin' | 'cron' | 'setting'>('status')
 </script>
 
 <template>
     <div v-if="isAdmin">
         <div class="my-2 rounded-2xl">
+            <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
+                <button
+                    :class="{ 'col-span-3 md:col-span-1 w-full rounded-2xl border-2 border-sky-500 hover:bg-sky-500 px-4 py-1 hover:text-gray-100 transition-colors': true, 'bg-sky-500 text-gray-100': activeComponent === 'status' }"
+                    title="服务器状态"
+                    aria-label="服务器状态"
+                    @click="activeComponent = 'status'"
+                >
+                    服务器状态
+                </button>
+                <button
+                    :class="{ 'col-span-3 md:col-span-1 w-full rounded-2xl border-2 border-sky-500 hover:bg-sky-500 px-4 py-1 hover:text-gray-100 transition-colors': true, 'bg-sky-500 text-gray-100': activeComponent === 'update' }"
+                    title="软件更新"
+                    aria-label="软件更新"
+                    @click="activeComponent = 'update'"
+                >
+                    软件更新
+                </button>
+                <button
+                    :class="{ 'col-span-3 md:col-span-1 w-full rounded-2xl border-2 border-sky-500 hover:bg-sky-500 px-4 py-1 hover:text-gray-100 transition-colors': true, 'bg-sky-500 text-gray-100': activeComponent === 'plugin' }"
+                    title="插件配置"
+                    aria-label="插件配置"
+                    @click="activeComponent = 'plugin'"
+                >
+                    插件
+                </button>
+                <button
+                    :class="{ 'col-span-3 md:col-span-1 w-full rounded-2xl border-2 border-sky-500 hover:bg-sky-500 px-4 py-1 hover:text-gray-100 transition-colors': true, 'bg-sky-500 text-gray-100': activeComponent === 'cron' }"
+                    title="计划任务"
+                    aria-label="计划任务"
+                    @click="activeComponent = 'cron'"
+                >
+                    计划任务
+                </button>
+                <button
+                    :class="{ 'col-span-3 md:col-span-1 w-full rounded-2xl border-2 border-sky-500 hover:bg-sky-500 px-4 py-1 hover:text-gray-100 transition-colors': true, 'bg-sky-500 text-gray-100': activeComponent === 'setting' }"
+                    title="服务器设置"
+                    aria-label="服务器设置"
+                    @click="activeComponent = 'setting'"
+                >
+                    服务器设置
+                </button>
+            </div>
+        </div>
+        <div class="my-2 rounded-2xl" v-if="activeComponent === 'status'">
             <div class="px-3 py-2">
                 <h2 class="text-xl font-bold">服务器状态</h2>
             </div>
@@ -585,7 +738,67 @@ onMounted(() => {
             </div>
         </div>
 
-        <div class="my-2 rounded-2xl mb-5">
+        <div class="my-2 rounded-2xl" v-if="activeComponent === 'cron'">
+            <div class="px-3 py-2">
+                <h2 class="text-xl font-bold">计划任务</h2>
+            </div>
+            <div class="">
+                <div class="bg-gray-200 dark:bg-gray-800 col-span-12 rounded-2xl mb-3" v-for="job in activeCronJobs" :key="job.id">
+                    <div :class="{ flex: true, 'flex-col sm:flex-row': true, 'justify-between': true, 'bg-gray-200': true, 'dark:bg-gray-800': true, 'z-10': true, 'px-3': true, 'pt-2': true, ' rounded-2xl': true }">
+                        <div :class="{ 'max-w-40': true, 'xs:max-w-40': true, flex: true, 'flex-col': true }">
+                            <span
+                                :class="{
+                                    'overflow-hidden': true,
+                                    truncate: true,
+                                    'whitespace-nowrap': true,
+                                    'inline-block': true
+                                }"
+                            >
+                                {{ job.name }}</span
+                            >
+                            <div class="text-xs font-mono my-1 dark:text-gray-100">
+                                <span class="mr-1 border border-gray-500 px-2 py-0.5 rounded-xl" v-for="tag in job.tags" :key="tag?.[1] || tag[0]">tag:{{ tag }}</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-1">
+                            <div :class="{ 'max-w-40': true, 'xs:max-w-40': true, flex: true, 'flex-col': true, 'gap-1': true }">
+                                <div class="overflow-hidden truncate whitespace-nowrap inline-block text-sm">
+                                    <div v-if="job.running" class="text-white-500 inline-block">
+                                        <uno-icon class="i-bi:hourglass-split" style="width: 0.75rem; height: 0.75rem" />
+                                    </div>
+                                    <div v-else-if="job.last_completed_at === -1" class="text-orange-500 inline-block">
+                                        <uno-icon class="i-bi:hourglass-top" style="width: 0.75rem; height: 0.75rem" />
+                                    </div>
+                                    <div v-else-if="job.last_completed_at" class="text-green-500 inline-block">
+                                        <uno-icon class="i-bi:check-circle-fill" style="width: 0.75rem; height: 0.75rem" />
+                                    </div>
+                                    <span class="ml-1">{{ job.running ? '正在运行' : job.last_start_at >= 0 ? getPubDate(new Date(job.last_start_at * 1000)) : '从未运行' }}</span>
+                                </div>
+                                <div class="overflow-hidden truncate whitespace-nowrap inline-block text-sm">
+                                    <div class="text-orange-500 inline-block">
+                                        <uno-icon class="i-bi:alarm-fill" style="width: 0.75rem; height: 0.75rem" />
+                                    </div>
+                                    <span class="ml-1">{{ getPubDate(new Date(job.next_time * 1000)) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-3 py-3">
+                        <Modal class="inline-block mr-1" :title="'立即执行: ' + job.name + ' ？'" :aria-label="'立即执行: ' + job.name + ' ？'">
+                            <template #default>
+                                <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors text-sm">立即执行</button>
+                            </template>
+                            <template #container>
+                                <button class="bg-pink-500 hover:bg-pink-600 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="doCronJob(job.id)">执行任务 {{ job.name }}</button>
+                            </template>
+                        </Modal>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="my-2 rounded-2xl mb-5" v-if="activeComponent === 'update'">
             <div class="px-3 py-2">
                 <h2 class="text-xl font-bold">软件更新</h2>
             </div>
@@ -672,7 +885,7 @@ onMounted(() => {
             </div>
         </div>
 
-        <div class="my-2 rounded-2xl">
+        <div class="my-2 rounded-2xl" v-if="activeComponent === 'plugin'">
             <div class="px-3 py-2">
                 <h2 class="text-xl font-bold">插件</h2>
             </div>
@@ -779,7 +992,7 @@ onMounted(() => {
             </div>
         </div>
 
-        <div class="my-2 rounded-2xl">
+        <div class="my-2 rounded-2xl" v-if="activeComponent === 'setting'">
             <div class="px-3 py-2">
                 <h2 class="text-xl font-bold">服务器设置</h2>
                 <p class="text-sm">如果不知道要填什么，请保持原样</p>
@@ -1002,7 +1215,7 @@ onMounted(() => {
                 <input type="submit" role="button" class="text-gray-100 text-lg bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 rounded-xl ml-3 px-5 py-1 transition-colors" @click="SaveSettings" value="保存" />
             </form>
         </div>
-        <SyncModule :loading="loading" :callback="syncStatus" />
+        <SyncModule v-show="['status', 'cron', 'setting'].includes(activeComponent)" :loading="loading" :callback="autoSync" />
     </div>
 </template>
 

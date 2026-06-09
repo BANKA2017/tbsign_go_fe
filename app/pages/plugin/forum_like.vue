@@ -543,7 +543,7 @@ onBeforeUnmount(() => {
         <div v-if="loadingTasks" class="w-full h-32 rounded-xl bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
         <template v-else>
             <div class="bg-gray-200 dark:bg-gray-800 col-span-12 rounded-2xl mb-3" v-for="(taskInfo, pid) in taskGroup" :key="pid">
-                <div :class="{ flex: true, 'justify-between': true, sticky: true, 'top-0': true, 'bg-gray-200': true, 'dark:bg-gray-800': true, 'z-10': true, 'px-3': true, 'pt-2': true, ' rounded-2xl': true }">
+                <div :class="{ flex: true, 'justify-between': true, 'bg-gray-200': true, 'dark:bg-gray-800': true, 'z-10': true, 'px-3': true, 'pt-2': true, ' rounded-2xl': true }">
                     <div class="flex flex-row gap-3">
                         <div :class="{ relative: true, hidden: true, '2xs:block': true, 'xs:block': true }">
                             <img :alt="`baidu-avatar-` + taskInfo.portrait" :src="`https://himg.bdimg.com/sys/portraitn/item/${taskInfo.portrait}`" loading="lazy" class="w-10 h-10 rounded-full my-1 bg-gray-300 dark:bg-gray-700" />
