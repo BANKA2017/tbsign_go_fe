@@ -457,7 +457,9 @@ onBeforeUnmount(() => {
                     <ul class="col-span-2 md:col-span-1 list-disc list-inside marker:text-pink-500 text-sm">
                         <li>
                             超出容量限制的贴吧会被忽略<span v-if="taskToAdd.pid"
-                                >（还可以添加<span class="text-pink-500 font-mono mx-1">{{ tasksConfig.limit - (taskGroup?.[taskToAdd.pid]?.tasks?.length || 0) - (taskToAdd.fname ? taskToAdd.fname.split('\n').length : 0) }}</span
+                                >（还可以添加<span class="text-pink-500 font-mono mx-1">{{
+                                    clamp(tasksConfig.limit - (taskGroup?.[taskToAdd.pid]?.tasks?.length || 0) - (taskToAdd.fname ? taskToAdd.fname.split('\n').length : 0), 0, tasksConfig.limit)
+                                }}</span
                                 >个贴吧）</span
                             >
                         </li>

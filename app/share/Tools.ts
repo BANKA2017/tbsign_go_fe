@@ -12,7 +12,7 @@ export const Notice = (text: string = '', type: Noty.Type = 'success', timeout: 
     }).show()
 }
 
-export const Request = async (input: string | URL | globalThis.Request, init?: RequestInit, routeName?: string | null): Promise<any> => {
+export const Request = async <T = any>(input: string | URL | globalThis.Request, init?: RequestInit, routeName?: string | null): Promise<T> => {
     const store = useMainStore()
     if (routeName === undefined) {
         const route = useRoute()

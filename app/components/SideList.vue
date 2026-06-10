@@ -80,9 +80,12 @@ watch([isAdmin, authorization], updateNavStatus)
 watch(pluginList, updateNavStatus, { deep: true })
 watch(pageLoginConfig, updateNavStatus, { deep: true })
 
+const isSystemAdminPage = computed(() => (route.name || '').toString().startsWith('admin-system-') && (route.fullPath || '').startsWith('/admin/system/'))
+
 useHeadSafe({
     title: computed(() => {
-        const tmpIndex = wholeRouteName.value.indexOf(route.name?.toString() || '')
+        const routeName = isSystemAdminPage.value ? 'admin-system' : route.name?.toString() || ''
+        const tmpIndex = wholeRouteName.value.indexOf(routeName)
         if (tmpIndex < 0) {
             return (route.name || '404')?.toString() + ' - ' + systemName.value
         } else {
@@ -95,7 +98,7 @@ updateNavStatus()
 </script>
 
 <template>
-    <div id="side-list" class="select-none" v-show="wholeRouteName.includes(route.name?.toString() || '')">
+    <div id="side-list" class="select-none" v-show="wholeRouteName.includes(route.name?.toString() || '') || isSystemAdminPage">
         <ClientOnly>
             <div class="md:hidden">
                 <template v-for="nav in activeNavs" :key="nav.routeName">
@@ -109,25 +112,24 @@ updateNavStatus()
                             'rounded-full': true,
                             'transition-colors': true,
                             'hover:bg-sky-500': true,
-                            'bg-sky-500': route.name === nav.routeName,
+                            'bg-sky-500 text-gray-100': route.name === nav.routeName || (nav.routeName === 'admin-system' && isSystemAdminPage),
                             'text-black': route.name !== nav.routeName,
                             'hover:text-gray-100': true,
                             'dark:text-gray-100': true,
-                            'text-gray-100': route.name === nav.routeName,
-                            'sidelist-in': showList && route.name !== nav.routeName,
-                            'sidelist-out': !showList && route.name !== nav.routeName
+                            'sidelist-in my-1': showList && route.name !== nav.routeName,
+                            'sidelist-out': !showList && route.name !== nav.routeName && !(nav.routeName === 'admin-system' && isSystemAdminPage)
                         }"
-                        :to="nav.to"
+                        :to="nav.routeName === 'admin-system' && isSystemAdminPage ? route.fullPath : nav.to"
                         @click="showList = !showList"
                     >
-                        <div class="py-2 my-1 flex justify-between gap-2">
+                        <div class="py-2 flex justify-between gap-2">
                             <span class="inline-bolck truncate max-w-[60%] 3xs:max-w-[80%]">{{ nav.name }}</span>
-                            <uno-icon class="i-bi:list" style="height: 1.5rem; width: 1.5rem" v-show="!showList && route.name === nav.routeName" />
+                            <uno-icon class="i-bi:list" style="height: 1.5rem; width: 1.5rem" v-show="!showList && (route.name === nav.routeName || (nav.routeName === 'admin-system' && isSystemAdminPage))" />
                         </div>
                     </NuxtLink>
                 </template>
             </div>
-            <NuxtLink class="hidden md:block group w-full" v-for="nav in activeNavs" :key="nav.routeName" v-show="nav.show" :to="nav.to">
+            <NuxtLink class="hidden md:block group w-full" v-for="nav in activeNavs" :key="nav.routeName" v-show="nav.show" :to="nav.routeName === 'admin-system' && isSystemAdminPage ? route.fullPath : nav.to">
                 <div
                     :class="{
                         'max-w-full': true,
@@ -138,11 +140,10 @@ updateNavStatus()
                         'rounded-full': true,
                         'transition-colors': true,
                         'group-hover:bg-sky-500': true,
-                        'bg-sky-500': route.name === nav.routeName,
+                        'bg-sky-500 text-gray-100': route.name === nav.routeName || (nav.routeName === 'admin-system' && isSystemAdminPage),
                         'text-black': route.name !== nav.routeName,
                         'group-hover:text-gray-100': true,
                         'dark:text-gray-100': true,
-                        'text-gray-100': route.name === nav.routeName,
                         'py-2': true
                     }"
                 >

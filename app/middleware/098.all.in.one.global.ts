@@ -2,8 +2,9 @@
 // maybe a loop cause the blank page
 
 import { Request } from '~/share/Tools'
+import { Notice } from '~/share/Tools.js'
 
-export default defineNuxtRouteMiddleware((to, from) => {
+export default defineNuxtRouteMiddleware(async (to, from) => {
     if (import.meta.server) return
 
     // endpoint
@@ -103,71 +104,80 @@ export default defineNuxtRouteMiddleware((to, from) => {
         }
     } else {
         if (!store.cache?.accountInfo) {
-            Request(
-                store.basePath + '/passport',
-                {
-                    headers: {
-                        Authorization: authorization
-                    }
-                },
-                to.name?.toString() || null
-            )
-                .then((res) => {
-                    store.updateCache('accountInfo', res.data)
-                    //console.log(res)
+            try {
+                const accountInfo = await Request(
+                    store.basePath + '/passport',
+                    {
+                        headers: {
+                            Authorization: authorization
+                        }
+                    },
+                    to.name?.toString() || null
+                )
+                store.updateCache('accountInfo', accountInfo.data)
+                //console.log(res)
 
-                    if (!store.cache?.accounts) {
-                        Request(
-                            store.basePath + '/account?array_mode=1',
-                            {
-                                headers: {
-                                    Authorization: authorization
-                                }
-                            },
-                            to.name?.toString() || null
-                        ).then((res) => {
-                            if (res.code !== 200) {
-                                return
+                if (!store.cache?.accounts) {
+                    const accounts = await Request(
+                        store.basePath + '/account?array_mode=1',
+                        {
+                            headers: {
+                                Authorization: authorization
                             }
-                            store.updateCache(
-                                'accounts',
-                                (res.data || []).map((account: any[]) => ({
-                                    id: account[0],
-                                    uid: account[1],
-                                    name: account[2],
-                                    portrait: account[3],
-                                    page: 0,
-                                    more: false,
-                                    filter: 'all',
-                                    search: ''
-                                }))
-                            )
-                            //console.log(res)
-                        })
+                        },
+                        to.name?.toString() || null
+                    )
+
+                    if (accounts.code === 200) {
+                        store.updateCache(
+                            'accounts',
+                            (accounts.data || []).map((account: any[]) => ({
+                                id: account[0],
+                                uid: account[1],
+                                name: account[2],
+                                portrait: account[3],
+                                page: 0,
+                                more: false,
+                                filter: 'all',
+                                search: ''
+                            }))
+                        )
                     }
-                    if (!store.cache?.plugin_list) {
-                        Request(
-                            store.basePath + '/plugins',
-                            {
-                                headers: {
-                                    Authorization: authorization
-                                }
-                            },
-                            to.name?.toString() || null
-                        ).then((res) => {
-                            if (res.code !== 200) {
-                                return
+                }
+                if (!store.cache?.plugin_list) {
+                    const plugins = await Request(
+                        store.basePath + '/plugins',
+                        {
+                            headers: {
+                                Authorization: authorization
                             }
-                            store.updateCache('plugin_list', res.data)
-                            //console.log(res)
-                        })
+                        },
+                        to.name?.toString() || null
+                    )
+                    if (plugins.code === 200) {
+                        store.updateCache('plugin_list', plugins.data)
                     }
-                })
-                .catch((e) => {
-                    store.logout()
-                    navigateTo('/signin')
-                    throw e
-                })
+                }
+            } catch (e) {
+                store.logout()
+                navigateTo('/signin')
+                throw e
+            }
+        }
+
+        // admin && plugin
+        const routeName = to.name?.toString() || ''
+        if (routeName.startsWith('admin') && !store.admin) {
+            Notice('无效用户组', 'error')
+            return navigateTo('/')
+        } else if (routeName.startsWith('plugin-')) {
+            const pluginNameFE = routeName.replace(/^plugin\-/, '')
+            const plugin = Object.values(store?._cache?.plugin_list || {}).find((plugin) => plugin.plugin_name_fe === pluginNameFE)
+
+            if (!plugin?.status) {
+                Notice('插件不可用', 'error')
+                return navigateTo('/')
+            }
         }
     }
 })
