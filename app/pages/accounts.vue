@@ -549,6 +549,21 @@ const addAccountForm = reactive<{
     stoken: ''
 })
 
+watch(
+    addAccountForm,
+    () => {
+        if (addAccountForm.bduss !== '' && /BDUSS=[^;\s$]+(;|\s|$)/gm.test(addAccountForm.bduss) && /STOKEN=[^;\s$]+(;|\s|$)/gm.test(addAccountForm.bduss)) {
+            try {
+                const cookies = Object.fromEntries(addAccountForm.bduss.split(';').map((x) => x.trim().split('=')))
+
+                addAccountForm.bduss = cookies.BDUSS || ''
+                addAccountForm.stoken = cookies.STOKEN || ''
+            } catch {}
+        }
+    },
+    { deep: true }
+)
+
 const addAccount = (bduss = '', stoken = '') => {
     if (!bduss || !stoken) {
         Notice('BDUSS 或 Stoken 不可为空!', 'error')

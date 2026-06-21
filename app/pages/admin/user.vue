@@ -313,7 +313,7 @@ onMounted(() => {
                     <div class="ml-2 inline-block grow truncate font-bold">
                         <span v-if="listItem.role === 'vip'" class="px-2 rounded bg-yellow-400 dark:bg-yellow-600 text-gray-900 text-sm">VIP</span>
                         <span v-else-if="listItem.role === 'banned'" class="px-2 rounded bg-pink-400 dark:bg-pink-600 text-gray-100 text-sm line-through">BAN</span>
-                        <span v-else-if="listItem.role === 'admin'" class="px-2 rounded bg-sky-400 dark:bg-sky-600 text-gray-100 text-sm">MOD</span>
+                        <span v-else-if="listItem.role === 'admin'" class="px-2 rounded bg-sky-400 dark:bg-sky-600 text-gray-100 text-sm">ADMIN</span>
 
                         {{ listItem.name || '未设置用户名' }}
                     </div>
