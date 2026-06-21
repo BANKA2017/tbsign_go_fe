@@ -131,7 +131,9 @@ const pluginDelete = (pluginName = '') => {
                     <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-2" />
                     <div class="grid grid-cols-2 gap-3">
                         <div class="col-span-2 xs:col-span-1 xs:py-1.5">
-                            <span class="px-1.5 rounded bg-sky-500 dark:bg-sky-700 text-sm text-gray-100 mr-2">{{ value?.ver ? (value?.ver !== '-1' ? value.ver : 'und') : 'dev' }}</span>
+                            <span :class="{ 'px-1.5 rounded text-sm text-gray-100 mr-2': true, 'bg-sky-500 dark:bg-sky-700': value?.ver && !value?.test, 'bg-orange-500 dark:bg-orange-600': !(value?.ver && !value?.test) }">{{
+                                value?.ver && !value?.test ? (value?.ver !== '-1' ? value.ver : 'und') : 'dev'
+                            }}</span>
                             <span class="font-bold">{{ pluginGroup[pluginName] || pluginName }}</span>
                         </div>
                         <div class="col-span-2 xs:col-span-1 xs:text-end">

@@ -34,6 +34,7 @@ interface MainStoreState {
                 name: string
                 ver: string
                 status: boolean
+                test?: boolean
                 plugin_name_cn: string
                 plugin_name_cn_short: string
                 plugin_name_fe: string

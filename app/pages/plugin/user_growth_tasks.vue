@@ -76,6 +76,8 @@ const deleteTask = (id = 0) => {
     })
 }
 
+const growthValueToLevel: number[] = [1, 50, 200, 450, 900, 1500, 2500, 4000, 10000, 20000, 4294967295]
+
 const getStatus = (id = 0) => {
     if (id <= 0 || !pidNameKV.value[id]) {
         return
@@ -90,8 +92,24 @@ const getStatus = (id = 0) => {
             return
         }
         tasksStatus.value[id] = {
-            level_info: (res.data?.level_info || []).find((levelInfo) => levelInfo.is_current === 1),
-            tmoney: res.data?.tmoney?.current || 0
+            level_info: (() => {
+                const growth_value = res.data?.user_info?.growth_value || 0
+
+                if (growth_value <= 0) {
+                    return { level: 0, next_level_value: 1, growth_value }
+                }
+
+                for (const index in growthValueToLevel) {
+                    if (growthValueToLevel[index] > growth_value) {
+                        const i = Number(index)
+
+                        return { level: i, next_level_value: growthValueToLevel[i], growth_value }
+                    }
+                }
+
+                return { level: 11, next_level_value: Infinity, growth_value }
+            })(),
+            tmoney: res.data?.user_info?.tmoney_value || 0
         }
         //console.log(res)
     })

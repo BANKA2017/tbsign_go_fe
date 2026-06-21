@@ -163,14 +163,6 @@ onMounted(() => {
                                     class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
                                     :value="serverStatus.upgrade?.api_base || 'https://api.github.com/repos/banka2017/tbsign_go'"
                                 />
-                                <label for="upgrade-list" class="block text-sm font-medium mb-1 mt-3">下载地址</label>
-                                <input
-                                    id="upgrade-list"
-                                    type="text"
-                                    disabled
-                                    class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                                    :value="serverStatus.upgrade?.asset_base || 'https://github.com/BANKA2017/tbsign_go/releases/download'"
-                                />
                             </template>
                         </Modal>
                     </li>
@@ -190,7 +182,7 @@ onMounted(() => {
                             :current="fullVersion"
                             :os="serverGoStatus.os"
                             :arch="serverGoStatus.arch"
-                            :base="serverStatus.upgrade.asset_base?.toString()"
+                            :base="serverStatus.upgrade.api_base?.toString()"
                             :prerelease="release.prerelease"
                         />
                     </div>

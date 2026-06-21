@@ -117,25 +117,15 @@ onMounted(() => {
                                 <span class="mr-1 border border-gray-500 px-2 py-0.5 rounded-xl" v-for="tag in job.tags" :key="tag?.[1] || tag[0]">tag:{{ tag }}</span>
                             </div>
                         </div>
-                        <div class="flex gap-1">
-                            <div :class="{ 'max-w-40': true, 'xs:max-w-40': true, flex: true, 'flex-col': true, 'gap-1': true }">
-                                <div class="overflow-hidden truncate whitespace-nowrap inline-block text-sm">
-                                    <div v-if="job.running" class="text-white-500 inline-block">
-                                        <uno-icon class="i-bi:hourglass-split" style="width: 0.75rem; height: 0.75rem" />
-                                    </div>
-                                    <div v-else-if="job.last_completed_at === -1" class="text-orange-500 inline-block">
-                                        <uno-icon class="i-bi:hourglass-top" style="width: 0.75rem; height: 0.75rem" />
-                                    </div>
-                                    <div v-else-if="job.last_completed_at" class="text-green-500 inline-block">
-                                        <uno-icon class="i-bi:check-circle-fill" style="width: 0.75rem; height: 0.75rem" />
-                                    </div>
-                                    <span class="ml-1">{{ job.running ? '正在运行' : job.last_start_at >= 0 ? getPubDate(new Date(job.last_start_at * 1000)) : '从未运行' }}</span>
+                        <div class="flex gap-1 mt-2">
+                            <div :class="{ flex: true, 'flex-col': true, 'gap-1': true }">
+                                <div class="overflow-hidden truncate whitespace-nowrap inline-block text-sm" title="上次运行时间" aria-label="上次运行时间">
+                                    <span class="font-bold">上次：</span>
+                                    <span class="font-mono">{{ job.running ? '~~' : job.last_start_at >= 0 ? getPubDate(new Date(job.last_start_at * 1000)) : '--' }}</span>
                                 </div>
-                                <div class="overflow-hidden truncate whitespace-nowrap inline-block text-sm">
-                                    <div class="text-orange-500 inline-block">
-                                        <uno-icon class="i-bi:alarm-fill" style="width: 0.75rem; height: 0.75rem" />
-                                    </div>
-                                    <span class="ml-1">{{ getPubDate(new Date(job.next_time * 1000)) }}</span>
+                                <div class="overflow-hidden truncate whitespace-nowrap inline-block text-sm" title="下次运行时间" aria-label="下次运行时间">
+                                    <span class="font-bold">下次：</span>
+                                    <span class="font-mono">{{ getPubDate(new Date(job.next_time * 1000)) }}</span>
                                 </div>
                             </div>
                         </div>

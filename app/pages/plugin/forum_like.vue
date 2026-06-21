@@ -498,7 +498,7 @@ onBeforeUnmount(() => {
                         <textarea id="froum-name" v-model="taskToAdd.fname" class="form-textarea bg-gray-200 dark:bg-gray-900 w-full rounded-xl mt-1" rows="10" placeholder="输入贴吧名（不带末尾吧字），一行一个"></textarea>
                     </div>
 
-                    <button :class="{ 'px-3 py-1 rounded-lg my-2 border-2 border-sky-500 hover:bg-sky-500 text-gray-100 mr-2 transition-colors': true, 'bg-sky-500': isCloneMode }" @click="isCloneMode = !isCloneMode">克隆模式</button>
+                    <button :class="{ 'px-3 py-1 rounded-lg my-2 border-2 border-sky-500 hover:bg-sky-500 hover:text-gray-100 mr-2 transition-colors': true, 'bg-sky-500': isCloneMode }" @click="isCloneMode = !isCloneMode">克隆模式</button>
                     <button
                         v-if="isCloneMode"
                         class="px-3 py-1 rounded-lg my-2 border-2 border-sky-500 bg-sky-500 hover:bg-sky-600 hover:border-sky-600 dark:hover:bg-sky-400 dark:hover:border-sky-400 text-gray-100 transition-colors"

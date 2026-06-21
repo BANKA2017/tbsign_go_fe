@@ -18,9 +18,8 @@ const store = useMainStore()
 const targetVersion = computed(() => props.item.name.replace('tbsign_go.', '').replace(`.${props.os}-${props.arch}`, '').replace(/.exe/g, ''))
 const isCurrent = computed(() => targetVersion.value === props.current)
 
-const targetLink = computed(() => (props.base || 'https://github.com/BANKA2017/tbsign_go/releases/download') + '/tbsign_go.' + targetVersion.value + '/' + props.item.name)
-
 const flowStep = ref<number>(0)
+const autoRestart = ref<boolean>(false)
 
 const upgradeToVersion = (version: string = '') => {
     Request(store.basePath + '/admin/server/upgrade', {
@@ -28,7 +27,10 @@ const upgradeToVersion = (version: string = '') => {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: 'version=' + version,
+        body: new URLSearchParams({
+            version,
+            auto_restart: autoRestart.value ? '1' : '0'
+        }),
         method: 'POST'
     })
         .then((res) => {
@@ -85,8 +87,18 @@ const refreshPage = () => {
                         <ul role="list" class="mb-3 marker:text-sky-500 list-disc list-inside">
                             <li>确认后将会更新程序，本操作不可逆！</li>
                             <li>本操作可能需要较长时间，请等到右上角圈圈消失并弹出消息后再关闭本窗口！</li>
-                            <li>若更新成功，程序将会自动退出，请自行启动。</li>
+                            <li v-if="autoRestart">自动重启可能会失败。</li>
+                            <li v-else>若更新成功，程序将会自动退出，请自行启动。</li>
                         </ul>
+
+                        <div class="mb-2 text-sm">
+                            <input type="checkbox" class="form-checkbox bg-gray-100 dark:bg-gray-800 dark:checked:bg-blue-500 my-4" v-model="autoRestart" :id="'upgrade-auto-restart-' + targetVersion" /><label
+                                class="ml-2 break-all"
+                                :for="'upgrade-auto-restart-' + targetVersion"
+                                >更新成功后尝试重启软件</label
+                            >
+                        </div>
+
                         <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="upgradeToVersion(targetVersion)">确认更新</button>
                     </div>
                     <div v-else-if="flowStep === 1">
@@ -99,7 +111,6 @@ const refreshPage = () => {
                     </div>
                 </template>
             </Modal>
-            <NuxtLink :to="targetLink" class="border-sky-500 hover:bg-sky-500 border-2 rounded-lg px-3 py-1 hover:text-gray-100 transition-colors" title="下载文件" aria-label="下载文件" target="blank">下载文件</NuxtLink>
             <NuxtLink class="rounded-lg px-2 py-1 border-2 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" role="button" :to="url" target="blank">版本信息</NuxtLink>
         </div>
     </div>

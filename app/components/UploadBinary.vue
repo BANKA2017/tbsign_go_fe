@@ -129,6 +129,8 @@ const handleFiles = async (files: FileList = []) => {
     }
 }
 
+const autoRestart = ref<boolean>(false)
+
 const uploadBinary = (e: Event) => {
     e.preventDefault()
     if (!binFile.value?.file || !yamlFile.value?.file) {
@@ -139,6 +141,7 @@ const uploadBinary = (e: Event) => {
     const formData = new FormData()
     formData.append('metadata', yamlFile.value.file)
     formData.append('binary', binFile.value.file)
+    formData.append('auto_restart', autoRestart.value ? '1' : '0')
 
     Request(store.basePath + '/admin/server/upgrade/upload', {
         headers: {
@@ -244,6 +247,12 @@ const uploadBinary = (e: Event) => {
                         "
                     />
                 </label>
+
+                <div class="mb-2 text-sm">
+                    <input type="checkbox" class="form-checkbox bg-gray-100 dark:bg-gray-800 dark:checked:bg-blue-500 my-4" v-model="autoRestart" id="upgrade-auto-restart-upload" /><label class="ml-2 break-all" for="upgrade-auto-restart-upload"
+                        >更新成功后尝试重启软件</label
+                    >
+                </div>
 
                 <input v-if="yamlFile.file && binFile.file" type="submit" role="button" class="text-gray-100 rounded-lg px-3 py-1 bg-sky-500 hover:bg-sky-400 dark:hover:bg-sky-600 transition-colors" @click="uploadBinary" value="上传" />
             </form>
