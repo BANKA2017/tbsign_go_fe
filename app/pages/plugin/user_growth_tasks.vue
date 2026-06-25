@@ -6,7 +6,54 @@ const store = useMainStore()
 const pidNameKV = computed(() => store.pidNameKV)
 const loading = computed(() => store.loading)
 
-const settings = ref<{ sign_only: '0' | '1' | '2'; break_icon_tasks: '0' | '1' | '2'; ext_tasks: { [p in string]: string } }>({ sign_only: '0', break_icon_tasks: '0', ext_tasks: {} })
+type flagKeys = 'sign' | 'daily' | 'icon' | 'special' | 'custom'
+
+const settings = ref<{
+    tasks_flag_value: { [p in flagKeys]?: number }
+    tasks_flag: number
+    ext_tasks: { [p in string]: string }
+}>({
+    tasks_flag_value: {},
+    tasks_flag: 0,
+    ext_tasks: {}
+})
+
+const initFlagSetting = (flagValue: number) => {
+    if (flagValue === 0) {
+        return
+    }
+
+    for (const key in flagsSetting) {
+        flagsSetting[key].value = (flagValue & settings.value.tasks_flag_value[key] || 0) !== 0
+    }
+}
+
+const flagsSetting = reactive<{
+    [p in flagKeys]: { name: string; value: boolean }
+}>({
+    sign: { name: '签到任务', value: false },
+    daily: { name: '日常任务', value: false },
+    icon: { name: '印记任务', value: false },
+    special: { name: '特殊任务', value: false },
+    custom: { name: '自定义任务', value: false }
+})
+
+watch(
+    flagsSetting,
+    () => {
+        let newValue = 0
+        for (const key in flagsSetting) {
+            newValue |= flagsSetting[key]?.value ? settings.value.tasks_flag_value[key] : 0
+            if (key === 'daily' && flagsSetting.daily?.value && !flagsSetting.sign?.value) {
+                flagsSetting.sign.value = true
+                return
+            }
+        }
+        settings.value.tasks_flag = newValue
+    },
+    { deep: true }
+)
+
 const selectedPID = ref<number>(0)
 const extTaskActType = ref<string>('')
 
@@ -33,8 +80,7 @@ const saveSettings = () => {
         },
         method: 'PUT',
         body: new URLSearchParams({
-            sign_only: settings.value.sign_only,
-            break_icon_tasks: settings.value.break_icon_tasks,
+            tasks_flag: settings.value.tasks_flag.toString(),
             ext_tasks: JSON.stringify(
                 ((v) => {
                     settings.value.ext_tasks = Object.fromEntries(Object.entries(v).filter((x) => x[0] && x[1]))
@@ -48,6 +94,11 @@ const saveSettings = () => {
             return
         }
         Notice('设置已保存', 'success')
+
+        initFlagSetting(res.data.tasks_flag)
+        settings.value.tasks_flag = res.data.tasks_flag
+        settings.value.ext_tasks = res.data.ext_tasks
+
         //console.log(res)
     })
 }
@@ -227,6 +278,7 @@ onMounted(() => {
             return
         }
         settings.value = res.data
+        initFlagSetting(res.data.tasks_flag)
         //console.log(res)
     })
 })
@@ -238,25 +290,29 @@ onMounted(() => {
 
         <div class="my-5">
             <h4 class="my-2 text-xl">任务类型</h4>
-            <p class="my-2 text-sm">默认只做签到任务，选择全部任务将会尝试完成所有日常任务</p>
-            <select v-model="settings.sign_only" class="mb-3 bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
-                <option value="0">仅签到</option>
-                <option value="1">全部任务</option>
-                <option value="2">全部任务+自定义任务</option>
-            </select>
+            <ul class="my-2 text-sm col-span-2 md:col-span-1 marker:text-pink-500 list-disc list-inside">
+                <li>默认只做签到任务，选中日常任务时必须选中签到任务</li>
+                <li>完成印记任务有可能会导致账号的 IP 归属地变为签到服务器所在地</li>
+                <li>完成特殊任务后可能会被风控系统禁止参加某些活动</li>
+                <li>自定义任务不会确认是否完成，任务列表中的同名任务会覆盖自定义任务</li>
+            </ul>
 
-            <h4 class="my-2 text-xl">印记任务 <SvgPushPin height="1.2em" width="1.2em" class="inline-block -mt-0.5" /></h4>
-            <p class="my-2 text-sm">完成印记任务可能会导致账号的 IP 归属地更变为签到服务的服务器所在地</p>
-            <select v-model="settings.break_icon_tasks" class="mb-3 bg-gray-100 dark:bg-gray-900 dark:text-gray-100 form-select rounded-xl">
-                <option value="0">不跳过印记任务</option>
-                <option value="1">跳过印记任务</option>
-            </select>
+            <div class="space-y-2 mb-4">
+                <div v-for="(_, key) in flagsSetting" :key="key">
+                    <label class="flex items-center gap-2" :for="'flags-' + key">
+                        <input type="checkbox" :id="'flags-' + key" :disabled="key === 'sign' && flagsSetting.daily?.value" class="form-checkbox bg-gray-100 dark:bg-gray-800 dark:checked:bg-blue-500" v-model="flagsSetting[key].value" />
+                        <span>
+                            {{ flagsSetting[key].name }}
+                            <SvgPushPin v-if="key === 'icon'" height="1.2em" width="1.2em" class="inline-block -mt-0.5" />
+                            <SvgPencil v-else-if="key === 'custom'" height="1.2em" width="1.2em" class="inline-block -mt-0.5" />
+                        </span>
+                    </label>
+                </div>
+            </div>
 
-            <h4 class="my-2 text-xl">自定义任务 <SvgPencil height="1.2em" width="1.2em" class="inline-block -mt-0.5" /></h4>
-            <p class="my-2 text-sm">自定义任务不会确认是否完成</p>
             <Modal class="inline-block mr-1 mb-3" title="编辑自定义任务" aria-label="编辑自定义任务">
                 <template #default>
-                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors">编辑任务</button>
+                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 rounded-lg px-3 py-1 text-gray-100 transition-colors text-sm">编辑自定义任务</button>
                 </template>
                 <template #container>
                     <div v-if="Object.keys(settings.ext_tasks).length > 0">
