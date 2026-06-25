@@ -554,10 +554,33 @@ watch(
     () => {
         if (addAccountForm.bduss !== '' && /BDUSS=[^;\s$]+(;|\s|$)/gm.test(addAccountForm.bduss) && /STOKEN=[^;\s$]+(;|\s|$)/gm.test(addAccountForm.bduss)) {
             try {
-                const cookies = Object.fromEntries(addAccountForm.bduss.split(';').map((x) => x.trim().split('=')))
+                const cookies = Object.fromEntries(
+                    addAccountForm.bduss.split(';').map((cookie) => {
+                        const splitedCookieKV = cookie.trim().split('=')
+                        if (splitedCookieKV.length === 1) {
+                            return [splitedCookieKV[0], '']
+                        }
+                        return [splitedCookieKV.shift(), splitedCookieKV.join('')]
+                    })
+                )
 
-                addAccountForm.bduss = cookies.BDUSS || ''
-                addAccountForm.stoken = cookies.STOKEN || ''
+                addAccountForm.bduss = (cookies.BDUSS || '').replace(/\s/gm, '')
+                addAccountForm.stoken = (cookies.STOKEN || '').replace(/\s/gm, '')
+            } catch {}
+        } else if (addAccountForm.stoken !== '' && /BDUSS=[^;\s$]+(;|\s|$)/gm.test(addAccountForm.stoken) && /STOKEN=[^;\s$]+(;|\s|$)/gm.test(addAccountForm.stoken)) {
+            try {
+                const cookies = Object.fromEntries(
+                    addAccountForm.stoken.split(';').map((cookie) => {
+                        const splitedCookieKV = cookie.trim().split('=')
+                        if (splitedCookieKV.length === 1) {
+                            return [splitedCookieKV[0], '']
+                        }
+                        return [splitedCookieKV.shift(), splitedCookieKV.join('')]
+                    })
+                )
+
+                addAccountForm.bduss = (cookies.BDUSS || '').replace(/\s/gm, '')
+                addAccountForm.stoken = (cookies.STOKEN || '').replace(/\s/gm, '')
             } catch {}
         }
     },
