@@ -43,7 +43,7 @@ export const Before = (current: Date | string, target: Date | string): boolean =
     if (typeof target === 'string') {
         target = new Date(target.replaceAll('-', '/').replace('T', ' '))
     }
-    console.log(Number(target) > Number(current), Number(target), Number(current))
+    // console.log(Number(target) > Number(current), Number(target), Number(current))
 
     return Number(target) > Number(current)
 }
