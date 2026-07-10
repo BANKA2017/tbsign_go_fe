@@ -124,9 +124,9 @@ onMounted(() => {
                 开发版请参考
                 <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 编译运行
             </p>
-            <p class="px-3 py-1" v-else-if="(serverStatus.build.publish_type || '').toLowerCase() === 'docker'">
+            <p class="px-3 py-1" v-else-if="['docker', 'container'].includes((serverStatus.build.publish_type || '').toLowerCase())">
                 <uno-icon class="i-skill-icons:docker inline-block -mt-0.5" />
-                Docker 版请前往 <a href="https://github.com/BANKA2017/tbsign_go/pkgs/container/tbsign_go" target="_blank" class="underline"><code>ghcr.io</code></a> 检查更新
+                容器环境请前往 <a href="https://github.com/BANKA2017/tbsign_go/pkgs/container/tbsign_go" target="_blank" class="underline"><code>ghcr.io</code></a> 检查更新
             </p>
             <p class="px-3 py-1" v-else-if="!isSupportVersion(serverGoStatus.os, serverGoStatus.arch)">
                 <uno-icon class="i-bi:cpu-fill -mt-0.5 inline-block" />
