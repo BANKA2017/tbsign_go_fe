@@ -60,7 +60,11 @@ const releaseList = ref<any[]>([])
 const tenMinutesDelay = ref<boolean>(true)
 
 const getReleasesList = () => {
-    Request((serverStatus.value.upgrade.api_base || 'https://api.github.com/repos/banka2017/tbsign_go') + '/releases?per_page=6')
+    Request(store.basePath + '/admin/server/upgrade/releases?per_page=6', {
+        headers: {
+            Authorization: store.authorization
+        }
+    })
         .then((res) => {
             releaseList.value = res.sort((a: any, b: any) => (a.published_at < b.published_at ? 1 : -1)).filter((x) => x.tag_name.startsWith('tbsign_go.'))
             const currentIndex = releaseList.value.map((x) => x.tag_name.replace('tbsign_go.', '')).indexOf(fullVersion.value)
@@ -161,7 +165,7 @@ onMounted(() => {
                                     type="text"
                                     disabled
                                     class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
-                                    :value="serverStatus.upgrade?.api_base || 'https://api.github.com/repos/banka2017/tbsign_go'"
+                                    :value="serverStatus.upgrade?.api_base"
                                 />
                             </template>
                         </Modal>
