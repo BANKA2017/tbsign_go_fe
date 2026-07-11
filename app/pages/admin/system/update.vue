@@ -66,6 +66,11 @@ const getReleasesList = () => {
         }
     })
         .then((res) => {
+            if (!Array.isArray(res)) {
+                Notice('请求失败，请稍后重试', 'error')
+                return
+            }
+
             releaseList.value = res.sort((a: any, b: any) => (a.published_at < b.published_at ? 1 : -1)).filter((x) => x.tag_name.startsWith('tbsign_go.'))
             const currentIndex = releaseList.value.map((x) => x.tag_name.replace('tbsign_go.', '')).indexOf(fullVersion.value)
             if (currentIndex > -1) {
