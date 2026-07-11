@@ -124,11 +124,7 @@ onMounted(() => {
             <div class="px-3 py-2">
                 <h2 class="text-xl font-bold">软件更新</h2>
             </div>
-            <p class="px-3 py-1" v-if="serverStatus?.encrypt">
-                <uno-icon class="i-bi:file-earmark-lock-fill inline-block -mt-0.5" />
-                升级前请先解密数据
-            </p>
-            <p class="px-3 py-1" v-else-if="(serverStatus.build.publish_type || '').toLowerCase() === 'source'">
+            <p class="px-3 py-1" v-if="(serverStatus.build.publish_type || '').toLowerCase() === 'source'">
                 <uno-icon class="i-bi:git -mt-0.5 inline-block" style="color: #f54d27" />
                 开发版请参考
                 <a href="https://github.com/BANKA2017/tbsign_go/blob/master/build.sh" target="_blank" class="underline"><code>build.sh</code></a> 编译运行
@@ -149,7 +145,7 @@ onMounted(() => {
                     </li>
                     <li>无法保证直接升级一定能够成功，升级前请提前备份数据库</li>
                     <li @click="tenMinutesDelay = false" role="button">最后更新会有 10 分钟的延迟</li>
-                    <li>不支持自动降级</li>
+                    <li>降级可能会失败，或降级后无法正常使用</li>
                     <li>
                         <span class="rounded-full mr-1">
                             <span class="rounded-l-full pl-2 pr-1 text-sm border-2 bg-sky-500 border-sky-500 text-gray-100">{{ serverGoStatus.os }}</span>
