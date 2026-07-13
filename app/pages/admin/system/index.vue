@@ -142,7 +142,7 @@ onBeforeUnmount(() => {
                                 <template #container>
                                     <ul role="list" class="mb-3 marker:text-sky-500 list-disc list-inside">
                                         <li>加密部分数据是一次性的高风险操作，可能会失败，并导致数据损坏</li>
-                                        <li>目前只支持加密部分令牌信息，并非完全加密</li>
+                                        <li>目前只支持加密部分账号信息，不是数据库加密</li>
                                         <li>暂不支持通过调用 API 解密</li>
                                     </ul>
 
