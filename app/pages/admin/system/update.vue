@@ -164,7 +164,7 @@ onMounted(() => {
                                 <input
                                     id="upgrade-list"
                                     type="text"
-                                    disabled
+                                    readonly
                                     class="form-input placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl"
                                     :value="serverStatus.upgrade?.api_base"
                                 />

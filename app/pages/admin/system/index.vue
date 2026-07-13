@@ -58,6 +58,33 @@ const syncStatus = () => {
         })
 }
 
+const encryptDB = () => {
+    loading.value = true
+    Request(store.basePath + '/admin/server/encrypt', {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'POST'
+    })
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+
+            if (res.data) {
+                Notice('数据加密完成', 'success')
+                serverStatus.value.encrypt = true
+            } else {
+                Notice('数据加密失败', 'error')
+            }
+            //console.log(res)
+        })
+        .finally(() => {
+            loading.value = false
+        })
+}
+
 onMounted(() => {
     syncStatus()
     nowIntervalHandle = setInterval(() => {
@@ -107,7 +134,22 @@ onBeforeUnmount(() => {
                         <span class="font-bold">测试模式 : </span><span class="font-mono">{{ serverStatus.variables?.testmode }}</span>
                     </li>
                     <li>
-                        <span class="font-bold">加密数据 : </span><span class="font-mono">{{ serverStatus?.encrypt }}</span>
+                        <span class="font-bold">加密数据 : </span
+                        ><span class="font-mono"
+                            >{{ serverStatus?.encrypt }}
+                            <Modal class="inline-block font-sans" title="加密数据" aria-label="加密数据" v-if="!serverStatus?.encrypt && serverStatus?.allow_encrypt">
+                                <template #default><span class="cursor-pointer underline underline-offset-2 decoration-pink-500 text-sm">可加密</span></template>
+                                <template #container>
+                                    <ul role="list" class="mb-3 marker:text-sky-500 list-disc list-inside">
+                                        <li>加密部分数据是一次性的高风险操作，可能会失败，并导致数据损坏</li>
+                                        <li>目前只支持加密部分令牌信息，并非完全加密</li>
+                                        <li>暂不支持通过调用 API 解密</li>
+                                    </ul>
+
+                                    <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="encryptDB">确认加密</button>
+                                </template>
+                            </Modal></span
+                        >
                     </li>
                     <li>
                         <span class="font-bold">兼容版本 : </span><span class="font-mono">{{ serverStatus.compat }}</span>
@@ -130,7 +172,7 @@ onBeforeUnmount(() => {
                             <NuxtLink
                                 v-if="serverStatus?.build?.commit_hash && serverStatus.build.commit_hash !== 'N/A'"
                                 :to="'https://github.com/BANKA2017/tbsign_go/commit/' + serverStatus.build.commit_hash"
-                                class="text-gray-100 bg-gray-500 px-2 rounded-xl"
+                                class="underline underline-offset-2 decoration-sky-500"
                                 >{{ (serverStatus.build.commit_hash || '').slice(0, 7) }}</NuxtLink
                             >
                             <span v-else>_</span>
@@ -138,7 +180,7 @@ onBeforeUnmount(() => {
                             <NuxtLink
                                 v-if="serverStatus?.build?.embedded_frontend_commit_hash && serverStatus.build.embedded_frontend_commit_hash !== 'N/A'"
                                 :to="'https://github.com/BANKA2017/tbsign_go_fe/commit/' + serverStatus.build.embedded_frontend_commit_hash"
-                                class="text-gray-100 bg-gray-500 px-2 rounded-xl"
+                                class="underline underline-offset-2 decoration-indigo-500"
                                 >{{ (serverStatus.build.embedded_frontend_commit_hash || '').slice(0, 7) }}</NuxtLink
                             >
                             <span v-else>_</span>
@@ -146,7 +188,7 @@ onBeforeUnmount(() => {
                     </li>
                     <li>
                         <span class="font-bold">前端版本 : </span>
-                        <NuxtLink v-if="config.public.NUXT_COMMIT_HASH" :to="'https://github.com/BANKA2017/tbsign_go_fe/commit/' + config.public.NUXT_COMMIT_HASH" class="font-mono text-gray-100 bg-gray-500 px-2 rounded-xl">{{
+                        <NuxtLink v-if="config.public.NUXT_COMMIT_HASH" :to="'https://github.com/BANKA2017/tbsign_go_fe/commit/' + config.public.NUXT_COMMIT_HASH" class="font-mono underline underline-offset-2 decoration-indigo-500">{{
                             (config.public.NUXT_COMMIT_HASH || '').slice(0, 7)
                         }}</NuxtLink>
                         <span v-else class="font-mono">Dev</span>
