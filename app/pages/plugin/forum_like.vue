@@ -6,7 +6,7 @@ import { Notice, Request } from '~/share/Tools'
 const store = useMainStore()
 const accounts = computed(() => store.cache.accounts || [])
 const pidNameKV = computed(() => store.pidNameKV)
-const pidNameKVWithoutTarget = computed(() => Object.fromEntries(Object.entries(pidNameKV.value).filter((kv) => kv[0] !== taskToAdd.value.pid.toString())))
+const pidNameKVWithoutTarget = computed(() => Object.fromEntries(Object.entries(pidNameKV.value).filter((kv) => !taskToAdd.pid.includes(kv[0]))))
 const loading = computed(() => store.loading)
 const now = ref<number>(0)
 
@@ -86,36 +86,36 @@ const taskStatus = (task: taskItem) => {
     }
 }
 
-const taskToAdd = ref<{
-    pid: number
+const taskToAdd = reactive<{
+    pid: string[]
     fname: string
 }>({
-    pid: 0,
+    pid: [],
     fname: ''
 })
 
-watch(
-    taskToAdd,
-    () => {
-        const forumListRemain = tasksConfig.limit - (taskGroup.value?.[taskToAdd.value.pid]?.tasks?.length || 0)
-        taskToAdd.value.fname = [
-            ...new Set(
-                taskToAdd.value.fname
-                    .split('\n')
-                    .map((tmpStr: string, index: number, list: string[]) => {
-                        tmpStr = tmpStr.trim()
-                        if ((tmpStr.length === 0 && list.length - 1 > index) || index >= forumListRemain) {
-                            return null
-                        }
-
-                        return tmpStr
-                    })
-                    .filter((x: string | null) => x !== null)
-            )
-        ].join('\n')
-    },
-    { deep: true }
-)
+// watch(
+//     taskToAdd,
+//     () => {
+//         const forumListRemain = tasksConfig.limit - (taskGroup.value?.[taskToAdd.pid]?.tasks?.length || 0)
+//         taskToAdd.fname = [
+//             ...new Set(
+//                 taskToAdd.fname
+//                     .split('\n')
+//                     .map((tmpStr: string, index: number, list: string[]) => {
+//                         tmpStr = tmpStr.trim()
+//                         if ((tmpStr.length === 0 && list.length - 1 > index) || index >= forumListRemain) {
+//                             return null
+//                         }
+//
+//                         return tmpStr
+//                     })
+//                     .filter((x: string | null) => x !== null)
+//             )
+//         ].join('\n')
+//     },
+//     { deep: true }
+// )
 
 const deleteTask = (pid = 0, tid = 0) => {
     if (pid <= 0 || tid < 0) {
@@ -215,23 +215,25 @@ const taskToClone = ref<{
 })
 
 const addTask = () => {
-    if (!Object.keys(pidNameKV.value).includes(taskToAdd.value.pid.toString())) {
+    let activeAccounts = taskToAdd.pid.filter((pid) => pidNameKV.value[pid.toString()])
+
+    if (activeAccounts.length === 0) {
         return
     }
 
-    if (taskToAdd.value.fname.length === 0) {
+    if (taskToAdd.fname.length === 0) {
         return
     }
 
     const form = new URLSearchParams()
-    for (const f of taskToAdd.value.fname.split('\n')) {
+    for (const f of taskToAdd.fname.split('\n')) {
         const trimedFname = f.trim()
         if (trimedFname) {
             form.append('fname', trimedFname)
         }
     }
 
-    Request(store.basePath + '/plugins/kd_forum_like/list/' + taskToAdd.value.pid.toString(), {
+    Request(store.basePath + '/plugins/kd_forum_like/list/' + activeAccounts.join(), {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -254,7 +256,9 @@ const addTask = () => {
 }
 
 const cloneTask = () => {
-    if (!Object.keys(pidNameKV.value).includes(taskToAdd.value.pid.toString())) {
+    let activeAccounts = taskToAdd.pid.filter((pid) => pidNameKV.value[pid.toString()])
+
+    if (activeAccounts.length === 0) {
         return
     }
 
@@ -263,7 +267,7 @@ const cloneTask = () => {
         return
     }
 
-    Request(store.basePath + '/plugins/kd_forum_like/list/' + taskToAdd.value.pid.toString() + '/clone/' + taskToClone.value.source_pid + '/' + taskToClone.value.clone_source, {
+    Request(store.basePath + '/plugins/kd_forum_like/list/' + activeAccounts.join() + '/clone/' + taskToClone.value.source_pid + '/' + taskToClone.value.clone_source, {
         headers: {
             Authorization: store.authorization,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -443,7 +447,7 @@ onBeforeUnmount(() => {
                 :title="'添加贴吧' + (isCloneMode ? ' [ 克隆 ]' : '')"
                 @active-callback="
                     () => {
-                        taskToAdd.pid = 0
+                        taskToAdd.pid = []
                         taskToAdd.fname = ''
                         taskToClone.source_pid = 0
                         taskToClone.clone_source = 'forum_list'
@@ -456,12 +460,13 @@ onBeforeUnmount(() => {
                 <template #container>
                     <ul class="col-span-2 md:col-span-1 list-disc list-inside marker:text-pink-500 text-sm">
                         <li>
-                            超出容量限制的贴吧会被忽略<span v-if="taskToAdd.pid"
+                            每个账号超出容量限制的贴吧会被忽略（当前限制<span class="text-pink-500 font-mono mx-1">{{ tasksConfig.limit }}</span
+                            >）<!--<span v-if="taskToAdd.pid"
                                 >（还可以添加<span class="text-pink-500 font-mono mx-1">{{
                                     clamp(tasksConfig.limit - (taskGroup?.[taskToAdd.pid]?.tasks?.length || 0) - (taskToAdd.fname ? taskToAdd.fname.split('\n').length : 0), 0, tasksConfig.limit)
                                 }}</span
                                 >个贴吧）</span
-                            >
+                            >-->
                         </li>
                         <li>
                             同一贴吧账号连续两次关注至少间隔 <span class="text-pink-500 font-mono">{{ tasksConfig.pid_cooldown_time }}</span> 秒
@@ -472,8 +477,13 @@ onBeforeUnmount(() => {
                     </ul>
 
                     <div class="my-3">
-                        <label for="pid-to-froum-manager">贴吧账号</label>
-                        <select id="pid-to-froum-manager" v-model="taskToAdd.pid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full mt-1 rounded-xl">
+                        <label for="pid-to-froum-manager"
+                            >贴吧账号<span class="text-sm"
+                                >（已选择<span class="text-pink-500 font-mono ml-1">{{ taskToAdd.pid.length }}</span
+                                >）</span
+                            ></label
+                        >
+                        <select id="pid-to-froum-manager" v-model="taskToAdd.pid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full mt-1 rounded-xl" multiple>
                             <option v-for="(name, pid) in pidNameKV" :key="pid" :value="pid">{{ name }}</option>
                         </select>
                     </div>
@@ -498,7 +508,9 @@ onBeforeUnmount(() => {
                         <textarea id="froum-name" v-model="taskToAdd.fname" class="form-textarea bg-gray-200 dark:bg-gray-900 w-full rounded-xl mt-1" rows="10" placeholder="输入贴吧名（不带末尾吧字），一行一个"></textarea>
                     </div>
 
-                    <button :class="{ 'px-3 py-1 rounded-lg my-2 border-2 border-sky-500 hover:bg-sky-500 hover:text-gray-100 mr-2 transition-colors': true, 'bg-sky-500': isCloneMode }" @click="isCloneMode = !isCloneMode">克隆模式</button>
+                    <button :class="{ 'px-3 py-1 rounded-lg my-2 border-2 border-sky-500 hover:bg-sky-500 hover:text-gray-100 mr-2 transition-colors': true, 'bg-sky-500 text-gray-100': isCloneMode }" @click="isCloneMode = !isCloneMode">
+                        克隆模式
+                    </button>
                     <button
                         v-if="isCloneMode"
                         class="px-3 py-1 rounded-lg my-2 border-2 border-sky-500 bg-sky-500 hover:bg-sky-600 hover:border-sky-600 dark:hover:bg-sky-400 dark:hover:border-sky-400 text-gray-100 transition-colors"
