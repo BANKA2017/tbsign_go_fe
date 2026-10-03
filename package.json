@@ -15,31 +15,31 @@
     },
     "dependencies": {
         "@iconify-json/bi": "^1.2.7",
-        "@iconify-json/fluent-emoji-flat": "^1.2.5",
+        "@iconify-json/fluent-emoji-flat": "^1.2.6",
         "@iconify-json/skill-icons": "^1.2.4",
         "@nuxtjs/tailwindcss": "^6.14.0",
         "@pinia/nuxt": "^1.0.2",
-        "@unocss/nuxt": "^66.8.1",
-        "@unocss/preset-icons": "^66.8.1",
-        "@vueuse/core": "^14.4.0",
-        "@vueuse/nuxt": "^14.4.0",
+        "@unocss/nuxt": "^66.10.5",
+        "@unocss/preset-icons": "^66.10.5",
+        "@vueuse/core": "^15.0.0",
+        "@vueuse/nuxt": "^15.0.0",
         "noty": "^3.2.0-beta-deprecated",
         "nuxt": "4.5.2",
-        "vue": "^3.5.41",
-        "vue-router": "^5.2.0"
+        "vue": "^3.5.43",
+        "vue-router": "^5.3.1"
     },
     "devDependencies": {
         "@nuxt/types": "^2.18.1",
         "@tailwindcss/forms": "^0.5.11",
-        "@types/node": "^26.2.0",
-        "autoprefixer": "^10.5.4",
+        "@types/node": "^26.6.4",
+        "autoprefixer": "^10.6.1",
         "pinia": "^4.0.3",
-        "postcss": "^8.5.26",
-        "prettier": "^3.9.6",
-        "sass": "^1.103.1",
+        "postcss": "^8.5.28",
+        "prettier": "^3.9.9",
+        "sass": "^1.105.1",
         "tailwindcss": "^3.4.19",
-        "terser": "^5.50.0",
-        "webpack": "^5.109.2"
+        "terser": "^5.51.2",
+        "webpack": "^5.111.1"
     },
     "packageManager": "yarn@4.11.0"
 }
