@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { clamp } from '@vueuse/core'
 import Modal from '~/components/Modal.vue'
 import { Notice, Request } from '~/share/Tools'
 
@@ -40,6 +41,11 @@ const ForumListArr2Obj = (list: any[][] = []) =>
 const list = ref<ForumListItem[]>([])
 const accounts = computed(() => store.cache?.accounts || [])
 const pidNameKV = computed(() => store.pidNameKV)
+
+const bdussNum = computed(() => Number(accountInfo.value?.system_settings?.bduss_num || 0))
+const currentCount = computed(() => Object.keys(pidNameKV.value).length)
+
+const canAdd = computed(() => isAdmin.value || bdussNum.value === 0 || (bdussNum.value > 0 && currentCount.value < bdussNum.value))
 
 const editMode = ref<boolean>(false)
 
@@ -804,9 +810,7 @@ onMounted(() => {
             </template>
             <template #container>
                 <div>
-                    <template v-if="!isAdmin && !['', '0', undefined].includes(accountInfo?.system_settings?.bduss_num) && Number(accountInfo?.system_settings?.bduss_num || -1) > Object.keys(pidNameKV).length">
-                        无法添加更多账号，请删除一些账号再试</template
-                    >
+                    <template v-if="!canAdd"> 无法添加更多账号，请删除一些账号再试 （{{ currentCount }}/{{ clamp(bdussNum, 0, Infinity) }}）</template>
                     <template v-else>
                         <div v-if="qrLoginData.done" class="w-full">
                             <button @click="getQRCode" class="col-span-2 md:col-span-1 px-2 py-1 my-1 w-full rounded-xl border-4 border-sky-500 bg-sky-500 text-gray-100">再次添加</button>

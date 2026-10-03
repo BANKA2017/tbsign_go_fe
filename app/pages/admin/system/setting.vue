@@ -58,7 +58,7 @@ const settingsGroup = ref<{
             go_re_check_in_max_interval: '最大重签间隔 (分钟)',
             go_forum_sync_policy: '贴吧同步策略',
 
-            bduss_num: '最大允许用户添加账号数，0为无限，管理员不受限制' //，-1为禁止绑定'
+            bduss_num: '最大允许用户添加账号数，-1为禁止添加，0为无限，管理员不受限制'
             // "tb_max": '最大关注贴吧数量，0为不限'
         }
     },
