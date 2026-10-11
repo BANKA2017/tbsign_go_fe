@@ -87,7 +87,7 @@ useHeadSafe({
         const routeName = isSystemAdminPage.value ? 'admin-system' : route.name?.toString() || ''
         const tmpIndex = wholeRouteName.value.indexOf(routeName)
         if (tmpIndex < 0) {
-            return (route.name || '404')?.toString() + ' - ' + systemName.value
+            return systemName.value
         } else {
             return (state.navs[tmpIndex]?.name || '404') + ' - ' + systemName.value
         }

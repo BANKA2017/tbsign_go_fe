@@ -8,9 +8,6 @@ const accounts = computed(() => store.cache.accounts || [])
 const pidNameKV = computed(() => store.pidNameKV)
 const pidNameKVWithoutTarget = computed(() => Object.fromEntries(Object.entries(pidNameKV.value).filter((kv) => !taskToAdd.pid.includes(kv[0]))))
 const loading = computed(() => store.loading)
-const now = ref<number>(0)
-
-let nowIntervalHandle: any = null
 
 interface taskItem {
     id: number
@@ -74,7 +71,7 @@ watch(
     { deep: true }
 )
 
-const hasSucceed = computed(() => Object.entries(taskGroup.value).reduce((pre: number, cur: taskItem) => pre + cur[1].succeed, 0) > 0)
+const hasSucceed = computed(() => Object.entries(taskGroup.value).some((task) => task[1].succeed))
 
 const taskStatus = (task: taskItem) => {
     if (task.status === 0 && task.date > 0 && task.last_error.startsWith('关注成功')) {
@@ -342,12 +339,8 @@ const updateTasksSwitch = () => {
 
 const tasksConfig = reactive<{
     limit: number
-    pid_cooldown_time: number
-    fname_cooldown_time: number
 }>({
-    limit: 0,
-    pid_cooldown_time: 0,
-    fname_cooldown_time: 0
+    limit: 0
 })
 
 const loadingTasks = ref<boolean>(false)
@@ -387,8 +380,6 @@ const getSettings = () => {
             return
         }
         tasksConfig.limit = res.data?.limit
-        tasksConfig.pid_cooldown_time = res.data?.pid_cooldown_time
-        tasksConfig.fname_cooldown_time = res.data?.fname_cooldown_time
         //console.log(res)
     })
 }
@@ -409,27 +400,15 @@ onMounted(() => {
         tasksSwitch.value = res.data
         //console.log(res)
     })
-
-    nowIntervalHandle = setInterval(() => {
-        now.value = Date.now() / 1000
-    }, 500)
-})
-
-onBeforeUnmount(() => {
-    if (nowIntervalHandle) {
-        clearInterval(nowIntervalHandle)
-    }
 })
 </script>
 
 <template>
     <div class="px-3 py-2">
-        <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2">
+        <!--<div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-2">
             <ul class="col-span-2 md:col-span-1 list-disc list-inside marker:text-pink-500">
-                <li>短期内关注过多会导致账号被永久封禁</li>
-                <li>删除或重置任务会影响冷却时间，建议在没有待关注贴吧时再操作</li>
             </ul>
-        </div>
+        </div>-->
 
         <h3 class="text-2xl mb-4">设置</h3>
 
@@ -443,7 +422,7 @@ onBeforeUnmount(() => {
 
         <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
             <Modal
-                class="col-span-3 sm:col-span-2 lg:col-span-1"
+                class="col-span-6 sm:col-span-3 lg:col-span-1"
                 :title="'添加贴吧' + (isCloneMode ? ' [ 克隆 ]' : '')"
                 @active-callback="
                     () => {
@@ -460,7 +439,7 @@ onBeforeUnmount(() => {
                 <template #container>
                     <ul class="col-span-2 md:col-span-1 list-disc list-inside marker:text-pink-500 text-sm">
                         <li>
-                            每个账号超出容量限制的贴吧会被忽略（当前限制<span class="text-pink-500 font-mono mx-1">{{ tasksConfig.limit }}</span
+                            每个账号超出容量限制的贴吧会被忽略（当前限制<span class="dark:text-pink-400 text-pink-500 font-mono mx-1">{{ tasksConfig.limit }}</span
                             >）<!--<span v-if="taskToAdd.pid"
                                 >（还可以添加<span class="text-pink-500 font-mono mx-1">{{
                                     clamp(tasksConfig.limit - (taskGroup?.[taskToAdd.pid]?.tasks?.length || 0) - (taskToAdd.fname ? taskToAdd.fname.split('\n').length : 0), 0, tasksConfig.limit)
@@ -468,18 +447,18 @@ onBeforeUnmount(() => {
                                 >个贴吧）</span
                             >-->
                         </li>
-                        <li>
+                        <!--<li>
                             同一贴吧账号连续两次关注至少间隔 <span class="text-pink-500 font-mono">{{ tasksConfig.pid_cooldown_time }}</span> 秒
                         </li>
                         <li>
                             同一贴吧被任意账号连续两次关注至少间隔 <span class="text-pink-500 font-mono">{{ tasksConfig.fname_cooldown_time }}</span> 秒
-                        </li>
+                        </li>-->
                     </ul>
 
                     <div class="my-3">
                         <label for="pid-to-froum-manager"
                             >贴吧账号<span class="text-sm"
-                                >（已选择<span class="text-pink-500 font-mono ml-1">{{ taskToAdd.pid.length }}</span
+                                >（已选<span class="dark:text-pink-400 text-pink-500 font-mono ml-1">{{ taskToAdd.pid.length }}</span
                                 >）</span
                             ></label
                         >
@@ -496,7 +475,7 @@ onBeforeUnmount(() => {
                             </select>
                         </div>
                         <div class="my-3">
-                            <label for="pid-to-froum-manager">贴吧列表</label>
+                            <label for="pid-to-froum-manager">贴吧列表来源</label>
                             <select id="pid-to-froum-manager" v-model="taskToClone.clone_source" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full mt-1 rounded-xl">
                                 <option value="forum_list">贴吧列表</option>
                                 <option value="plugin_tasks">本插件任务列表</option>
@@ -527,7 +506,7 @@ onBeforeUnmount(() => {
             <Modal
                 v-show="hasSucceed"
                 title="清空已完成"
-                class="inline-block col-span-3 sm:col-span-2 lg:col-span-1"
+                class="inline-block col-span-6 sm:col-span-3 lg:col-span-1"
                 @active-callback="
                     () => {
                         toRemoveSucceedPid = 0
@@ -535,13 +514,9 @@ onBeforeUnmount(() => {
                 "
             >
                 <template #default>
-                    <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="清空已完成">清空已完成</button>
+                    <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="清空已完成的关注任务">清空已完成</button>
                 </template>
                 <template #container>
-                    <ul class="mb-3 col-span-2 md:col-span-1 marker:text-pink-500 list-disc list-inside text-sm">
-                        <li>清空会影响冷却时间，建议在没有待关注贴吧时再操作</li>
-                    </ul>
-
                     <div class="my-3">
                         <label for="pid-to-plugin-reset">账号</label>
                         <select id="pid-to-plugin-reset" v-model="toRemoveSucceedPid" class="bg-gray-200 dark:bg-gray-900 dark:text-gray-100 form-select block w-full mt-1 rounded-xl">
@@ -616,15 +591,9 @@ onBeforeUnmount(() => {
                                 <span class="ml-1">{{ getPubDate(new Date(taskInfo.lastTask.date * 1000)) }}</span>
                             </div>
                             <div v-if="taskInfo.lastTask">
-                                <div class="w-full h-1 bg-gray-400 dark:bg-gray-600 rounded-full relative">
-                                    <div
-                                        :class="{
-                                            'h-1 rounded-full absolute l-0 transition-colors': true,
-                                            'bg-sky-600 dark:bg-sky-400': now < taskInfo.lastTask.date + tasksConfig.pid_cooldown_time,
-                                            'bg-green-600 dark:bg-green-400': now >= taskInfo.lastTask.date + tasksConfig.pid_cooldown_time
-                                        }"
-                                        :style="{ width: clamp(Number((((Number(now.toFixed(0)) - taskInfo.lastTask.date) / tasksConfig.pid_cooldown_time) * 100).toFixed(0)), 0, 100) + '%' }"
-                                    ></div>
+                                <div class="w-full h-1 bg-gray-400 dark:bg-gray-600 rounded-full flex">
+                                    <div class="h-1 rounded-full l-0 transition-colors bg-sky-500 dark:bg-sky-400" :style="{ width: clamp(Number(((taskInfo.succeed / taskInfo.tasks.length) * 100).toFixed(0)), 0, 100) + '%' }"></div>
+                                    <div class="h-1 rounded-full l-0 transition-colors bg-pink-500 dark:bg-pink-400" :style="{ width: clamp(Number(((taskInfo.failed / taskInfo.tasks.length) * 100).toFixed(0)), 0, 100) + '%' }"></div>
                                 </div>
                             </div>
                         </div>

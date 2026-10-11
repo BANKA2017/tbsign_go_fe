@@ -5,7 +5,7 @@ import { Notice, Request } from '~/share/Tools'
 const store = useMainStore()
 const isAdmin = computed(() => store.admin)
 const pluginList = computed({
-    get: () => store.cache?.plugin_list || {},
+    get: () => Object.fromEntries(Object.entries(store.cache?.plugin_list || {}).sort(([, a], [, b]) => Number(b.core === true) - Number(a.core === true))),
     set: (newValue) => {
         store.updateCache('plugin_list', newValue)
     }
@@ -132,9 +132,10 @@ const pluginDelete = (pluginName = '') => {
                     <div class="grid grid-cols-2 gap-3">
                         <div class="col-span-2 xs:col-span-1 xs:py-1.5">
                             <span :class="{ 'px-1.5 rounded text-sm text-gray-100 mr-2': true, 'bg-sky-500 dark:bg-sky-700': value?.ver && !value?.test, 'bg-orange-500 dark:bg-orange-600': !(value?.ver && !value?.test) }">{{
-                                value?.ver && !value?.test ? (value?.ver !== '-1' ? value.ver : 'und') : 'dev'
+                                value?.ver && !value?.test ? (value?.core ? 'cor' : value?.ver !== '-1' ? value.ver : 'und') : 'dev'
                             }}</span>
-                            <span class="font-bold">{{ pluginGroup[pluginName] || pluginName }}</span>
+                            <NuxtLink :to="`/plugin/` + value.plugin_name_fe" class="font-bold" v-if="value.status && value.plugin_name_fe">{{ pluginGroup[pluginName] || pluginName }}</NuxtLink>
+                            <span class="font-bold" v-else>{{ pluginGroup[pluginName] || pluginName }}</span>
                         </div>
                         <div class="col-span-2 xs:col-span-1 xs:text-end">
                             <button
@@ -151,9 +152,14 @@ const pluginDelete = (pluginName = '') => {
                                 }"
                                 @click="pluginSwitch(pluginName)"
                             >
-                                {{ value.status ? '已开启' : value.ver === '-1' ? '未安装' : '已关闭' }}
+                                {{ value.status ? '已启用' : value.ver === '-1' ? '未安装' : '已禁用' }}
                             </button>
-                            <Modal class="inline-block text-start" :title="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + ' ？'" :aria-label="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + ' ？'" v-if="value.ver !== '-1'">
+                            <Modal
+                                class="inline-block text-start"
+                                :title="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + ' ？'"
+                                :aria-label="'确认卸载插件: ' + (pluginGroup[pluginName] || pluginName) + ' ？'"
+                                v-if="value.ver !== '-1' && !value.core"
+                            >
                                 <template #default>
                                     <button class="m-0.5 px-3 py-1 bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 text-gray-100 transition-colors rounded">卸载</button>
                                 </template>
@@ -165,7 +171,7 @@ const pluginDelete = (pluginName = '') => {
                                 class="inline-block text-start"
                                 :title="pluginGroup[pluginName] || pluginName"
                                 :aria-label="'设置' + (pluginGroup[pluginName] || pluginName)"
-                                v-if="value.ver !== '-1'"
+                                v-if="value.ver !== '-1' && !value.core"
                                 @active-callback="
                                     (c) => {
                                         if (!c) {

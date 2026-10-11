@@ -42,7 +42,7 @@
             </div>-->
         </div>
         <div class="p-3">
-            <h3 class="text-xl mb-3">签到状态</h3>
+            <h3 class="text-xl mb-3">状态</h3>
             <div class="grid grid-cols-2 gap-2">
                 <ul class="col-span-2 md:col-span-1 list-disc list-inside">
                     <li class="marker:text-green-500">
@@ -183,7 +183,9 @@
                         </select>
 
                         <label class="block my-1" for="push-type"
-                            >推送每日签到报告{{ (accountInfo?.system_settings?.go_daily_report_hour || -1) > -1 ? '（' + accountInfo.system_settings.go_daily_report_hour + ' 时开始推送）' : '（站点未开启每日报告）' }}</label
+                            >推送每日签到报告{{
+                                !reportStatus ? '（站点已停用每日报告）' : (accountInfo?.system_settings?.go_daily_report_hour || -1) > -1 ? '（' + accountInfo.system_settings.go_daily_report_hour + ' 时开始推送）' : '（站点未开启每日报告）'
+                            }}</label
                         >
                         <select
                             id="push-type"
@@ -450,6 +452,8 @@ const accountInfo = computed(() => store.cache?.accountInfo)
 const pidNameKV = computed(() => store.pidNameKV)
 const tbaccounts = computed(() => store.cache?.accounts || [])
 const pluginList = computed(() => store.cache?.plugin_list || {})
+const reportStatus = computed(() => pluginList.value?.['tc_core_report']?.status)
+
 const notifications = ref<string>('')
 const runtimeConfig = useRuntimeConfig()
 
@@ -529,7 +533,7 @@ onMounted(async () => {
         settingsValue.pushdeer_key = accountInfo.value?.pushdeer_key || ''
         settingsValue.ntfy_topic = accountInfo.value?.ntfy_topic || ''
         settingsValue.push_type = accountInfo.value?.push_type || ''
-        settingsValue.daily_report = accountInfo.value?.daily_report
+        settingsValue.daily_report = accountInfo.value?.daily_report || '0'
 
         if (accountInfo.value?.system_settings?.allow_export_personal_data !== '1' && accountInfo.value?.system_settings?.allow_import_personal_data === '1') {
             backupStatus.value = 'import'

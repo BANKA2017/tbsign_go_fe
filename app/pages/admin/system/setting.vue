@@ -60,6 +60,7 @@ const settingsGroup = ref<{
 
             bduss_num: '最大允许用户添加账号数，-1为禁止添加，0为无限，管理员不受限制'
             // "tb_max": '最大关注贴吧数量，0为不限'
+            // go_infinity_sign: '无间隔签到，启用后将忽略 [ 单次单账号签到贴吧数量 ]'
         }
     },
     mail: {
@@ -354,6 +355,15 @@ onMounted(() => {
                                 >
                                     <option value="0">否</option>
                                     <option value="1">是</option>
+                                </select>
+                                <select
+                                    :id="'input-' + key"
+                                    v-else-if="['go_infinity_sign'].includes(key)"
+                                    class="form-select placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500 w-full bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-xl"
+                                    v-model="serverSettings[key]"
+                                >
+                                    <option value="0">禁用</option>
+                                    <option value="1">启用</option>
                                 </select>
                                 <select
                                     :id="'input-' + key"

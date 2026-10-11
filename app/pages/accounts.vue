@@ -7,6 +7,9 @@ const store = useMainStore()
 const loading = computed(() => store.loading)
 const accountInfo = computed(() => store.cache?.accountInfo)
 const pluginList = computed(() => store.cache?.plugin_list)
+const signComponentStatus = computed(() => pluginList.value?.['tc_core_sign']?.status)
+const syncPluginActive = computed(() => pluginList.value?.['ver4_ref']?.status)
+
 const isAdmin = computed(() => store.admin)
 
 const route = useRoute()
@@ -254,6 +257,39 @@ const tbStatus = computed(() => {
     }
 })
 
+const tasksSwitch = ref<boolean>(false)
+
+const updateForumSignAndSyncForumListTasksSwitch = () => {
+    Request(store.basePath + '/plugins/tc_core_sign/signmode', {
+        headers: {
+            Authorization: store.authorization
+        },
+        method: 'POST'
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksSwitch.value = res.data
+        //console.log(res)
+    })
+}
+
+const getForumSignAndSyncForumListTasksSwitch = () => {
+    Request(store.basePath + '/plugins/tc_core_sign/signmode', {
+        headers: {
+            Authorization: store.authorization
+        }
+    }).then((res) => {
+        if (res.code !== 200) {
+            Notice(res.message, 'error')
+            return
+        }
+        tasksSwitch.value = res.data
+        //console.log(res)
+    })
+}
+
 const syncList = ref<boolean>(false)
 const syncPid = ref<number>(0)
 const syncTiebaList = () => {
@@ -367,6 +403,10 @@ const updateIgnoreForum = (pid = 0, fid: number | number[] = 0, forumIndex = -1,
 const loadingList = ref<boolean>(false)
 
 const getForumList = () => {
+    if (!signComponentStatus.value) {
+        return
+    }
+
     loadingList.value = true
     Request(store.basePath + '/list?array_mode=1', {
         headers: {
@@ -511,6 +551,8 @@ const addForumValue = reactive<{
 })
 
 const addForum = () => {
+    return
+
     if (addForumValue.pid <= 0 || addForumValue.fname === '') {
         return
     }
@@ -712,7 +754,7 @@ const submitQRLogin = () => {
             if (res.code === 201) {
                 Notice('已添加 @' + res.data?.name || res.data?.portrait, 'success')
                 accounts.value.push(res.data)
-                if (!(pluginList.value?.['ver4_ref']?.status || false)) {
+                if (!(syncPluginActive.value || false)) {
                     Notice('注意：当前站点未启用贴吧列表自动同步，请手动同步', 'info', 0)
                 }
                 return
@@ -721,7 +763,7 @@ const submitQRLogin = () => {
                     if (accounts.value[accountIndex].portrait === res.data.portrait) {
                         Notice('更新 BDUSS 信息成功 @' + res.data.name || res.data.portrait, 'success')
                         accounts.value[accountIndex] = res.data
-                        if (!(pluginList.value?.['ver4_ref']?.status || false)) {
+                        if (!(syncPluginActive.value || false)) {
                             Notice('注意：当前站点未启用贴吧列表自动同步，请手动同步', 'info', 0)
                         }
                         //console.log('find', accountIndex)
@@ -792,17 +834,22 @@ onMounted(() => {
             // Notice(e.toString(), 'error')
         }
     }
+    getForumSignAndSyncForumListTasksSwitch()
     getForumList()
 })
 </script>
 
 <template>
     <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5">
-        共有 {{ tbStatus.accountCount }} 个账号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，已忽略
-        <span class="text-gray-600 dark:text-gray-400">{{ tbStatus.ignore }}</span> 个，还有 <span class="text-orange-500">{{ tbStatus.pending }}</span> 个贴吧等待签到
+        <p v-if="!signComponentStatus">站点已停止签到<template v-if="syncPluginActive">和贴吧同步</template>功能</p>
+        <p v-else-if="tasksSwitch">已停用签到<template v-if="syncPluginActive">和贴吧同步</template>功能，重新启用请点击“签到设置”按钮</p>
+        <p v-else>
+            共有 {{ tbStatus.accountCount }} 个账号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，已忽略
+            <span class="text-gray-600 dark:text-gray-400">{{ tbStatus.ignore }}</span> 个，还有 <span class="text-orange-500">{{ tbStatus.pending }}</span> 个贴吧等待签到
+        </p>
     </div>
     <div class="my-5 grid grid-cols-6 gap-2 max-w-[48em]">
-        <Modal class="col-span-3 md:col-span-1" title="添加贴吧账号" aria-label="添加贴吧账号">
+        <Modal class="col-span-6 xs:col-span-3 lg:col-span-1" title="添加贴吧账号" aria-label="添加贴吧账号">
             <template #default>
                 <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="扫码登录并更新或添加贴吧账号" aria-label="扫码登录并更新或添加贴吧账号" @click="getQRCode">
                     添加账号
@@ -877,8 +924,7 @@ onMounted(() => {
                 </div>
             </template>
         </Modal>
-
-        <Modal class="col-span-3 md:col-span-1" title="同步列表" aria-label="同步列表">
+        <Modal v-if="signComponentStatus" class="col-span-6 xs:col-span-3 lg:col-span-1" title="同步列表" aria-label="同步列表">
             <template #default>
                 <button class="w-full rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="从贴吧拉取列表，更新数据库" aria-label="从贴吧拉取列表，更新数据库">同步列表</button>
             </template>
@@ -896,7 +942,7 @@ onMounted(() => {
                 <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="syncTiebaList">确认同步</button>
             </template>
         </Modal>
-        <Modal class="col-span-3 md:col-span-1" title="清空贴吧列表" aria-label="清空贴吧列表">
+        <Modal v-if="signComponentStatus" class="col-span-6 xs:col-span-3 lg:col-span-1" title="清空贴吧列表" aria-label="清空贴吧列表">
             <template #default>
                 <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="清空贴吧列表" aria-label="清空贴吧列表">清空列表</button>
             </template>
@@ -914,16 +960,18 @@ onMounted(() => {
                 <button class="bg-pink-500 hover:bg-pink-600 dark:hover:bg-pink-400 px-3 py-1 rounded-lg transition-colors text-gray-100 w-full text-lg" @click="cleanTiebaList">确认清空</button>
             </template>
         </Modal>
-        <button @click="checkAccountStatus" class="col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="检查账号状态" aria-label="检查贴吧账号状态">检查状态</button>
+        <button @click="checkAccountStatus" class="col-span-6 xs:col-span-3 lg:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="检查账号状态" aria-label="检查贴吧账号状态">
+            检查状态
+        </button>
         <button
             @click="editMode = !editMode"
-            :class="'col-span-3 md:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors ' + (editMode ? 'bg-gray-300 text-black' : '')"
+            :class="'col-span-6 xs:col-span-3 lg:col-span-1 rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors ' + (editMode ? 'bg-gray-300 text-black' : '')"
             title="编辑贴吧列表"
             aria-label="编辑贴吧列表"
         >
             编辑列表
         </button>
-        <Modal class="col-span-3 md:col-span-1" title="手动添加贴吧" aria-label="手动添加贴吧">
+        <!--<Modal class="col-span-6 xs:col-span-3 lg:col-span-1" title="手动添加贴吧" aria-label="手动添加贴吧">
             <template #default>
                 <button class="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-300 px-4 py-1 hover:text-black transition-colors" title="手动添加贴吧" aria-label="手动添加贴吧">添加贴吧</button>
             </template>
@@ -945,14 +993,33 @@ onMounted(() => {
                 </div>
                 <button class="px-3 py-1 rounded-lg my-2 bg-sky-500 hover:bg-sky-600 dark:hover:bg-sky-400 text-gray-100 transition-colors" @click="addForum">保存</button>
             </template>
+        </Modal>-->
+        <Modal class="col-span-6 xs:col-span-3 lg:col-span-1" title="签到设置" aria-label="签到设置">
+            <template #default>
+                <button class="w-full rounded-2xl border-2 px-4 py-1 border-gray-300 hover:bg-gray-300 hover:text-black transition-colors" title="签到设置" aria-label="签到设置">签到设置</button>
+            </template>
+            <template #container>
+                <div class="my-3">
+                    <h3 class="mb-4">签到<template v-if="syncPluginActive">和贴吧同步</template></h3>
+                    <button :class="{ 'bg-sky-500': !tasksSwitch, 'bg-pink-500': tasksSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-gray-100': true, 'transition-colors': true }" @click="updateForumSignAndSyncForumListTasksSwitch">
+                        {{ tasksSwitch ? '已停用' : '已启用' }}
+                    </button>
+                </div>
+            </template>
         </Modal>
     </div>
 
     <div class="grid grid-cols-12 gap-2 mt-2 mb-12">
         <div v-for="(account, index) in accounts" :key="account.id" class="bg-gray-200 dark:bg-gray-800 col-span-12 rounded-2xl">
             <div
-                :class="{ flex: true, 'justify-between': true, 'cursor-pointer': true, sticky: true, 'top-0': true, 'bg-gray-200': true, 'dark:bg-gray-800': true, 'z-10': true, 'px-3': true, 'pt-2': true, ' rounded-2xl': true }"
-                @click="accounts[index].more = !accounts[index].more"
+                :class="{ flex: true, 'justify-between': true, 'cursor-pointer': signComponentStatus, sticky: true, 'top-0': true, 'bg-gray-200': true, 'dark:bg-gray-800': true, 'z-10': true, 'px-3': true, 'pt-2': true, ' rounded-2xl': true }"
+                @click="
+                    () => {
+                        if (signComponentStatus) {
+                            accounts[index].more = !accounts[index].more
+                        }
+                    }
+                "
             >
                 <div class="flex gap-3">
                     <div :class="{ relative: true, hidden: true, '2xs:block': !(editMode || accounts[index].more), 'xs:block': true }">
@@ -982,6 +1049,7 @@ onMounted(() => {
                             {{ account.name || account.portrait }}</NuxtLink
                         >
                         <div
+                            v-if="signComponentStatus"
                             :class="{ 'text-sm': true, flex: true, 'flex-col': accounts[index].more, 'flex-row': !accounts[index].more, 'xs:flex-row': true }"
                             :title="(tblistFilter[account.id]?.success || 0) + '成功，' + (tblistFilter[account.id]?.failed || 0) + '失败，' + (tblistFilter[account.id]?.pending || 0) + '等待，' + (tblistFilter[account.id]?.ignore || 0) + '忽略'"
                             :aria-label="
@@ -1046,6 +1114,7 @@ onMounted(() => {
                         <uno-icon class="i-bi:x-circle-fill" style="width: 1.5em; height: 1.5em" />
                     </button>
                     <button
+                        v-if="signComponentStatus"
                         @click="accounts[index].more = !accounts[index].more"
                         :class="{ 'rounded-full h-10 text-gray-900 dark:text-gray-100 transition-all my-1': true, 'rotate-180': accounts[index].more }"
                         title="展开贴吧列表"
@@ -1154,7 +1223,7 @@ onMounted(() => {
         "
     />
     <Modal
-        class="col-span-3 md:col-span-1"
+        class="col-span-6 xs:col-span-3 lg:col-span-1"
         :title="batchAccounts === 1 ? '已为 ' + pidNameKV[batchPid] + ' 选择 ' + batchSize + ' 个贴吧' : '已选择 ' + batchSize + ' 个贴吧'"
         :aria-label="batchAccounts === 1 ? '已为 ' + pidNameKV[batchPid] + ' 选择 ' + batchSize + ' 个贴吧' : '已选择 ' + batchSize + ' 个贴吧'"
         :active="batchSize > 0"
@@ -1187,7 +1256,7 @@ onMounted(() => {
         </template>
     </Modal>
     <Modal
-        class="col-span-3 md:col-span-1"
+        class="col-span-6 xs:col-span-3 lg:col-span-1"
         title="删除贴吧账号"
         aria-label="删除贴吧账号"
         :active="toDeletePid > 0"

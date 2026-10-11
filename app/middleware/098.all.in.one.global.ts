@@ -115,6 +115,11 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
                     to.name?.toString() || null
                 )
                 store.updateCache('accountInfo', accountInfo.data)
+
+                if (accountInfo.code === 401) {
+                    store.logout()
+                    return navigateTo('/signin')
+                }
                 //console.log(res)
 
                 if (!store.cache?.accounts) {
@@ -159,9 +164,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
                     }
                 }
             } catch (e) {
+                console.error(e)
                 store.logout()
-                navigateTo('/signin')
-                throw e
+                return navigateTo('/signin')
             }
         }
 
