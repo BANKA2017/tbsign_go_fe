@@ -5,7 +5,7 @@ import { Notice, Request } from '~/share/Tools'
 const store = useMainStore()
 const isAdmin = computed(() => store.admin)
 const pluginList = computed({
-    get: () => Object.fromEntries(Object.entries(store.cache?.plugin_list || {}).sort(([, a], [, b]) => Number(b.core === true) - Number(a.core === true))),
+    get: () => Object.fromEntries(Object.entries(store.cache?.plugin_list || {}).sort(([, a], [, b]) => Number(b.core) - Number(a.core))),
     set: (newValue) => {
         store.updateCache('plugin_list', newValue)
     }
@@ -131,11 +131,19 @@ const pluginDelete = (pluginName = '') => {
                     <hr v-if="index > 0" class="border-gray-400 dark:border-gray-600 my-2" />
                     <div class="grid grid-cols-2 gap-3">
                         <div class="col-span-2 xs:col-span-1 xs:py-1.5">
-                            <span :class="{ 'px-1.5 rounded text-sm text-gray-100 mr-2': true, 'bg-sky-500 dark:bg-sky-700': value?.ver && !value?.test, 'bg-orange-500 dark:bg-orange-600': !(value?.ver && !value?.test) }">{{
-                                value?.ver && !value?.test ? (value?.core ? 'cor' : value?.ver !== '-1' ? value.ver : 'und') : 'dev'
-                            }}</span>
-                            <NuxtLink :to="`/plugin/` + value.plugin_name_fe" class="font-bold" v-if="value.status && value.plugin_name_fe">{{ pluginGroup[pluginName] || pluginName }}</NuxtLink>
-                            <span class="font-bold" v-else>{{ pluginGroup[pluginName] || pluginName }}</span>
+                            <span
+                                :class="{
+                                    'px-1.5 rounded text-sm text-gray-100 mr-2': true,
+                                    'bg-pink-500 dark:bg-pink-700': value?.deprecated,
+                                    'bg-sky-500 dark:bg-sky-700': value?.ver && !value?.test && !value?.deprecated,
+                                    'bg-orange-500 dark:bg-orange-600': !(value?.ver && !value?.test && !value?.deprecated)
+                                }"
+                                >{{ value?.ver && !value?.test ? (value?.core ? 'cor' : value?.deprecated ? 'dep' : value?.ver !== '-1' ? value.ver : 'und') : 'dev' }}</span
+                            >
+                            <NuxtLink :to="`/plugin/` + value.plugin_name_fe" :class="{ 'font-bold': true, 'line-through': value?.deprecated }" v-if="value.status && value.plugin_name_fe"
+                                >{{ pluginGroup[pluginName] || pluginName }}{{ value?.deprecated ? '（已弃用）' : '' }}</NuxtLink
+                            >
+                            <span :class="{ 'font-bold': true, 'line-through': value?.deprecated }" v-else>{{ pluginGroup[pluginName] || pluginName }}{{ value?.deprecated ? '（已弃用）' : '' }}</span>
                         </div>
                         <div class="col-span-2 xs:col-span-1 xs:text-end">
                             <button

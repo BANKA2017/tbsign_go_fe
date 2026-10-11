@@ -35,6 +35,8 @@ interface MainStoreState {
                 ver: string
                 status: boolean
                 test?: boolean
+                core: boolean
+                deprecated: boolean
                 plugin_name_cn: string
                 plugin_name_cn_short: string
                 plugin_name_fe: string
