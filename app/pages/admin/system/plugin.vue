@@ -5,7 +5,7 @@ import { Notice, Request } from '~/share/Tools'
 const store = useMainStore()
 const isAdmin = computed(() => store.admin)
 const pluginList = computed({
-    get: () => Object.fromEntries(Object.entries(store.cache?.plugin_list || {}).sort(([, a], [, b]) => Number(b.core) - Number(a.core))),
+    get: () => Object.fromEntries(Object.entries(store.cache?.plugin_list || {}).sort(([, a], [, b]) => Number(b.core) - Number(a.core)).sort(([, a], [, b]) => Number(a.deprecated) - Number(b.deprecated))),
     set: (newValue) => {
         store.updateCache('plugin_list', newValue)
     }
@@ -134,7 +134,7 @@ const pluginDelete = (pluginName = '') => {
                             <span
                                 :class="{
                                     'px-1.5 rounded text-sm text-gray-100 mr-2': true,
-                                    'bg-pink-500 dark:bg-pink-700': value?.deprecated,
+                                    'bg-pink-500 dark:bg-pink-600': value?.deprecated,
                                     'bg-sky-500 dark:bg-sky-700': value?.ver && !value?.test && !value?.deprecated,
                                     'bg-orange-500 dark:bg-orange-600': !(value?.ver && !value?.test && !value?.deprecated)
                                 }"
