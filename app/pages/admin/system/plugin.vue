@@ -5,7 +5,12 @@ import { Notice, Request } from '~/share/Tools'
 const store = useMainStore()
 const isAdmin = computed(() => store.admin)
 const pluginList = computed({
-    get: () => Object.fromEntries(Object.entries(store.cache?.plugin_list || {}).sort(([, a], [, b]) => Number(b.core) - Number(a.core)).sort(([, a], [, b]) => Number(a.deprecated) - Number(b.deprecated))),
+    get: () =>
+        Object.fromEntries(
+            Object.entries(store.cache?.plugin_list || {})
+                .sort(([, a], [, b]) => Number(b.core) - Number(a.core))
+                .sort(([, a], [, b]) => Number(a.deprecated) - Number(b.deprecated))
+        ),
     set: (newValue) => {
         store.updateCache('plugin_list', newValue)
     }

@@ -257,10 +257,19 @@ const tbStatus = computed(() => {
     }
 })
 
-const tasksSwitch = ref<boolean>(false)
+type switchListKeys = 'signmode' | 'unfollow_forum_when_deleting'
+const switchList = reactive<{
+    [p in switchListKeys]: boolean
+}>({
+    signmode: false,
+    unfollow_forum_when_deleting: false
+})
 
-const updateForumSignAndSyncForumListTasksSwitch = () => {
-    Request(store.basePath + '/plugins/tc_core_sign/signmode', {
+const updateUserSignSwitch = (name: switchListKeys) => {
+    if (!name || typeof switchList[name] === 'undefined') {
+        return
+    }
+    Request(store.basePath + '/passport/switch/' + name, {
         headers: {
             Authorization: store.authorization
         },
@@ -270,13 +279,14 @@ const updateForumSignAndSyncForumListTasksSwitch = () => {
             Notice(res.message, 'error')
             return
         }
-        tasksSwitch.value = res.data
+
+        switchList[name] = res.data
         //console.log(res)
     })
 }
 
-const getForumSignAndSyncForumListTasksSwitch = () => {
-    Request(store.basePath + '/plugins/tc_core_sign/signmode', {
+const getUserSignSwitch = (name: switchListKeys) => {
+    Request(store.basePath + '/passport/switch/' + name, {
         headers: {
             Authorization: store.authorization
         }
@@ -285,7 +295,7 @@ const getForumSignAndSyncForumListTasksSwitch = () => {
             Notice(res.message, 'error')
             return
         }
-        tasksSwitch.value = res.data
+        switchList[name] = res.data
         //console.log(res)
     })
 }
@@ -452,7 +462,7 @@ const deleteForum = (pid = 0, fid: number | number[] = 0, forumIndex = -1) => {
         fidList = [fid]
     }
 
-    Request(store.basePath + '/list/' + pid + '/' + fidList.join(','), {
+    Request(store.basePath + '/list/' + pid + '/' + fidList.join(',') + (switchList.unfollow_forum_when_deleting ? `?unfollow=1` : ''), {
         headers: {
             Authorization: store.authorization
         },
@@ -834,15 +844,16 @@ onMounted(() => {
             // Notice(e.toString(), 'error')
         }
     }
-    getForumSignAndSyncForumListTasksSwitch()
+    getUserSignSwitch('signmode')
+    getUserSignSwitch('unfollow_forum_when_deleting')
     getForumList()
 })
 </script>
 
 <template>
     <div class="rounded-2xl bg-gray-200 dark:bg-gray-800 p-5 mb-5">
-        <p v-if="!signComponentStatus">站点已停止签到<template v-if="syncPluginActive">和贴吧同步</template>功能</p>
-        <p v-else-if="tasksSwitch">已停用签到<template v-if="syncPluginActive">和贴吧同步</template>功能，重新启用请点击“签到设置”按钮</p>
+        <p v-if="!signComponentStatus">站点已停止签到<template v-if="syncPluginActive">和贴吧自动同步</template>功能</p>
+        <p v-else-if="switchList.signmode">已停用签到<template v-if="syncPluginActive">和贴吧自动同步</template>功能，重新启用请点击“签到设置”按钮</p>
         <p v-else>
             共有 {{ tbStatus.accountCount }} 个账号，当前已列出 {{ tbStatus.forumCount }} 个贴吧。已签到 <span class="text-green-500">{{ tbStatus.success }}</span> 个贴吧，失败 <span class="text-pink-500">{{ tbStatus.failed }}</span> 个，已忽略
             <span class="text-gray-600 dark:text-gray-400">{{ tbStatus.ignore }}</span> 个，还有 <span class="text-orange-500">{{ tbStatus.pending }}</span> 个贴吧等待签到
@@ -1000,10 +1011,20 @@ onMounted(() => {
             </template>
             <template #container>
                 <div class="my-3">
-                    <h3 class="mb-4">签到<template v-if="syncPluginActive">和贴吧同步</template></h3>
-                    <button :class="{ 'bg-sky-500': !tasksSwitch, 'bg-pink-500': tasksSwitch, 'rounded-lg': true, 'px-3': true, 'py-1': true, 'text-gray-100': true, 'transition-colors': true }" @click="updateForumSignAndSyncForumListTasksSwitch">
-                        {{ tasksSwitch ? '已停用' : '已启用' }}
-                    </button>
+                    <label class="form-check flex align-items-center gap-2 mb-1">
+                        <input input type="checkbox" class="form-checkbox bg-gray-100 dark:bg-gray-800 dark:checked:bg-blue-500 my-1" v-model="switchList.signmode" @change="updateUserSignSwitch('signmode')" /><span class="ml-1"
+                            >停用签到<template v-if="syncPluginActive">和贴吧自动同步</template></span
+                        ></label
+                    >
+                    <label class="form-check flex align-items-center gap-2 mb-1">
+                        <input
+                            input
+                            type="checkbox"
+                            class="form-checkbox bg-gray-100 dark:bg-gray-800 dark:checked:bg-blue-500 my-1"
+                            v-model="switchList.unfollow_forum_when_deleting"
+                            @change="updateUserSignSwitch('unfollow_forum_when_deleting')"
+                        /><span class="ml-1">删除贴吧时取关</span></label
+                    >
                 </div>
             </template>
         </Modal>
