@@ -4,7 +4,7 @@ import { Notice, Request } from '~/share/Tools'
 
 const store = useMainStore()
 const accounts = computed(() => store.cache?.accounts)
-const loading = computed(() => store.loading)
+const loading = computed(() => store.loading || loadingSettings.value || claimingItem.value)
 
 const pidNameKV = computed(() => store.pidNameKV)
 
@@ -27,10 +27,16 @@ const tasksList = ref<
 
 const list = ref<
     {
-        fid: string
+        fid: number
         name: string
         nid: number
         tieba: string
+        portrait: string
+
+        // icon: string
+        // icon_name: string
+        // icon_title: string
+        // icon_props_id: number
     }[]
 >([])
 
@@ -118,6 +124,137 @@ const getForumSupportList = () => {
         .finally(() => {
             loadingSettings.value = false
         })
+}
+
+const forumStatus = reactive<{
+    loading: boolean
+    data: any
+}>({
+    loading: false,
+    data: []
+})
+
+const getForumSupportStatus = (pid: number, fid: number, noLoading = false) => {
+    if (!noLoading) {
+        forumStatus.loading = true
+    }
+    Request(store.basePath + '/plugins/ver4_rank/npc/' + pid + '/' + fid + '/items', {
+        headers: {
+            Authorization: store.authorization
+        }
+    })
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            forumStatus.data = res.data
+            // console.log(forumStatus.data, res.data)
+        })
+        .catch((e) => {
+            console.error(e)
+            Notice(e.toString(), 'error')
+        })
+        .finally(() => {
+            forumStatus.loading = false
+        })
+}
+
+const forumItemsModalHooker = (active: boolean, fid: number) => {
+    if (active) {
+        getForumSupportStatus(activePID.value, fid)
+    } else {
+        forumStatus.data = []
+    }
+}
+
+const forumItemClaimStatus = (item: any) => {
+    if (item.is_unlock == 0) {
+        return '待解锁'
+    } else if (item.can_get == 0) {
+        return '待领取'
+    } else if (item.is_used == 0) {
+        return '可领取'
+    } else if (item.props_category == 200 || item.props_category == 113 || item.props_category == 300) {
+        return '已获得'
+    } else {
+        return '取消使用'
+    }
+}
+
+const claimingItem = ref<boolean>(false)
+const claimForumSupportItem = (pid: number, fid: number, props_id: number, props_title: string) => {
+    // console.log(pid, fid, props_id, props_title)
+
+    claimingItem.value = true
+    Request(store.basePath + '/plugins/ver4_rank/npc/' + pid + '/' + fid + '/items/' + props_id + '/claim', {
+        method: 'POST',
+        headers: {
+            Authorization: store.authorization
+        }
+    })
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            Notice('已领取' + props_title, 'success')
+            getForumSupportStatus(pid, fid, true)
+            // console.log(forumStatus.data, res.data)
+        })
+        .catch((e) => {
+            console.error(e)
+            Notice(e.toString(), 'error')
+        })
+        .finally(() => {
+            claimingItem.value = false
+        })
+}
+
+const dropForumSupportItem = (pid: number, fid: number, props_id: number, props_title: string) => {
+    // console.log(pid, fid, props_id, props_title)
+
+    claimingItem.value = true
+    Request(store.basePath + '/plugins/ver4_rank/npc/' + pid + '/' + fid + '/items/' + props_id + '/drop', {
+        method: 'POST',
+        headers: {
+            Authorization: store.authorization
+        }
+    })
+        .then((res) => {
+            if (res.code !== 200) {
+                Notice(res.message, 'error')
+                return
+            }
+            Notice('已移除' + props_title, 'success')
+            getForumSupportStatus(pid, fid, true)
+            // console.log(forumStatus.data, res.data)
+        })
+        .catch((e) => {
+            console.error(e)
+            Notice(e.toString(), 'error')
+        })
+        .finally(() => {
+            claimingItem.value = false
+        })
+}
+
+const forumItemClaimRequire = (item: any, userStats: any) => {
+    if (item.props_category == 300) {
+        return '每天可使用1次，本吧会员使用次数不限'
+    } else {
+        if (item.limit_sign_level == 0 && item.lock_need_vip == 0) {
+            return '无'
+        }
+
+        if (item.limit_sign_level > 0) {
+            return `连续助攻 ${item.limit_sign_level} 次，还剩 ${item.limit_sign_level - Number(userStats.my_continue_days)} 次`
+        }
+
+        if (item.lock_need_vip == 1) {
+            return '本吧会员专属'
+        }
+    }
 }
 
 function getLines(text, line: number = 0, split: string = '\n') {
@@ -209,12 +346,93 @@ onMounted(() => {
                         <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name || account.portrait }}</option>
                     </select>
                     <div class="" v-if="activePID">
-                        <div class="my-1" v-for="character in list" :key="character.nid">
-                            <input type="checkbox" class="form-checkbox bg-gray-100 dark:bg-gray-900 dark:checked:bg-blue-500" v-model="fourmSupportSettingsKV[activePID][character.nid]" :id="'ver4_rank:character:' + character.nid" /><label
-                                class="ml-2"
-                                :for="'ver4_rank:character:' + character.nid"
-                                >{{ character.name }} (<NuxtLink class="font-mono hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + character.tieba" target="blank">{{ character.tieba }}吧</NuxtLink>)</label
+                        <div v-for="character in list" :key="character.nid" class="my-1 flex justify-between">
+                            <label class="form-check flex align-items-center gap-2">
+                                <input
+                                    input
+                                    type="checkbox"
+                                    class="form-checkbox bg-gray-100 dark:bg-gray-900 dark:checked:bg-blue-500 my-1"
+                                    v-model="fourmSupportSettingsKV[activePID][character.nid]"
+                                    :id="'ver4_rank:character:' + character.nid"
+                                /><!--<img :src="'https://himg.bdimg.com/sys/portraitn/item/' + character.portrait" :alt="character.title" class="w-4 h-4 my-1" />--><span class="ml-1" :for="'ver4_rank:character:' + character.nid"
+                                    ><span class="font-bold">{{ character.name }}</span> (<NuxtLink class="hover:underline underline-offset-1" :to="'https://tieba.baidu.com/f?ie=utf-8&kw=' + character.tieba" target="blank"
+                                        >{{ character.tieba }}吧</NuxtLink
+                                    >)</span
+                                ></label
                             >
+                            <div>
+                                <Modal
+                                    :nested_modal="true"
+                                    class="col-span-6 sm:col-span-3 lg:col-span-1"
+                                    :title="character.tieba + '吧名人堂'"
+                                    @active-callback="
+                                        (active) => {
+                                            forumItemsModalHooker(active, character.fid)
+                                        }
+                                    "
+                                >
+                                    <template #default>
+                                        <span class="underline cursor-pointer text-sm" title="物品列表">物品</span>
+                                    </template>
+                                    <template #container>
+                                        <div v-if="forumStatus.loading">加载中...</div>
+                                        <div v-else-if="forumStatus.data?.length <= 0">加载失败</div>
+                                        <div v-else-if="forumStatus.data?.length === 1">
+                                            <div v-for="(propsItem, i) in forumStatus.data[0]?.props || []" :key="propsItem.props_id">
+                                                <hr v-if="Number(i) > 0" class="border-gray-400 dark:border-gray-600" />
+                                                <div
+                                                    :class="{
+                                                        'flex justify-between py-1 -mx-1 px-1 rounded': true,
+                                                        'cursor-not-allowed': !propsItem.can_get,
+                                                        'cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600':
+                                                            propsItem.can_get && (!propsItem.is_used || propsItem.title.includes('印记') || propsItem.title.includes('边框') || propsItem.title.includes('气泡')) && !propsItem.title.includes('顶帖')
+                                                    }"
+                                                    @click="
+                                                        () => {
+                                                            if (propsItem.can_get && (!propsItem.is_used || propsItem.title.includes('印记')) && !propsItem.title.includes('顶帖')) {
+                                                                claimForumSupportItem(activePID, character.fid, propsItem.props_id, propsItem.title)
+                                                            } else if (propsItem.can_get && propsItem.is_used && (propsItem.title.includes('边框') || propsItem.title.includes('气泡'))) {
+                                                                dropForumSupportItem(activePID, character.fid, propsItem.props_id, propsItem.title)
+                                                            }
+                                                        }
+                                                    "
+                                                >
+                                                    <div class="flex gap-2">
+                                                        <img :src="propsItem.logo_picurl" :alt="propsItem.title" class="w-8 h-8 my-1 rounded" />
+                                                        <div class="flex flex-col">
+                                                            <div>
+                                                                <span>{{ propsItem.title }}</span>
+                                                            </div>
+                                                            <div class="text-xs text-gray-500 block">
+                                                                <div class="inline-block">
+                                                                    <span
+                                                                        v-if="propsItem.can_get"
+                                                                        :class="{ 'text-green-500': propsItem.is_used, 'dark:text-gray-300 text-gray-700': !propsItem.is_used }"
+                                                                        :title="propsItem.title + forumItemClaimStatus(propsItem)"
+                                                                        :aria-label="propsItem.title + forumItemClaimStatus(propsItem)"
+                                                                        >{{ forumItemClaimStatus(propsItem) }}</span
+                                                                    >
+                                                                    <span
+                                                                        v-else
+                                                                        class="text-pink-500"
+                                                                        :title="propsItem.title + '领取条件：' + forumItemClaimRequire(propsItem, forumStatus.data[0].user)"
+                                                                        :aria-label="propsItem.title + '领取条件：' + forumItemClaimRequire(propsItem, forumStatus.data[0].user)"
+                                                                        >{{ forumItemClaimRequire(propsItem, forumStatus.data[0].user) }}</span
+                                                                    >
+                                                                </div>
+                                                                <div class="inline-block ml-1" v-if="propsItem.can_get">
+                                                                    <span class="dark:text-gray-300 text-gray-700" v-if="propsItem.title.includes('印记')">31天有效</span>
+                                                                    <span class="dark:text-gray-300 text-gray-700" v-else-if="propsItem.title.includes('边框') || propsItem.title.includes('气泡') || propsItem.title.includes('背景')">自动装备</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </Modal>
+                            </div>
                         </div>
                     </div>
 
